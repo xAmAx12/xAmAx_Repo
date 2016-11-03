@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-    <addon id="repository.xAmAx" name="plugin.video.xAmAx" version="0.1.0" provider-name="xAmAx">
+    <addon id="repository.xAmAx" name="xAmAx_Repo" version="0.1.0" provider-name="xAmAx">
         <requires>
             <import addon="xbmc.addon" version="12.0.0"/>
         </requires>
-        <extension point="xbmc.addon.repository" name="plugin.video.xAmAx">
+        <extension point="xbmc.addon.repository" name="xAmAx_Repo">
             <info compressed="false">https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/_repo/addons.xml</info>
             <checksum>https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/_repo/addons.xml.md5</checksum>
             <datadir zip="true">https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/_repo/</datadir>
