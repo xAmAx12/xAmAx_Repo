@@ -32,7 +32,8 @@ _handle = int(sys.argv[1])
 _ArtMenu = {'thumb': AdressePlugin+'play.png',
             'fanar': AdressePlugin+'fanart.jpg',
             'info': AdressePlugin+'info.png'}
-_MenuList={"Trier la liste de Recherche vStream":("vStream","RechercheVstream"),
+_MenuList={"Vertion 1.1.3":("V","InfoVersion"),
+           "Trier la liste de Recherche vStream":("vStream","RechercheVstream"),
            "Trier les Marques-Pages vStream":("vStream","MPVstream"),
            "Mise A Jour Liste de chaines":("LiveStream","MajTV"),
            "Changer le Fond d'écran":("ecran",'ChangeFonDecran')}
