@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-    <addon id="repository.xAmAx" name="xAmAx_Repo" version="0.1.0" provider-name="xAmAx">
+    <addon id="repository.xAmAx" name="xAmAx Repository" version="0.1.0" provider-name="xAmAx">
         <requires>
             <import addon="xbmc.addon" version="12.0.0"/>
         </requires>
-        <extension point="xbmc.addon.repository" name="xAmAx_Repo">
+        <extension point="xbmc.addon.repository" name="xAmAx Repository">
             <info compressed="false">https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/addons.xml</info>
             <checksum>https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/addons.xml.md5</checksum>
-            <datadir zip="true">https://github.com/xAmAx12/xAmAx_Repo/raw/master/_repo</datadir>
+            <datadir zip="true">https://github.com/xAmAx12/xAmAx_Repo/master/repo</datadir>
             <hashes>false</hashes>
         </extension>
         <extension point="xbmc.addon.metadata">
