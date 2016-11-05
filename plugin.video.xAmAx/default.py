@@ -20,23 +20,55 @@ import xbmcvfs
 #Enregistrement des paramètres
 Param = {"Chemin":"", "Table":"", "SQL":'SELECT * FROM ', "Ordre":' ORDER BY `title2` ', "CreerTbl":"", "InserTbl":"", "InserTbl2":"", "FinAffich":""}
 
+__version__ = "1.1.4"
 _vStream = ""
 _LiveStream = ""
 _ChercheBackgroud = ""
+TEXT = ""
 
 # Récupération des info du plugin
 _url = sys.argv[0]
 nomPlugin = _url.replace("plugin://","")
-AdressePlugin = xbmc.translatePath('special://home/')+"/addons/"+nomPlugin+'/'
+AdressePlugin = xbmc.translatePath('special://home/')+"addons/"+nomPlugin
 _handle = int(sys.argv[1])
 _ArtMenu = {'thumb': AdressePlugin+'play.png',
             'fanar': AdressePlugin+'fanart.jpg',
             'info': AdressePlugin+'info.png'}
-_MenuList={"Vertion 1.1.3":("V","InfoVersion"),
+_MenuList={"Version "+__version__:("V","InfoVersion"),
+           "Afficher le Journal d'erreur":("log","AffichLog"),
            "Trier la liste de Recherche vStream":("vStream","RechercheVstream"),
            "Trier les Marques-Pages vStream":("vStream","MPVstream"),
            "Mise A Jour Liste de chaines":("LiveStream","MajTV"),
            "Changer le Fond d'écran":("ecran",'ChangeFonDecran')}
+
+class LogAffich():
+        def Fenetre(self,Chemin="",line_number=0,Invertion=False,LabTitre="xAmAx "+__version__):
+                try:
+                        xbmc.executebuiltin("ActivateWindow(10147)")
+                        window = xbmcgui.Window(10147)
+                        xbmc.sleep(100)
+                        window.getControl(1).setLabel(LabTitre)
+                        window.getControl(5).setText(self.getcontent(Chemin,line_number,Invertion))
+                except:
+                        pass
+        def getcontent(self,Chemin="",line_number=0,Invertion=False):
+                fh = open(Chemin, 'rb')
+                contents=fh.read()
+                fh.close()
+
+                if Invertion==True:
+                        contents='\n'.join(contents.splitlines()[::-1])
+
+                if line_number>0:
+                    try: contents=contents[0:line_number]
+                    except: contents='\n%s' % (contents)
+
+                return contents.replace(
+                        ' ERROR: ',' [COLOR red]ERREUR[/COLOR]: ').replace(
+                        ' WARNING: ',' [COLOR gold]AVERTISSEMENT[/COLOR]: ').replace(
+                        ' NOTICE: ',' [COLOR green]INFO[/COLOR]: ').replace(
+                        '- Version ',' [COLOR green]- Version[/COLOR]: ').replace(
+                        '=======================================================================================','[COLOR green]=======================================================================================[/COLOR]')
 
 def AfficheMenu():
         # creation du menu
@@ -85,7 +117,7 @@ def AfficheMenu():
                             #list_item.setInfo('video', {'title': Titre})
                             # Exemple: plugin://plugin.video.example/?action=listing&ElemMenu=Animals
                             url = '{0}?action=play&ElemMenu={1}'.format(_url, Act)
-                            is_folder = True
+                            is_folder = False
                             listing.append((url, list_item, is_folder))
         #Affichage du Menu
         xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
@@ -119,11 +151,8 @@ def TryConnectLiveStream():
 
 def TryChercheBackgroud():
         try:
-                with open(xbmc.translatePath('special://home/')+"/userdata/guisettings.xml") as f:
-                        Retour = f.read()
-                        NomSkin = Retour.split("<skin")[1].split("</skin>")[0]
-                        NomSkin = NomSkin.replace(' default="true">','').replace('>','')
-                f.closed
+                NomSkin = xbmc.getSkinDir()
+                xbmc.log("skindir: "+NomSkin)
                 Defaut = xbmc.translatePath('special://home/')+'/addons/'+NomSkin+"/backgrounds/"
                 if ((NomSkin == "skin.confluence")or(NomSkin == "skin.qonfluence")):
                         with open(xbmc.translatePath('special://home/')+"/userdata/addon_data/"+NomSkin+"/settings.xml") as f:
@@ -156,8 +185,7 @@ def TryChercheBackgroud():
                         return "Fond d'écran indisponible!"
         except IOError:
                 return "Fond d'écran indisponible!"
-
-
+                
 def MiseAJourVstream():
         try:
                 xbmc.log("Création de la nouvelle Base de donnée...")
@@ -337,11 +365,16 @@ def SauveMajLivestream():
                 a = f.write(fichASauv)
                 xbmc.log("******Liste de chaine LiveStreamPro a jour******")
                 return "******Liste de chaine LiveStreamPro a jour******"
+        
+
 
 def router(paramstring):
         #xbmc.log("dans router")
         # reception des paramètres du menu
-        params = dict(parse_qsl(paramstring))
+        if len(paramstring)>=2:
+                params = dict(parse_qsl(paramstring))
+        else:
+                params = None
         # Si aucun paramètre on ouvre le menu
         if params:
                 xbmc.log(str(params))
@@ -414,8 +447,15 @@ def router(paramstring):
                                 else:
                                         dialog = xbmcgui.Dialog()
                                         ok = dialog.ok("Mise A Jour Liste de chaines TV", Retour)
-                        if params['ElemMenu']=='InstallvStream':
-                                xbmc.log("InstallvStream")
+                        if params['ElemMenu']=="AffichLog":
+                                xbmc.log("AffichLog: ")
+                                Affich=LogAffich()
+                                Affich.Fenetre(Chemin=xbmc.translatePath('special://logpath')+"kodi.log",line_number=0,Invertion=True,LabTitre="Journal d'erreur")
+                        if params['ElemMenu']=="InfoVersion":
+                                xbmc.log("InfoVersion: ")
+                                Affich=LogAffich()
+                                Affich.Fenetre(Chemin=AdressePlugin+"Ressources/changelog.txt",line_number=0)
+                                
                         if params['ElemMenu']=='ChangeFonDecran':
                                 xbmc.log("ChangeFonDecran")
                                 _ChercheBackgroud = TryChercheBackgroud()
@@ -445,6 +485,6 @@ def router(paramstring):
                 AfficheMenu()
 
 if __name__ == '__main__':
-        #xbmc.log("Demarrage xAmAx")
+        xbmc.log("Demarrage xAmAx: commande = " + str(sys.argv[2]))
         # Envoi des paramètre du menu
         router(sys.argv[2][1:])
