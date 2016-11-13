@@ -12,6 +12,7 @@ import urllib2 as urllib
 from urlparse import parse_qsl
 import base64
 import datetime
+import zipfile
 import xbmc
 import xbmcgui
 import xbmcplugin
@@ -47,21 +48,24 @@ vStream = None
 
 # Récupération des info du plugin
 _url = sys.argv[0]
-nomPlugin = _url.replace("plugin://","")
-AdressePlugin = xbmc.translatePath('special://home/')+"addons/"+nomPlugin
+nomPlugin = addon.getAddonInfo("name")
+AdressePlugin = addon.getAddonInfo('path')
+addon_data_dir = os.path.join(xbmc.translatePath("special://userdata/addon_data" ), nomPlugin)
+Url_Plugin_Version = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/plugin.video.xAmAx/README.md"
 _handle = int(sys.argv[1])
 profile = xbmc.translatePath(addon.getAddonInfo('profile').decode('utf-8'))
 
-_ArtMenu = {'thumb': AdressePlugin+'play.png',
-            'fanar': AdressePlugin+'fanart.jpg',
-            'info': AdressePlugin+'info.png'}
+_ArtMenu = {'thumb': os.path.join(AdressePlugin,'play.png'),
+            'fanar': os.path.join(AdressePlugin,'fanart.jpg'),
+            'info': os.path.join(AdressePlugin,'info.png')}
 _MenuList={"Version "+__version__:("V","InfoVersion"),
            "Afficher le Journal d'erreur":("log","AffichLog"),
            "Trier la liste de Recherche vStream":("vStream","RechercheVstream"),
            "Trier les Marques-Pages vStream":("vStream","MPVstream"),
            "Mise A Jour Liste de chaines":("LiveStream","MajTV"),
            "Creer des listes TV par Bouquet":("LiveStream","Bouquet"),
-           "Changer le Fond d'écran":("ecran",'ChangeFonDecran')}
+           "Changer le Fond d'écran":("ecran",'ChangeFonDecran'),
+           "Mise a jour de xAmAx":("Maj",'MiseAJourxAmAx')}
 
 class LogAffich():
     def Fenetre(self,Chemin="",line_number=0,Invertion=False,LabTitre="xAmAx "+__version__):
@@ -236,6 +240,8 @@ def MiseAJourVstream():
             Nom=Nom.replace("   ", "")
             Nom=Nom.replace("  ", " ")
             Nom=Nom.replace(" - " + row[3], "")
+            while Nom[:1]==" ":
+                Nom=Nom[1:]
             if Param["Table"]=="favorite":
                 Nom2 = row[1]
                 site = " - [COLOR yellow]" + row[3] + "[/COLOR]"
@@ -244,6 +250,8 @@ def MiseAJourVstream():
                         Nom2=Nom2 + site
                 else:
                     Nom2=Nom2 + site
+                while Nom2[:1]==" ":
+                    Nom2=Nom2[1:]
                 Curs.execute(Param["InserTbl2"],(row[0],Nom2,Nom,row[2],row[3],row[4],row[5],row[6],row[7]))
             else:
                 Curs.execute(Param["InserTbl2"],(row[0],row[1],Nom,row[2],row[3],row[4],row[5],row[6]))
@@ -328,38 +336,54 @@ def Crack(code):
 def Telecharge():
     try:
         xbmc.log("Recherche de la liste de chaine...")
+        dp = xbmcgui.DialogProgress()
+        dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine...")
         req = urllib.Request("http://redeneobux.com/fr/updated-kodi-iptv-m3u-playlist/")
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
+        dp.update(10)
         essai = str(urllib.urlopen(req).read())#.decode('utf-8'))
         essai2 = essai.split("France IPTV")[1].split("location.href=\'")[1].split("\';")[0]
-
+        dp.update(20,"Page Internet France IPTV...")
+        
         req = urllib.Request(essai2)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
         essai = str(urllib.urlopen(req).read())#.decode('utf-8'))
         essai2 = essai.split("http://adf.ly/")[1].split(" ")[0]
+        dp.update(30,"Recherche Adresse ADFLY...")
 
         url = "http://adf.ly/"+essai2
         xbmc.log(" [+] Connection a ADFLY. . .")
         adfly_data = str(urllib.urlopen(url).read())#.decode('utf-8'))
+        dp.update(40,"Décodage de l'adresse . . .")
+        
         xbmc.log(" [+] Recherche adresse du téléchargement . . .")
         ysmm = adfly_data.split("ysmm = ")[1].split("\'")[1].split("'\;")[0]
         xbmc.log(" [+] Décodage de l'adresse . . .")
         essai2 = str(Crack(str(ysmm)))
+        dp.update(50,"Adresse du fichier Trouvée..")
+        
         xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
         req = urllib.Request(essai2.replace("b'",'').replace("'",''))
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
-
         essai = str(urllib.urlopen(req).read())#.decode('utf-8'))
+        dp.update(70,"Téléchargement de la liste de chaine...")
 
         LiveStream  = xbmcaddon.Addon('plugin.video.live.streamspro')
         ListeM3u = os.path.join(xbmc.translatePath(LiveStream.getAddonInfo('profile').decode('utf-8')), "listeTV.m3u")
         fichier = open(ListeM3u, "w")
         fichier.write(essai)
         fichier.close()
-
+        dp.update(100,"Fichier télécharger!")
+        xbmc.sleep(1000)
+        dp.close()
+        xbmc.sleep(1000)
         xbmc.log ("\n ### Fichier télécharger dans le dossier: " + ListeM3u)
         return "OK"
     except:
+        dp.update(100)
+        xbmc.sleep(1000)
+        dp.close()
+        xbmc.sleep(1000)
         return "Erreur de Téléchargement"
 
 def SauveMajLivestream(NomFichierM3u="listeTV.m3u", TitreListe="List_A_Jour-"+datetime.datetime.now().strftime("%d/%m/%y")):
@@ -437,7 +461,7 @@ def SauveMajLivestream(NomFichierM3u="listeTV.m3u", TitreListe="List_A_Jour-"+da
 
 def Lire_m3u():
     xAmAxPath = xbmc.translatePath(addon.getAddonInfo('path').decode('utf-8'))
-    dbxAmAx = os.path.join(xAmAxPath, "Ressources/xAmAx.db")
+    dbxAmAx = os.path.join(xAmAxPath, "Ressources", "xAmAx.db")
     LiveStream  = xbmcaddon.Addon('plugin.video.live.streamspro')
     ListeM3u = os.path.join(xbmc.translatePath(LiveStream.getAddonInfo('profile').decode('utf-8')), "listeTV.m3u")
     
@@ -531,6 +555,66 @@ def Lire_m3u():
         except: pass
 #    print 'total m3u links',total
 
+def TelechargementZip(url,dest):
+    dp = xbmcgui.DialogProgress()
+    dp.create("Telechargement Mise a jour:","Fichier en téléchargement",url)
+    urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
+
+def RechercheMAJ():
+    import ziptools
+    xbmc.log('xAmAx Recherche mise a jour...')
+    try:
+        data = urllib.urlopen(Url_Plugin_Version).read()
+        xbmc.log('Lecture de la version du plugin distant: ' + data)
+    except:
+        data = ""
+        xbmc.log('Erreur de la lecture de la version du plugin: ' + Url_Plugin_Version)
+        
+    version_publique=data
+    try:
+        numVersionPub = version_publique.split(".")
+        xbmc.log('xAmAx version publique:' + version_publique)
+        numVersionLoc = __version__.split(".")
+        xbmc.log('xAmAx version locale:' + __version__)
+    except:
+        version_publique = ""
+        xbmc.log('xAmAx version locale:' + __version__)
+        xbmc.log('Check fail !@*')
+    xbmc.log('xAmAx version Publique: ' + str(numVersionPub) +  ' version locale: ' + str(numVersionLoc))
+    if version_publique!="" and __version__!="" and len(numVersionPub)==3 and len(numVersionLoc)==3:
+        if ((int(numVersionPub[0]) > int(numVersionLoc[0]))or
+            ((int(numVersionPub[0]) == int(numVersionLoc[0]))and((int(numVersionPub[1]) > int(numVersionLoc[1]))or
+                                                                ((int(numVersionPub[2]) > int(numVersionLoc[2])))))):
+
+            extpath = os.path.join(xbmc.translatePath("special://home/addons/")) 
+            dest = addon_data_dir + '/DerMaj.zip'                
+            MAJ_URL = 'https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/plugin.video.xAmAx/plugin.video.xAmAx-' + numero_version_publique + '.zip'
+            xbmc.log('Démarrage du téléchargement de:' + MAJ_URL)
+                
+            TelechargementZip(MAJ_URL,dest)  
+
+            unzipper = ziptools.ziptools()
+            unzipper.extract(dest,extpath)
+                
+            lign1 = 'Nouvelle version installer .....'
+            lign2 = 'Version: ' + version_publique 
+            xbmcgui.Dialog().ok('xAmAx', lign1, lign2)
+                
+            if os.remove( dest ):
+                xbmc.log('Suppression du fichier télécharger')
+            xbmc.executebuiltin("UpdateLocalAddons")
+            xbmc.executebuiltin("UpdateAddonRepos")
+            xbmc.sleep(1500)
+            return "OK"
+        else:
+            return "Pas de mise à jour disponible! \nVersion Internet: " + version_publique + "Version Actuelle: " + __version__
+    else:
+        return "Pas de mise à jour disponible!"
+            
+
+    #clean : old file remove
+    #if os.path.isfile(os.path.join(addonDir, "teleboy.py")):
+    #    os.remove(os.path.join(addonDir, "teleboy.py"))
 
 def router(paramstring):
         #xbmc.log("dans router")
@@ -562,9 +646,9 @@ def router(paramstring):
                     Param["InserTbl2"]='''INSERT INTO favorite (addon_id,title,title2,siteurl,site,fav,cat,icon,fanart)
                                     VALUES (?,?,?,?,?,?,?,?,?)'''
                     Param["FinAffich"]='''
-***********************************************************
-* Fin de la sauvegarde des Marques-Pages classés par nom! *
-***********************************************************'''
+********************************************************
+ Fin de la sauvegarde des Marques-Pages classés par nom! 
+********************************************************'''
                     Retour = TryConnectvStream()
                     if Retour == "OK":
                         Retour = MiseAJourVstream()
@@ -590,9 +674,9 @@ def router(paramstring):
                     Param["InserTbl2"]='''INSERT INTO history (addon_id,title,title2,disp,icone,isfolder,level,lastwatched)
                             VALUES (?,?,?,?,?,?,?,?)'''
                     Param["FinAffich"]='''
-********************************************************
-* Fin de la sauvegarde des Recherches classés par nom! *
-********************************************************'''
+******************************************************
+*   Fin de la sauvegarde des Recherches classés par nom!   *
+******************************************************'''
                     Retour = TryConnectvStream()
                     if Retour == "OK":
                         Retour = MiseAJourVstream()
@@ -618,12 +702,17 @@ def router(paramstring):
                 if params['ElemMenu']=="InfoVersion":
                     xbmc.log("InfoVersion: ")
                     Affich=LogAffich()
-                    Affich.Fenetre(Chemin=AdressePlugin+"changelog.txt",line_number=0)
+                    Affich.Fenetre(Chemin=os.path.join(AdressePlugin,"changelog.txt"),line_number=0)
                 if params['ElemMenu']=="Bouquet":
                     xbmc.log("Bouquet: ")
                     Lire_m3u()
                     dialog = xbmcgui.Dialog()
                     ok = dialog.ok("Bouquet TV", "Bouquet TV ajouter a liveStream")
+                if params['ElemMenu']=="MiseAJourxAmAx":
+                    Retour = RechercheMAJ()
+                    if Retour != "OK":
+                        dialog = xbmcgui.Dialog()
+                        ok = dialog.ok("Mise à jour xAmAx", Retour)
                 if params['ElemMenu']=='ChangeFonDecran':
                     xbmc.log("ChangeFonDecran")
                     _ChercheBackgroud = TryChercheBackgroud()
