@@ -12,7 +12,6 @@ import urllib2 as urllib
 from urlparse import parse_qsl
 import base64
 import datetime
-import zipfile
 import xbmc
 import xbmcgui
 import xbmcplugin
@@ -36,7 +35,8 @@ Param = {"Chemin":"",
          "SourceFile":"",
          "vStream":""}
 
-addon = xbmcaddon.Addon('plugin.video.xAmAx')
+nomPlugin = 'plugin.video.xAmAx'
+addon = xbmcaddon.Addon(nomPlugin)
 
 __version__ = addon.getAddonInfo('version')
 _vStream = ""
@@ -48,10 +48,9 @@ vStream = None
 
 # Récupération des info du plugin
 _url = sys.argv[0]
-nomPlugin = addon.getAddonInfo("name")
 AdressePlugin = addon.getAddonInfo('path')
 addon_data_dir = os.path.join(xbmc.translatePath("special://userdata/addon_data" ), nomPlugin)
-Url_Plugin_Version = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/plugin.video.xAmAx/README.md"
+Url_Plugin_Version = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/"+nomPlugin+"/README.md"
 _handle = int(sys.argv[1])
 profile = xbmc.translatePath(addon.getAddonInfo('profile').decode('utf-8'))
 
@@ -558,7 +557,16 @@ def Lire_m3u():
 def TelechargementZip(url,dest):
     dp = xbmcgui.DialogProgress()
     dp.create("Telechargement Mise a jour:","Fichier en téléchargement",url)
-    urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
+    try:
+        urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
+    except:
+        xbmc.log("Téléchargement de: " + url)
+        req = urllib.Request(url)
+        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
+        essai = urllib.urlopen(req)#.decode('utf-8'))
+        fichier = open(dest, "wb")
+        fichier.write(essai.read())
+        fichier.close()
 
 def RechercheMAJ():
     import ziptools
@@ -586,12 +594,15 @@ def RechercheMAJ():
             ((int(numVersionPub[0]) == int(numVersionLoc[0]))and((int(numVersionPub[1]) > int(numVersionLoc[1]))or
                                                                 ((int(numVersionPub[2]) > int(numVersionLoc[2])))))):
 
-            extpath = os.path.join(xbmc.translatePath("special://home/addons/")) 
-            dest = addon_data_dir + '/DerMaj.zip'                
-            MAJ_URL = 'https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/plugin.video.xAmAx/plugin.video.xAmAx-' + numero_version_publique + '.zip'
+            extpath = os.path.join(xbmc.translatePath("special://home/addons/"))
+            try:
+                xbmcvfs.mkdir(addon_data_dir)
+            except: pass
+            dest = os.path.join(addon_data_dir, '/DerMaj.zip')
+            MAJ_URL = 'https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/'+nomPlugin+'/'+nomPlugin+'-' +str(int(numVersionPub[0]))+"."+str(int(numVersionPub[1]))+"."+str(int(numVersionPub[2])) + '.zip'
             xbmc.log('Démarrage du téléchargement de:' + MAJ_URL)
                 
-            TelechargementZip(MAJ_URL,dest)  
+            TelechargementZip(MAJ_URL,dest)
 
             unzipper = ziptools.ziptools()
             unzipper.extract(dest,extpath)
