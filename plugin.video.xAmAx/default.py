@@ -20,16 +20,7 @@ from Ressources.vStreamOpt import cvStreamOpt
 from Ressources.LSPOpt import cLiveSPOpt
     
 #Enregistrement des paramètres
-Param = {"Chemin":"",
-         "Table":"",
-         "SQL":'SELECT * FROM ',
-         "Ordre":' ORDER BY `title2` ',
-         "CreerTbl":"",
-         "InserTbl":"",
-         "InserTbl2":"",
-         "FinAffich":"",
-         "SourceFile":"",
-         "vStream":""}
+Param = {"Chemin":""}
 
 nomPlugin = 'plugin.video.xAmAx'
 addon = xbmcaddon.Addon(nomPlugin)
@@ -44,7 +35,6 @@ LiveStream  = None
 # Récupération des info du plugin
 _url = sys.argv[0]
 AdressePlugin = addon.getAddonInfo('path')
-addon_data_dir = os.path.join(xbmc.translatePath("special://userdata/addon_data" ), nomPlugin)
 Url_Plugin_Version = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/"+nomPlugin+"/README.md"
 _handle = int(sys.argv[1])
 profile = xbmc.translatePath(addon.getAddonInfo('profile').decode('utf-8'))
@@ -148,7 +138,7 @@ def TryChercheBackgroud():
         xbmc.log("skindir: "+NomSkin)
         Defaut = os.path.join(xbmc.translatePath('special://home/addons/'),NomSkin,"backgrounds")
         if ((NomSkin == "skin.confluence")or(NomSkin == "skin.qonfluence")):
-            with open(xbmc.translatePath('special://home/')+"userdata/addon_data/"+NomSkin+"/settings.xml") as f:
+            with open(os.path.join(xbmc.translatePath('special://home/'),"userdata","addon_data",NomSkin,"settings.xml")) as f:
                 Retour = f.read()
             f.closed
             ModifSkin = Retour.split('<setting id="UseCustomBackground" type="bool">')[1].split("</setting>")[0]
@@ -186,6 +176,7 @@ def TelechargementZip(url,dest):
         urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
     except:
         xbmc.log("Téléchargement de: " + url)
+        xbmc.log("Téléchargement dans le dossier: " + dest)
         req = urllib.Request(url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
         essai = urllib.urlopen(req)#.decode('utf-8'))
@@ -220,10 +211,11 @@ def RechercheMAJ():
                                                                 ((int(numVersionPub[2]) > int(numVersionLoc[2])))))):
 
             extpath = os.path.join(xbmc.translatePath("special://home/addons/"))
+            addon_data_dir = os.path.join(xbmc.translatePath("special://userdata/addon_data" ), nomPlugin)
             try:
                 xbmcvfs.mkdir(addon_data_dir)
             except: pass
-            dest = os.path.join(addon_data_dir, '/DerMaj.zip')
+            dest = os.path.join(addon_data_dir, 'DerMaj.zip')
             MAJ_URL = 'https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/'+nomPlugin+'/'+nomPlugin+'-' +str(int(numVersionPub[0]))+"."+str(int(numVersionPub[1]))+"."+str(int(numVersionPub[2])) + '.zip'
             xbmc.log('Démarrage du téléchargement de:' + MAJ_URL)
                 
