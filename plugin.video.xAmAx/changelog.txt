@@ -1,4 +1,12 @@
 =======================================================================================
+- Version 1.2.2 - 29.11.2016
+=======================================================================================
+   - Suppression de l'utilisation de LiveStreamPro
+   - Ajout d'une liste plus complette de chaine Afficher dans xAmAx
+   - Ajout de listes de bouquet de chaine par thème
+   - Correction de certain bug
+
+=======================================================================================
 - Version 1.2.1 - 20.11.2016
 =======================================================================================
    - Refonte du Menu et de l'organisation de xAmAx
