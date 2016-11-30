@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 # Module: LSPOpt
 # Author: xamax
-# Created on: 20.11.2016
+# Created on: 29.11.2016
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
-import os
+import os, re, sys
 import xbmcvfs
 import xbmcaddon
 import xbmcgui
 import xbmc
 import urllib2 as urllib
+import urllib as urlib
 from urlparse import parse_qsl
 import base64
 import datetime
 import sqlite3 as lite
+import traceback
 try:
     import json
 except:
@@ -67,203 +69,95 @@ class cLiveSPOpt():
         key = base64.b64decode(key.encode("utf-8"))
         return key[2:]
 
-    def Telecharge(self):
-        self.TryConnectLiveStream()
-        try:
-            xbmc.log("Recherche de la liste de chaine...")
-            dp = xbmcgui.DialogProgress()
-            dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine...")
-            req = urllib.Request("http://redeneobux.com/fr/updated-kodi-iptv-m3u-playlist/")
-            req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
-            dp.update(10)
-            essai = str(urllib.urlopen(req).read())#.decode('utf-8'))
-            essai2 = essai.split("France IPTV")[1].split("location.href=\'")[1].split("\';")[0]
-            dp.update(20,"Page Internet France IPTV...")
-            
-            req = urllib.Request(essai2)
-            req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
-            essai = str(urllib.urlopen(req).read())#.decode('utf-8'))
-            essai2 = essai.split("http://adf.ly/")[1].split(" ")[0]
-            dp.update(30,"Recherche Adresse ADFLY...")
-
-            url = "http://adf.ly/"+essai2
-            xbmc.log(" [+] Connection a ADFLY. . . "+url)
-            adfly_data = str(urllib.urlopen(url).read())#.decode('utf-8'))
-            if not('#EXTM3U' in adfly_data):
-                dp.update(40,"Décodage de l'adresse . . .")
-                
-                xbmc.log(" [+] Recherche adresse du téléchargement . . ."+adfly_data)
-                ysmm = adfly_data.split("ysmm = ")[1].split("'")[1].split("';")[0]
-                xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
-                essai2 = str(self.Crack(str(ysmm)))
-                dp.update(50,"Adresse du fichier Trouvée..")
-                
-                xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
-                req = urllib.Request(essai2.replace("b'",'').replace("'",''))
-                req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
-                essai = str(urllib.urlopen(req).read())#.decode('utf-8'))
-            else:
-                essai = adfly_data
-            
-            dp.update(70,"Enregistrement de la liste de chaine...")
-
-            ListeM3u = os.path.join(self.CheminLive, "listeTV.m3u")
-            fichier = open(ListeM3u, "w")
-            fichier.write(essai)
-            fichier.close()
-            dp.update(100,"Fichier télécharger!")
-            xbmc.sleep(1000)
-            dp.close()
-            xbmc.sleep(1000)
-            xbmc.log ("\n ### Fichier télécharger dans le dossier: " + ListeM3u)
-            return "OK"
-        except:
-            dp.update(100)
-            xbmc.sleep(1000)
-            dp.close()
-            xbmc.sleep(1000)
-            return "Erreur de Téléchargement"
-
-    def SauveMajLivestream(self, CheminxAmAx, NomFichierM3u="listeTV.m3u", TitreListe="List_A_Jour-"+datetime.datetime.now().strftime("%d/%m/%y")):
-        try:
-            if self.TryConnectLiveStream() == "OK":
-                xbmc.log("SauveMajLivestream "+self.SourceFile)
-                Fanart = os.path.join(CheminxAmAx, 'fanart.jpg')
-                icon = os.path.join(CheminxAmAx, 'icon.png')
-                ListeM3u = os.path.join(self.CheminLive, NomFichierM3u)
-                source_list = []
-                source_media = {}
-                source_media['title'] = TitreListe
-                source_media['url'] = ListeM3u.decode('utf-8')
-                source_media['fanart'] = Fanart
-                source_list.append(source_media)
-                sources = None
-                if xbmcvfs.exists(self.SourceFile)==True:
-                    xbmc.log("Fichier source OK")
-                    while 1:
-                        sources = json.loads(open(self.SourceFile,"r").read())
-                        xbmc.log("Fichier source Ouvert")
-                        Modif = False
-                        if len(sources) > 0:
-                            for index in range(len(sources)):
-                                if isinstance(sources[index], list):
-                                    if (sources[index][1] == ListeM3u):
-                                        del sources[index]
-                                        b = open(self.SourceFile,"w")
-                                        b.write(json.dumps(sources))
-                                        b.close()
-                                        Modif = True
-                                        break
-                                else:
-                                    if (sources[index]['url'] == ListeM3u):
-                                        del sources[index]
-                                        b = open(self.SourceFile,"w")
-                                        b.write(json.dumps(sources))
-                                        b.close()
-                                        Modif = True
-                                        break
-                        xbmc.log("modif = " + str(Modif))
-                        if Modif == False:
-                            break
-                if sources!=None:
-                    if len(sources) > 0:
-                        sources = json.loads(open(self.SourceFile,"r").read())
-                        sources.append(source_media)
-                        b = open(self.SourceFile,"w")
-                        b.write(json.dumps(sources))
-                        b.close()
-                    else:
-                        xbmc.log("Ecriture du fichier source_file")
-                        b = open(self.SourceFile,"w")
-                        b.write(json.dumps(source_list))
-                        b.close()
-                        xbmc.log("Mise a jour Paramettres LiveStream")
-                else:
-                    xbmc.log("Ecriture du fichier source_file")
-                    b = open(self.SourceFile,"w")
-                    b.write(json.dumps(source_list))
-                    b.close()
-                    xbmc.log("Mise a jour Paramettres LiveStream")
-                
-                #xbmc.executebuiltin("XBMC.Notification(LiveStreamsPro,Nouvelle source ajouter.,5000,"+icon+")")
-                #xbmc.executebuiltin("XBMC.Container.Refresh")
-                xbmc.log("******Liste de chaine LiveStreamPro a jour******")
-                return "******Liste de chaine LiveStreamPro a jour******"
-            else:
-                xbmc.log("**Erreur de mise a jour de liste LiveStreamPro a jour 1***")
-                return "**Erreur de mise a jour de liste LiveStreamPro a jour**"
-        except:
-            xbmc.log("**Erreur de mise a jour de liste LiveStreamPro a jour 2**")
-            return "**Erreur de mise a jour de liste LiveStreamPro a jour**"
-
-    def Lire_m3u(self, CheminxAmAx):
-        xbmc.log("Lire_M3u: CheminxAmAx= "+CheminxAmAx)
-        dbxAmAx = os.path.join(CheminxAmAx, "Ressources", "xAmAx.db")
-        ListeM3u = os.path.join(self.CheminLive, "listeTV.m3u")
+    def RechercheSources1(self):
+        xbmc.log("Recherche de la liste de chaine...")
+        dp = xbmcgui.DialogProgress()
+        dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine...")
+        req = urllib.Request("http://redeneobux.com/fr/updated-kodi-iptv-m3u-playlist/")
+        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
+        dp.update(10)
+        essai = str(urllib.urlopen(req).read())#.decode('utf-8'))
+        essai2 = essai.split("France IPTV")[1].split("location.href=\'")[1].split("\';")[0]
+        dp.update(20,"Page Internet France IPTV...")
         
-        data = open(ListeM3u, 'r').read()
-        #content = data.rstrip()
-        #match = re.compile(r'#EXTINF:(.+?),(.*?)[\n\r]+([^\r\n]+)').findall(content)
-        #total = len(match)
+        req = urllib.Request(essai2)
+        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
+        essai = str(urllib.urlopen(req).read())#.decode('utf-8'))
+        essai2 = essai.split("http://adf.ly/")[1].split(" ")[0]
+        dp.update(30,"Recherche Adresse ADFLY...")
+
+        url = "http://adf.ly/"+essai2
+        xbmc.log(" [+] Connection a ADFLY. . . "+url)
+        adfly_data = str(urllib.urlopen(url).read())#.decode('utf-8'))
+        if not('#EXTM3U' in adfly_data):
+            dp.update(40,"Décodage de l'adresse . . .")
+            
+            xbmc.log(" [+] Recherche adresse du téléchargement . . .")
+            ysmm = adfly_data.split("ysmm = ")[1].split("'")[1].split("';")[0]
+            xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
+            essai2 = str(self.Crack(str(ysmm)))
+            dp.update(50,"Adresse du fichier Trouvée..")
+            
+            xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
+            req = urllib.Request(essai2.replace("b'",'').replace("'",''))
+            req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
+            essai = str(urllib.urlopen(req).read())#.decode('utf-8'))
+        else:
+            essai = adfly_data
+        
+        dp.update(70,"Enregistrement de la liste de chaine...")
+        
+        ListeChaine=[]
+        Chaine = essai.split("#EXTINF:-1,")
+        for Ch in Chaine:
+            InfoChaine = str(Ch).replace('\r','').replace("FR: ","").replace("FR : ","").replace("FR:", "").split(chr(10))
+            if len(InfoChaine) > 1:
+                #try:
+                if InfoChaine[1]!="":
+                    ListeChaine.append((InfoChaine[0],InfoChaine[1]))
+                    
+        dp.update(100,"Fichier télécharger!")
+        xbmc.sleep(1000)
+        dp.close()
+        xbmc.sleep(1000)
+        return ListeChaine
+
+    def CreerBouquet(self, CheminxAmAx):
+        Bouquet=[]
+        xbmc.log("CreerBouquet: CheminxAmAx= "+CheminxAmAx)
+        dbxAmAx = os.path.join(CheminxAmAx, "Ressources", "xAmAx.db")
         try:
-            xbmc.log("Ouverture de la Base de donnée xAmAx...")
+            xbmc.log("Ouverture de la Base de donnée xAmAx: "+dbxAmAx)
             NewDB = lite.connect(dbxAmAx)
             cBouq = NewDB.cursor()
-            xbmc.log("SELECT * FROM Bouquet ORDER BY Ordre ASC;")
-            cBouq.execute("SELECT * FROM Bouquet ORDER BY Ordre ASC;")
+            cChaine = NewDB.cursor()
+            cUrl = NewDB.cursor()
+            cListCh = NewDB.cursor()
+            cBouq.execute("SELECT IDBouquet, TriDesChaines FROM Bouquet ORDER BY Ordre ASC;")
             xbmc.log("Enregistrement de tous les nouveaux Membres de la table...")
-            for row in cBouq:
-                cChaine = NewDB.cursor()
-                cChaine.execute("DELETE FROM UrlBouquet;")
-                IdUrlChaine = 0
-                xbmc.log("SELECT * FROM ChaineBouquet ORDER BY Ordre WHERE IDBouqChaine = " + str(row[0])+" ORDER BY "+str(row[3])+";")
-                cChaine.execute("SELECT * FROM ChaineBouquet WHERE IDBouqChaine = " + str(row[0])+" ORDER BY "+str(row[3])+";")
-        
-                for row2 in cChaine:
-                    numLignSuiv = 0
-                    while 1:
-                        num = data.upper().find(str(row2[2]).upper(),numLignSuiv)
-                        if num > 0:
-                            num = data.upper().rfind(",",0,num)+1
-                            numLignSuiv = num + data[num:].upper().find("#EXTINF")
-                            if numLignSuiv == -1:
-                                numLignSuiv = len(data)
-                            data2 = data[num:numLignSuiv].decode('utf-8').split(chr(10))
-                            if len(data2) > 0:
-                                #try:
-                                EnrOk=True
-                                xbmc.log("**** Pas dans chaine:"+str(row2[3])+" len:"+str(len(str(row2[3]))))
-                                if len(str(row2[3]))>0 and str(row2[3]).upper()!="NONE":
-                                    PasDansChaine = str(row2[3]).encode('utf-8').upper().split(",")
-                                    for Pas in PasDansChaine:
-                                        if data2[0].upper().find(Pas)!=-1:
-                                            xbmc.log("**** Pas dans chaine:"+Pas+" Find:"+str(data2[0].find(Pas)))
-                                            EnrOk=False
-                                            break
-                                if EnrOk==True:
-                                    IdUrlChaine += 1
-                                    cUrl = NewDB.cursor()
-                                    cUrl.execute('''INSERT INTO UrlBouquet (IDUrlB,IDChaine,Url,NomAffichChaine)
-                                    VALUES (?,?,?,?)''',(IdUrlChaine,row2[0],data2[1],data2[0].replace("FR: ",'').replace("|FR| ",'')))
-                                    #xbmc.log("**** "+data2[0]+" url:"+data2[1])
-                                    #
-                                #except:
-                                    #xbmc.log("**** Erreur: "+data[num:numLignSuiv])
-                        else:
-                            break
-                #try:
-                xbmc.log("Ecriture du fichier BouqChaine = SELECT * FROM UrlBouquet ORDER BY "+row[4]+";")
-                cUrl.execute("SELECT * FROM UrlBouquet ORDER BY "+row[4]+";")
-                Bouquet="#EXTM3U"
-                for row3 in cUrl:
-                    Bouquet+="\n#EXTINF:-1,"+row3[3]+"\n"+row3[2]
-                
-                xbmc.log("Ecriture du fichier BouqChaine = " + os.path.join(self.CheminLive, "Bouquet-"+row[1]+".m3u"))
-                b = open(os.path.join(self.CheminLive, "Bouquet-"+row[1]+".m3u"),"w")
-                b.write(Bouquet.encode('utf-8'))
-                b.close()
-                self.SauveMajLivestream(CheminxAmAx, NomFichierM3u="Bouquet-"+row[1]+".m3u", TitreListe="Bouquet-"+row[1])
-                #except: pass
+            cChaine.execute("DELETE FROM UrlBouquet;")
+            IdUrlChaine = 0
+            for IDBouqu, TriDesChaines in cBouq:
+                xbmc.log("SELECT IDChaineB, NomChaine, PasDansChaine FROM ChaineBouquet WHERE IDBouqChaine = "+str(IDBouqu)+" ORDER BY "+str(TriDesChaines)+";")
+                cChaine.execute("SELECT IDChaineB, NomChaine, PasDansChaine FROM ChaineBouquet WHERE IDBouqChaine = " + str(IDBouqu)+" ORDER BY "+str(TriDesChaines)+";")
+                for IDChaine, NomC, PasC in cChaine:
+                    xbmc.log("SELECT * FROM ListePrincipale WHERE Nom LIKE '%"+str(NomC).upper()+"%' ORDER BY Nom ASC;")
+                    cListCh.execute("SELECT * FROM ListePrincipale WHERE Nom LIKE '%"+str(NomC).upper()+"%' ORDER BY Nom ASC;")
+                    for IdLP, Nom, Url, Entete in cListCh:
+                        xbmc.log("Recherche Bouquet "+str(IDBouqu))
+                        xbmc.log("**** Pas dans chaine:"+str(PasC)+" len:"+str(len(str(PasC))))
+                        EnrOk=True
+                        if len(str(PasC))>0 and str(PasC).upper()!="NONE":
+                            PasDansChaine = str(PasC).encode('utf-8').upper().split(",")
+                            for Pas in PasDansChaine:
+                                if Nom.upper().find(Pas)!=-1:
+                                    xbmc.log("**** Pas dans chaine:"+Pas+" Find:"+str(Nom.upper().find(Pas)))
+                                    EnrOk=False
+                                    break
+                        if EnrOk==True:
+                            IdUrlChaine += 1
+                            #xbmc.log('INSERT INTO UrlBouquet (IDUrlB,IdBouquet,IDChaine,Url,NomAffichChaine) VALUES (%s,%s,%s,%s,%s)'%(str(IdUrlChaine),str(IDBouqu),str(IDChaine),Url,Nom))
+                            cUrl.execute('INSERT INTO UrlBouquet (IDUrlB,IdBouquet,IDChaine,Url,NomAffichChaine) VALUES (?,?,?,?,?)',(IdUrlChaine,IDBouqu,IDChaine,Url,Nom))
         except lite.Error as e:
             if NewDB:
                 NewDB.rollback()
@@ -285,8 +179,168 @@ class cLiveSPOpt():
                     cUrl.close()
             except: pass
             try:
+                if cListCh:
+                    cListCh.close()
+            except: pass
+            try:
                 if NewDB:
                     NewDB.commit()
                     NewDB.close()
             except: pass
-    #    print 'total m3u links',total
+        return "OK"
+    
+    def getUrl(self, url="", cookieJar=None,post=None, timeout=20, Entete=None,jsonpost=False):
+
+        cookie_handler = urllib.HTTPCookieProcessor(cookieJar)
+        opener = urllib.build_opener(cookie_handler, urllib.HTTPBasicAuthHandler(), urllib.HTTPHandler())
+        EnteteDansPage=None
+
+        if '|' in url:
+            url,EnteteDansPage=url.split('|')
+        
+        req = urllib.Request(url)
+        req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.154 Safari/537.36')
+        if Entete:
+            for h,hv in Entete:
+                req.add_header(h,hv)
+        if EnteteDansPage:
+            EnteteDansPage=EnteteDansPage.split('&')
+            
+            for h in EnteteDansPage:
+                if len(h.split('='))==2:
+                    n,v=h.split('=')
+                else:
+                    vals=h.split('=')
+                    n=vals[0]
+                    v='='.join(vals[1:])
+                req.add_header(n,v)
+                
+        if jsonpost:
+            req.add_header('Content-Type', 'application/json')
+        try:
+            response = opener.open(req,post,timeout=timeout)
+            if response.info().get('Content-Encoding') == 'gzip':
+                    from StringIO import StringIO
+                    import gzip
+                    buf = StringIO( response.read())
+                    f = gzip.GzipFile(fileobj=buf)
+                    link = f.read()
+            else:
+                link=response.read()
+            response.close()
+            return link;
+        except:
+            return "Erreur..."
+    
+    def RechercheChaine(self, CheminxAmAx):
+        i=0
+        j=0
+        dbxAmAx = os.path.join(CheminxAmAx, "Ressources", "xAmAx.db")
+        xbmc.log("Ouverture de la Base de donnée xAmAx: "+dbxAmAx)
+        NewDB = lite.connect(dbxAmAx)
+        NewDB.text_factory = str
+        cUrl = NewDB.cursor()
+        cUrl.execute("DELETE FROM ListePrincipale;")
+        IdLP = 0
+        Retour = self.RechercheSources1()
+        if len(Retour)>0:
+            xbmc.log("Liste de chaine 1 a afficher: "+str(len(Retour)))
+            for Nom,Url in Retour:
+                IdLP += 1
+                while 1:
+                    if Nom[:1]==" ":
+                        Nom = Nom[1:]
+                    else:
+                        break
+                cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                            VALUES (?,?,?)''',(IdLP,Nom.upper(),Url))
+        dp = xbmcgui.DialogProgress()
+        dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine 2...")
+        Retour = self.RechercheSources2()
+        for cNom,curl in Retour:
+            j+=1
+            dp.update(j*(100/len(Retour)))
+            if cNom.capitalize().startswith('S'):
+                i+=1
+                xbmc.log("Adresse chaineTV: "+cNom+" "+curl)
+                Retour2=self.RechercheChaines2(url=[curl])
+                xbmc.log("Liste de chaine 2 a afficher: "+str(len(Retour2)))
+                if len(Retour2)>0 and Retour2!=[]:
+                    for Nom,Url,Entete in Retour2:
+                        IdLP += 1
+                        if Entete!="":
+                            Url=Url+"|"+Entete
+                        while 1:
+                            if Nom[:1]==" ":
+                                Nom = Nom[1:]
+                            else:
+                                break
+                        cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                                    VALUES (?,?,?)''',(IdLP,Nom.upper(),'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
+        try:
+            if cUrl:
+                cUrl.close()
+        except: pass
+        try:
+            if NewDB:
+                NewDB.commit()
+                NewDB.close()
+        except: pass
+        dp.update(100,"Liste de chaine tv 2 a jour!")
+        
+        xbmc.sleep(1000)
+        dp.close()
+        return "OK"
+    
+    def RechercheSources2(self):
+        ret=[]
+        servers=self.getUrl(url="http://pastebin.com/raw/GrYKMHrF")
+        servers=servers.splitlines()
+        for ln in servers:
+            if not ln.startswith("##") and len(ln)>0:
+                servername,surl=ln.split('$')
+                ret.append((servername, surl ))
+        return ret
+    
+    def RechercheChaines2(self, url):
+        ret=[]
+        for u in url:
+            EnteteFichier,EnteteLecture=None,""
+            if '|' in u:
+                u,EnteteFichier,EnteteLecture=u.split('|')
+                u=u+'|'+EnteteFichier
+                EnteteDansPage=EnteteLecture.split('&')
+                Entete=[]
+                for h in EnteteDansPage:
+                    if len(h.split('='))==2:
+                        n,v=h.split('=')
+                    else:
+                        vals=h.split('=')
+                        n=vals[0]
+                        v='='.join(vals[1:])
+                        #n,v=h.split('=')
+                    print n,v
+                    if n=="User-Agent" and v.startswith('http'):
+                        v=self.getUrl(url=v)
+                        xbmc.log("v= "+ v)
+                    Entete.append((n,v))
+                EnteteLecture=str(urlib.urlencode(Entete))
+
+            xbmc.log("u= "+ u)
+            html=self.getUrl(url=u)
+            if html!="Erreur...":
+                reg='#EXTINF:-1,(.*?(fr:|fr :).*)\s(.*)\s?'
+                xmldata=re.findall(reg,html,re.IGNORECASE)
+                for source in xmldata:
+                    cNom=source[0].replace("FR: ","").replace("FR : ","").replace("FR:", "")
+                    if 1==1:
+                        curl=source[2].replace('\r','').replace('.m3u8','.ts')
+                        if str(EnteteLecture)!="":
+                            Retour = "ok"
+                        else:
+                            EnteteLecture='User-Agent=VLC/2.2.1 LibVLC/2.2.17&Icy-MetaData=1'
+                        xbmc.log("EnteteLecture= "+str(EnteteLecture))
+                        ret.append((cNom, curl, EnteteLecture))
+                if len(ret)>0:
+                    ret=sorted(ret,key=lambda s: s[0].lower())
+        return ret
