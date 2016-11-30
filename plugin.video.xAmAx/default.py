@@ -268,7 +268,7 @@ def RechercheMAJ():
                 
             TelechargementZip(MAJ_URL,dest)
 
-            unzipper = ziptools.ziptools()
+            unzipper = ziptools()
             unzipper.extract(dest,extpath)
                 
             lign1 = 'Nouvelle version installer .....'
