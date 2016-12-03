@@ -15,11 +15,12 @@ import xbmcvfs
 import urllib2 as urllib
 import urllib as urlib
 from urlparse import parse_qsl
+from time import gmtime, strftime
 
         
-from Ressources.vStreamOpt import cvStreamOpt
-from Ressources.LSPOpt import cLiveSPOpt
-#import Ressources.test as test
+from resources.vStreamOpt import cvStreamOpt
+from resources.LSPOpt import cLiveSPOpt
+#import resources.test as test
     
 #Enregistrement des paramètres
 Param = {"Chemin":""}
@@ -36,6 +37,7 @@ TEXT = ""
 # Récupération des info du plugin
 _url = sys.argv[0]
 AdressePlugin = addon.getAddonInfo('path')
+
 Url_Plugin_Version = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/"+nomPlugin+"/README.md"
 _handle = int(sys.argv[1])
 profile = xbmc.translatePath(addon.getAddonInfo('profile').decode('utf-8'))
@@ -50,7 +52,8 @@ _MenuList={"Chaines TV et bouquet":("TV","VisuLiveStream",True),
            "Options de Kodi":("Kodi","VisuKodi",True),
            "Options de xAmAx":("xAmAx",'VisuxAmAx',True)}
 _MenuxAmAx={"Version "+__version__:("xAmAx","InfoVersion",False),
-           "Mise a jour de xAmAx":("xAmAx",'MiseAJourxAmAx',True)}#,"test":("xAmAx",'test',False)}
+           "Mise a jour de xAmAx":("xAmAx",'MiseAJourxAmAx',True),
+            "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)}#,"test":("xAmAx",'test',False)}
 _MenuvStream={"Trier la liste de Recherche vStream":("vStream","RechercheVstream",True),
            "Trier les Marques-Pages vStream":("vStream","MPVstream",True)}
 _MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
@@ -106,7 +109,7 @@ def AfficheMenu(Menu=_MenuList):
     _vStream = cvStreamOpt().TryConnectvStream() # "vStream non installer!" TryConnectvStream()
     _ChercheBackgroud = TryChercheBackgroud()
     # Création de la liste d'élément.
-    xbmc.log(str(Menu.items()))
+    #xbmc.log(str(Menu.items()))
     for tag, (Titre, Act, is_folder) in Menu.items():
         if ((_vStream == "OK" and Titre == "vStream")or
         (_ChercheBackgroud == "OK" and Titre == "ChangeFonDecran")or
@@ -140,7 +143,7 @@ def AfichListeTS(ListeChaine=[], Table="ListePrincipale", Colon="Nom, Url", Wher
         for Nom, Url, Entete in ListeChaine:
             addDir(Nom,'{0}?action=Play&Url={1}&ElemMenu={2}'.format(_url, urlib.quote_plus(Url+"|"+Entete), "LireVideo"),1,_ArtMenu['thumb'],_ArtMenu['fanar'],True)
     else:
-        dbxAmAx = os.path.join(AdressePlugin, "Ressources", "xAmAx.db")
+        dbxAmAx = os.path.join(AdressePlugin, "resources", "xAmAx.db")
         xbmc.log("Ouverture Liste TV de: "+dbxAmAx+ "Table: "+Table+" Colon: "+Colon+" Where: "+Where+" Ordre: "+Ordre)
         NewDB = lite.connect(dbxAmAx)
         i = 0
@@ -232,7 +235,7 @@ def TelechargementZip(url,dest):
         fichier.close()
 
 def RechercheMAJ():
-    from Ressources.ziptools import ziptools
+    from resources.ziptools import ziptools
     xbmc.log('xAmAx Recherche mise a jour...')
     try:
         data = urllib.urlopen(Url_Plugin_Version).read()
@@ -337,15 +340,26 @@ def router(paramstring):
                 
                 if params['Option'] =="TV":
                     if params['ElemMenu']=="VisuLiveStream":
-                        dbxAmAx = os.path.join(AdressePlugin, "Ressources", "xAmAx.db")
-                        xbmc.log("Ouverture Liste Bouquet de: "+dbxAmAx)
-                        NewDB = lite.connect(dbxAmAx)
-                        cUrl = NewDB.cursor()
-                        cUrl.execute("SELECT NomBouq FROM Bouquet ORDER BY Ordre ;")
-                        for NomBouq in cUrl:
-                            _MenuTV.update({"Bouquet "+str(NomBouq[0]): ("TV","Bouq"+str(NomBouq[0]),True)})
-                        cUrl.close()
-                        NewDB.close()
+                        if addon.getSetting(id="CreerBouq")=="true":
+                            dbxAmAx = os.path.join(AdressePlugin, "resources", "xAmAx.db")
+                            xbmc.log("Ouverture Liste Bouquet de: "+dbxAmAx)
+                            NewDB = lite.connect(dbxAmAx)
+                            cUrl = NewDB.cursor()
+                            cUrl.execute("SELECT NomBouq FROM Bouquet ORDER BY Ordre ;")
+                            for NomBouq in cUrl:
+                                _MenuTV.update({"Bouquet "+str(NomBouq[0]): ("TV","Bouq"+str(NomBouq[0]),True)})
+                            cUrl.close()
+                            NewDB.close()
+                        if addon.getSetting(id="MajtvAuto")=="true":
+                            xbmc.log("Recherche mise a jour si première ouverture de la journée")
+                            DateDerMajTv = str(addon.getSetting(id="DateTvListe"))
+                            xbmc.log("Dernière Mise a jour: "+DateDerMajTv)
+                            if str(DateDerMajTv)!=strftime("%d-%m-%Y", gmtime()):
+                                Retour = cLiveSPOpt().RechercheChaine(AdressePlugin)
+                                if Retour=="OK":
+                                    if addon.getSetting(id="CreerBouq")=="true":
+                                        cLiveSPOpt().CreerBouquet(AdressePlugin)
+                                    addon.setSetting(id="DateTvListe", value=strftime("%d-%m-%Y", gmtime())) #%H:%M:%S"
                         AfficheMenu(_MenuTV)
                     if params['ElemMenu']=='AffichTV':
                         AfichListeTS()
@@ -448,6 +462,8 @@ def router(paramstring):
                     if params['ElemMenu']=="test":
                         xbmc.log("test: ")
                         cLiveSPOpt().CreerBouquet(AdressePlugin)
+                    if params['ElemMenu']=="ParamxAmAx":
+                        addon.openSettings()
                 
                 if params['ElemMenu']=="PluginLSP":
                     xbmc.executebuiltin('XBMC.RunPlugin(plugin://plugin.video.live.streamspro/)')
