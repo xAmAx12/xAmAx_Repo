@@ -309,6 +309,9 @@ class cLiveSPOpt():
             else:
                 dialog = xbmcgui.Dialog()
                 ok = dialog.ok("Mise a jour Liste TV 2 Impossible!!!", Erreur2)
+            dp.update(100,"Liste de chaine tv 2 a jour!")
+            xbmc.sleep(1000)
+            dp.close()
                 
         if self.addon.getSetting(id="Majtv3")=="true":
             Retour, Erreur3 = self.RechercheSources3()
@@ -340,10 +343,7 @@ class cLiveSPOpt():
                 NewDB.commit()
                 NewDB.close()
         except: pass
-        dp.update(100,"Liste de chaine tv 2 a jour!")
         
-        xbmc.sleep(1000)
-        dp.close()
         return "OK"
     
     def RechercheSources2(self):
