@@ -3,8 +3,10 @@
     <category label="TV">
         <setting id="Majtv1" type="bool" label="Recherche liste tv 1" default="true" />
         <setting id="Majtv2" type="bool" label="Recherche liste tv 2" default="true" />
+        <setting id="Majtv3" type="bool" label="Recherche liste tv 3" default="true" />
         <setting id="MajtvAuto" type="bool" label="Mise à jour automatique des chaines tous les jours" default="true" />
         <setting id="CreerBouq" type="bool" label="Creer une liste de bouquet tv" default="true" />
         <setting id="DateTvListe" type="text" label="Date de la dernière mise à jour de la liste de chaines" default="" enable="false" />
+        <setting id="ListAutre" type="text" label="" default="" visible="false" />
     </category>
 </settings>
