@@ -5,6 +5,7 @@
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
 
 import os
+import re
 import sys
 import sqlite3 as lite
 import xbmc
@@ -54,7 +55,7 @@ _MenuList={"Chaines TV et bouquet":("TV","VisuLiveStream",True),
            "Options de xAmAx":("xAmAx",'VisuxAmAx',True)}
 _MenuxAmAx={"Version "+__version__:("xAmAx","InfoVersion",False),
            "Mise a jour de xAmAx":("xAmAx",'MiseAJourxAmAx',True),
-            "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)}#,"test":("xAmAx",'test',False)}
+            "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)}#,"test":("xAmAx",'test',True)}
 _MenuvStream={"Trier la liste de Recherche vStream":("vStream","RechercheVstream",True),
            "Trier les Marques-Pages vStream":("vStream","MPVstream",True)}
 _MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
@@ -104,22 +105,41 @@ class LogAffich():
             '=======================================================================================',
             '[COLOR green]=======================================================================================[/COLOR]')
 
-def AfficheMenu(Menu=_MenuList):
+def AfficheMenu(Menu=_MenuList, Icone=False):
     # creation du menu
     xbmc.log("Menu")
     _vStream = cvStreamOpt().TryConnectvStream() # "vStream non installer!" TryConnectvStream()
     _ChercheBackgroud = TryChercheBackgroud()
     # Création de la liste d'élément.
     #xbmc.log(str(Menu.items()))
-    for tag, (Titre, Act, is_folder) in Menu.items():
-        if ((_vStream == "OK" and Titre == "vStream")or
-        (_ChercheBackgroud == "OK" and Titre == "ChangeFonDecran")or
-        (Titre != "vStream" and Titre != "ChangeFonDecran")):
-            if Titre == "TV":
-                icone = _ArtMenu['lecture']
+    if not Icone:
+        for tag, (Titre, Act, is_folder) in Menu.items():
+            if ((_vStream == "OK" and Titre == "vStream")or
+            (_ChercheBackgroud == "OK" and Titre == "ChangeFonDecran")or
+            (Titre != "vStream" and Titre != "ChangeFonDecran")):
+                if Titre == "TV":
+                    icone = _ArtMenu['lecture']
+                else:
+                    icone = _ArtMenu['param']
+                addDir(tag,'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, Act, Titre),1,icone,icone,is_folder)
+    else:
+        for tag, (Titre, Url, is_folder, icone) in Menu.items():
+            if icone != "":
+                text = base64.b64decode(str(Titre)).replace('&#8211;','-')
+                text = text.replace('&ndash;','-')
+                text = text.replace('&#038;','&')
+                text = text.replace('&#8217;','\'')
+                text = text.replace('&#8216;','\'')
+                text = text.replace('&#8230;','...')
+                text = text.replace('&quot;','"')
+                text = text.replace('&#039;','`')
+                text = text.replace('&amp;','&')
+                text = text.replace('&ntilde;','ñ')
+                Titre = text.replace('&rsquo;','\'')
+                addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder)
             else:
-                icone = _ArtMenu['param']
-            addDir(tag,'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, Act, Titre),1,icone,icone,is_folder)
+                xbmc.log("Url="+base64.b64decode(Url))
+                addDir("ZZZ "+base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(_url,"Adult","TV",Url),1,_ArtMenu['lecture'],_ArtMenu['lecture'],is_folder)
     if Menu==_MenuList:
         # Création de chaque élément
         if _vStream != "OK":
@@ -161,6 +181,7 @@ def addDir(name,url,mode,iconimage,fanart,is_Folder,infos={},cat=''):
     infos['Title'] = name
     liz.setInfo( type="Video", infoLabels=infos )
     liz.setProperty('Fanart_Image',fanart)
+    
     ok =xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=is_Folder)
     return ok
 
@@ -386,6 +407,8 @@ def router(paramstring):
                                 _MenuTV.update({"Bouquet "+str(NomBouq[0]): ("TV","Bouq"+str(NomBouq[0]),True)})
                             cUrl.close()
                             NewDB.close()
+                        if addon.getSetting(id="Adult")=="true":
+                            _MenuTV.update({"X Page":("TV","Adult",True)})
                         AfficheMenu(_MenuTV)
                     if params['ElemMenu']=='AffichTV':
                         AfficheMenu(MajMenuRegroup())
@@ -404,6 +427,22 @@ def router(paramstring):
                             AfichListeTS(Where="IDLP NOT IN "+str(addon.getSetting(id="ListAutre")))
                         else:
                             AfichListeTS(Where="Nom LIKE '%"+base64.b64decode(str(params['ElemMenu'][13:]))+"%'")
+                    if params['ElemMenu']=="Adult":
+                        try:
+                            Url = params['Url']
+                            ListAff = cLiveSPOpt().AdulteSources(base64.b64decode(Url))
+                        except:
+                            ListAff = cLiveSPOpt().AdulteSources()
+                        if len(ListAff)>0:
+                            i=0
+                            _MenuRegroup={}
+                            for Url,Thumb,Nom in ListAff:
+                                i+=1
+                                Nom=base64.b64encode(Nom)
+                                Url=base64.b64encode(Url)
+                                Thumb=base64.b64encode(Thumb)
+                                _MenuRegroup.update({"essai-"+str(i): (Nom, Url, True, Thumb)})
+                            AfficheMenu(_MenuRegroup,True)
 
                 if params['Option']=='vStream':
                     if params['ElemMenu']=="VisuVstream":
@@ -492,7 +531,19 @@ def router(paramstring):
                             ok = dialog.ok("Mise à jour xAmAx", Retour)
                     if params['ElemMenu']=="test":
                         xbmc.log("test: ")
-                        cLiveSPOpt().CreerBouquet(AdressePlugin)
+                        ListAff = cLiveSPOpt().AdulteSources()
+                        xbmc.log("test list: "+str(len(ListAff)))
+                        if len(ListAff)>0:
+                            i=0
+                            _MenuRegroup={}
+                            for Url,Thumb,Nom in ListAff:
+                                i+=1
+                                Nom=base64.b64encode(Nom)
+                                Url=base64.b64encode(Url)
+                                Thumb=base64.b64encode(Thumb)
+                                _MenuRegroup.update({"essai-"+str(i): (Nom, Url, True, Thumb)})
+                            AfficheMenu(_MenuRegroup,True)
+
                     if params['ElemMenu']=="ParamxAmAx":
                         addon.openSettings()
                 
@@ -504,6 +555,18 @@ def router(paramstring):
                     finalUrl=params['Url']
                     xbmc.log("Lecture de: "+finalUrl) 
                     xbmc.executebuiltin('XBMC.RunPlugin('+finalUrl+')')
+                if params['ElemMenu']=="LireVideo2":
+                    html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
+                    videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
+                    xbmc.log(str(videourl[0]))
+                    html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
+                    videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
+                    videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
+                    videourl = videourls[0][0]
+                    xbmc.log("Adresse video: "+str(videourl))
+                    listitem = xbmcgui.ListItem("essai1")
+                    listitem.setInfo('video', {'Title': "essai1", 'Genre': 'Porn'})
+                    xbmc.Player().play(videourl, listitem)
         else:
             # Affichage du menu si aucune action
             #xbmc.log("Affichage Menux")
@@ -514,3 +577,4 @@ if __name__ == '__main__':
         xbmc.log("Demarrage xAmAx: commande = " + str(sys.argv[2]))
         # Envoi des paramètre du menu
         router(sys.argv[2][1:])
+
