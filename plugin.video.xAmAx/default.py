@@ -335,6 +335,37 @@ def RechercheMAJ():
             return "Pas de mise à jour disponible! \nVersion Internet: " + version_publique + "Version Actuelle: " + __version__
     else:
         return "Pas de mise à jour disponible!"
+
+def MajAuto(NomMaj):
+    if NomMaj=="default":
+        resources = ""
+        Ext=".py"
+        AdresseFich = os.path.join(AdressePlugin, NomMaj+Ext)
+    else:
+        resources = "resources/"
+        if NomMaj=="xAmAx":
+            Ext=".db"
+        elif NomMaj=="settings":
+            Ext=".xml"
+        else:
+            Ext=".py"
+        AdresseFich = os.path.join(AdressePlugin, "resources", NomMaj+Ext)
+    try:
+        AdresseVersion = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/"+resources+NomMaj
+        VRech = urllib.urlopen(AdresseVersion).read()
+        VLspopt = addon.getSetting(id=NomMaj)
+        xbmc.log("Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech)
+        if VLspopt!=str(VRech):
+            DL = urllib.urlopen("https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/"+resources+NomMaj+Ext).read()
+            fichier = open(AdresseFich, "w")
+            fichier.write(DL)
+            fichier.close()
+            addon.setSetting(id=NomMaj, value=str(VRech))
+            xbmc.log("Mise a jour de "+NomMaj+" OK")
+    except:
+        xbmc.log("Erreur mise a jour: "+str(sys.exc_info()[0]))
+        
+
     
 def Efface_thumb(env):
     if (env == 'fi'):
@@ -413,6 +444,18 @@ def router(paramstring):
                     if params['ElemMenu']=='AffichTV':
                         AfficheMenu(MajMenuRegroup())
                     if params['ElemMenu']=='MajTV':
+
+                        VRech = urllib.urlopen("https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/resources/LSPOpt").read()
+                        VLspopt = addon.getSetting(id="LSPOpt")
+                        xbmc.log("Version Recherche TV: "+VLspopt+" Version sur internet: "+VRech)
+                        if VLspopt!=str(VRech):
+                            LSPOpt = urllib.urlopen("https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/resources/LSPOpt.py").read()
+                            dest = os.path.join(AdressePlugin, "resources", "LSPOpt.py")
+                            fichier = open(dest, "w")
+                            fichier.write(LSPOpt)
+                            fichier.close()
+                            addon.setSetting(id="LSPOpt", value=str(VRech))
+                            
                         Retour2 = cLiveSPOpt().RechercheChaine(AdressePlugin)
                         if Retour2=="OK":
                             cLiveSPOpt().CreerBouquet(AdressePlugin)
@@ -546,9 +589,6 @@ def router(paramstring):
 
                     if params['ElemMenu']=="ParamxAmAx":
                         addon.openSettings()
-                
-                if params['ElemMenu']=="PluginLSP":
-                    xbmc.executebuiltin('XBMC.RunPlugin(plugin://plugin.video.live.streamspro/)')
                     
             if params['action'] == 'Play':
                 if params['ElemMenu']=="LireVideo":
@@ -570,6 +610,12 @@ def router(paramstring):
         else:
             # Affichage du menu si aucune action
             #xbmc.log("Affichage Menux")
+            if addon.getSetting(id="MajAuto")=="true":
+                xbmc.log("Recherche auto de Mise a jour: ")
+                MajAuto("xAmAx")
+                MajAuto("settings")
+                MajAuto("vStreamOpt")
+                MajAuto("LSPOpt")
             AfficheMenu()
             #xbmcplugin.endOfDirectory(_handle,succeeded=True)
 if __name__ == '__main__':
