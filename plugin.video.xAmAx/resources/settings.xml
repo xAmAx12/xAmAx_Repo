@@ -11,4 +11,11 @@
         <setting id="ListAutre" type="text" label="Liste Autre" visible="false" />
         <setting id="Adult" type="bool" label="Afficher le menu Adulte" default="false"  visible="false" />
     </category>
+    <category label="Mise à jour">
+    	<setting id="MajAuto" type="bool" label="Mise à jour automatique de xAmAx" default="true" />
+        <setting id="xAmAx" type="text" label="Base de donnée Version" default="0" enable="false" />
+        <setting id="LSPOpt" type="text" label="Recherche TV Version" default="0" enable="false" />
+        <setting id="settings" type="text" label="Parametres Version" default="0" enable="false" />
+        <setting id="vStreamOpt" type="text" label="Options vStream Version" default="0" enable="false" />
+    </category>
 </settings>

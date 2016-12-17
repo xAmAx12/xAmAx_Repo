@@ -84,76 +84,8 @@ class cLiveSPOpt():
                         "  +", " +").replace(
                         "-", " ").replace(
                         ".", " ").replace(
-                        "_", " ")
-
-    def AdulteSources(self,Url="http://www.mrsexe.com/cat/62/sodomie/"):
-        xbmc.log("Recherche de la liste de chaine...")
-        essai = str(self.TelechargPage(url=Url))#.decode('utf-8'))
-        match = re.compile('thumb-list(.*?)<ul class="right pagination">', re.DOTALL | re.IGNORECASE).findall(essai)
-        match1 = re.compile(r'<li class="[^"]*">\s<a class="thumbnail" href="([^"]+)">\n<script.+?</script>\n<figure>\n<img  id=".+?" src="([^"]+)".+?/>\n<figcaption>\n<span class="video-icon"><i class="fa fa-play"></i></span>\n<span class="duration"><i class="fa fa-clock-o"></i>([^<]+)</span>\n(.+?)\n',
-                            re.DOTALL | re.IGNORECASE).findall(match[0])
-        ret = []
-        for url, image, Temp, Descript in match1:
-            ret.append((url,image,Descript+" "+Temp))
-            xbmc.log("image= "+str(image))
-        try:
-            nextp=re.compile(r'<li class="arrow"><a href="(.+?)">suivant</li>').findall(essai)
-            xbmc.log("next= "+str(nextp))
-            ret.append(('http://www.mrsexe.com' + nextp[0],"","Page Suivante..."))
-        except: pass
-        return ret
-            
-    def RechercheSources1(self):
-        ListeChaine=[]
-        try:
-            xbmc.log("Recherche de la liste de chaine...")
-            dp = xbmcgui.DialogProgress()
-            dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine...")
-            dp.update(10)
-            essai = str(self.TelechargPage(url="http://redeneobux.com/fr/updated-kodi-iptv-m3u-playlist/"))
-            essai2 = essai.split("France IPTV")[1].split("location.href=\'")[1].split("\';")[0]
-            dp.update(20,"Page Internet France IPTV...")
-            
-            essai = str(self.TelechargPage(url=essai2))
-            essai2 = essai.split("http://adf.ly/")[1].split(" ")[0]
-            dp.update(30,"Recherche Adresse ADFLY...")
-
-            url = "http://adf.ly/"+essai2
-            xbmc.log(" [+] Connection a ADFLY. . . "+url)
-            adfly_data = str(self.TelechargPage(url=url))#str(urllib.urlopen(url).read())#.decode('utf-8'))
-            if not('#EXTM3U' in adfly_data):
-                dp.update(40,"Décodage de l'adresse . . .")
-                
-                xbmc.log(" [+] Recherche adresse du téléchargement . . .")
-                ysmm = adfly_data.split("ysmm = ")[1].split("'")[1].split("';")[0]
-                xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
-                essai2 = str(self.Crack(str(ysmm)))
-                dp.update(50,"Adresse du fichier Trouvée..")
-                
-                xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
-                essai = str(self.TelechargPage(url=essai2.replace("b'",'').replace("'",'')))
-            else:
-                essai = adfly_data
-            
-            dp.update(70,"Enregistrement de la liste de chaine...")
-            
-            ListeChaine=[]
-            Chaine = essai.split("#EXTINF:-1,")
-            for Ch in Chaine:
-                InfoChaine = str(Ch).replace('\r','').split(chr(10))
-                if len(InfoChaine) > 1:
-                    Nom =InfoChaine[0]
-                    if InfoChaine[1]!="" and not Nom.startswith("***")and not Nom.startswith("+++")and not Nom.startswith("---")and not Nom.startswith("==="):
-                        ListeChaine.append((self.ConvNom(Nom),InfoChaine[1]))
-                        
-            dp.update(100,"Fichier télécharger!")
-            xbmc.sleep(1000)
-            dp.close()
-            xbmc.sleep(1000)
-            return ListeChaine, ""
-        except:
-            xbmc.log("Erreur téléchargement liste 1: "+str(sys.exc_info()[0]))
-            return ListeChaine, "Erreur téléchargement liste 1: "+str(sys.exc_info()[0])
+                        "_", " ").replace(
+                        "FRANCE |", "")
         
     def CreerBouquet(self, CheminxAmAx):
         Bouquet=[]
@@ -174,7 +106,7 @@ class cLiveSPOpt():
                 #xbmc.log("SELECT IDChaineB, NomChaine, PasDansChaine FROM ChaineBouquet WHERE IDBouqChaine = "+str(IDBouqu)+" ORDER BY "+str(TriDesChaines)+";")
                 cChaine.execute("SELECT IDChaineB, NomChaine, PasDansChaine FROM ChaineBouquet WHERE IDBouqChaine = " + str(IDBouqu)+" ORDER BY "+str(TriDesChaines)+";")
                 for IDChaine, NomC, PasC in cChaine:
-                    xbmc.log("SELECT * FROM ListePrincipale WHERE Nom LIKE '%"+str(NomC).upper()+"%' ORDER BY Nom ASC;")
+                    #xbmc.log("SELECT * FROM ListePrincipale WHERE Nom LIKE '%"+str(NomC).upper()+"%' ORDER BY Nom ASC;")
                     cListCh.execute("SELECT * FROM ListePrincipale WHERE Nom LIKE '%"+str(NomC).upper()+"%' ORDER BY Nom ASC;")
                     for IdLP, Nom, Url, Entete in cListCh:
                         EnrOk=True
@@ -275,6 +207,7 @@ class cLiveSPOpt():
         cUrl = NewDB.cursor()
         IdLP = 0
         if self.addon.getSetting(id="Majtv1")=="true":
+            xbmc.log("Recherche Liste de chaine 1")
             Retour,Erreur = self.RechercheSources1()
             if len(Retour)>0 and Erreur=="":
                 xbmc.log("Liste de chaine 1 a afficher: "+str(len(Retour)))
@@ -295,6 +228,7 @@ class cLiveSPOpt():
                     ok = dialog.ok("Mise a jour Liste TV 1 Impossible!!!", Erreur)
                     
         if self.addon.getSetting(id="Majtv2")=="true":
+            xbmc.log("Recherche Liste de chaine 2")
             dp = xbmcgui.DialogProgress()
             dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine 2...")
             Retour, Erreur2 = self.RechercheSources2()
@@ -302,11 +236,12 @@ class cLiveSPOpt():
                 for cNom,curl in Retour:
                     j+=1
                     dp.update(j*(100/len(Retour)))
-                    if cNom.capitalize().startswith('S'):
+                    if cNom.capitalize().startswith('S1'):
                         i+=1
                         xbmc.log("Adresse chaineTV: "+cNom+" "+curl)
-                        Retour2=self.RechercheChaines2(url=[curl])
+                        Retour2,Erreur2=self.RechercheChaines2(url=[curl])
                         xbmc.log("Liste de chaine 2 a afficher: "+str(len(Retour2)))
+                        xbmc.log("Liste de chaine 2 Erreur: "+Erreur2)
                         if len(Retour2)>0 and Retour2!=[]:
                             for Nom,Url,Entete in Retour2:
                                 IdLP += 1
@@ -332,10 +267,12 @@ class cLiveSPOpt():
             dp.close()
                 
         if self.addon.getSetting(id="Majtv3")=="true":
-            Retour, Erreur3 = self.RechercheSources3()
+            xbmc.log("Recherche Liste de chaine 3")
+            Retour3, Erreur3 = self.RechercheSources3()
             if Erreur3=="OK":
-                if len(Retour)>0 and Retour!=[]:
-                    for Nom,Url in Retour:
+                if len(Retour3)>0 and Retour3!=[]:
+                    xbmc.log("Liste de chaine 3 a afficher: "+str(len(Retour3)))
+                    for Nom,Url in Retour3:
                         IdLP += 1
                         while 1:
                             if Nom[:1]==" ":
@@ -354,10 +291,12 @@ class cLiveSPOpt():
                 ok = dialog.ok("Mise a jour Liste TV 3 Impossible!!!", Erreur3)
 
         if self.addon.getSetting(id="Majtv4")=="true":
-            Retour, Erreur4 = self.RechercheSources4()
+            xbmc.log("Recherche Liste de chaine 4")
+            Retour4, Erreur4 = self.RechercheSources4()
             if Erreur4=="OK":
-                if len(Retour)>0 and Retour!=[]:
-                    for Nom,Url in Retour:
+                if len(Retour4)>0 and Retour4!=[]:
+                    xbmc.log("Liste de chaine 4 a afficher: "+str(len(Retour4)))
+                    for Nom,Url in Retour4:
                         IdLP += 1
                         while 1:
                             if Nom[:1]==" ":
@@ -386,6 +325,58 @@ class cLiveSPOpt():
         except: pass
         
         return "OK"
+
+    def RechercheSources1(self):
+        ListeChaine=[]
+        try:
+            xbmc.log("Recherche de la liste de chaine...")
+            dp = xbmcgui.DialogProgress()
+            dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine...")
+            dp.update(10)
+            essai = str(self.TelechargPage(url="http://redeneobux.com/fr/updated-kodi-iptv-m3u-playlist/"))
+            essai2 = essai.split("France IPTV")[1].split("location.href=\'")[1].split("\';")[0]
+            dp.update(20,"Page Internet France IPTV...")
+            
+            essai = str(self.TelechargPage(url=essai2))
+            essai2 = essai.split("http://adf.ly/")[1].split(" ")[0]
+            dp.update(30,"Recherche Adresse ADFLY...")
+
+            url = "http://adf.ly/"+essai2
+            xbmc.log(" [+] Connection a ADFLY. . . "+url)
+            adfly_data = str(self.TelechargPage(url=url))#str(urllib.urlopen(url).read())#.decode('utf-8'))
+            if not('#EXTM3U' in adfly_data):
+                dp.update(40,"Décodage de l'adresse . . .")
+                
+                xbmc.log(" [+] Recherche adresse du téléchargement . . .")
+                ysmm = adfly_data.split("ysmm = ")[1].split("'")[1].split("';")[0]
+                xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
+                essai2 = str(self.Crack(str(ysmm)))
+                dp.update(50,"Adresse du fichier Trouvée..")
+                
+                xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
+                essai = str(self.TelechargPage(url=essai2.replace("b'",'').replace("'",'')))
+            else:
+                essai = adfly_data
+            
+            dp.update(70,"Enregistrement de la liste de chaine...")
+            
+            ListeChaine=[]
+            Chaine = essai.split("#EXTINF:-1,")
+            for Ch in Chaine:
+                InfoChaine = str(Ch).replace('\r','').split(chr(10))
+                if len(InfoChaine) > 1:
+                    Nom =InfoChaine[0]
+                    if InfoChaine[1]!="" and not Nom.startswith("***")and not Nom.startswith("+++")and not Nom.startswith("---")and not Nom.startswith("==="):
+                        ListeChaine.append((self.ConvNom(Nom),InfoChaine[1]))
+                        
+            dp.update(100,"Fichier télécharger!")
+            xbmc.sleep(1000)
+            dp.close()
+            xbmc.sleep(1000)
+            return ListeChaine, ""
+        except:
+            xbmc.log("Erreur téléchargement liste 1: "+str(sys.exc_info()[0]))
+            return ListeChaine, "Erreur téléchargement liste 1: "+str(sys.exc_info()[0])
     
     def RechercheSources2(self):
         ret=[]
@@ -393,55 +384,71 @@ class cLiveSPOpt():
         if not Retour.startswith("Erreur"):
             Retour=Retour.splitlines()
             for R in Retour:
-                if not R.startswith("##") and len(R)>0:
-                    servername,surl=R.split('$')
-                    ret.append((servername, surl ))
+                try:
+                    if not R.startswith("---") and len(R)>0:
+                        servername,surl=R.split('$')
+                        ret.append((servername, surl ))
+                except:
+                    pass
             return ret, "OK"
         else:
             return ret, Retour
-    
-    def RechercheChaines2(self, url):
-        ret=[]
-        for u in url:
-            EnteteFichier,EnteteLecture=None,""
-            if '|' in u:
-                u,EnteteFichier,EnteteLecture=u.split('|')
-                u=u+'|'+EnteteFichier
-                EnteteDansPage=EnteteLecture.split('&')
-                Entete=[]
-                for h in EnteteDansPage:
-                    if len(h.split('='))==2:
-                        n,v=h.split('=')
-                    else:
-                        vals=h.split('=')
-                        n=vals[0]
-                        v='='.join(vals[1:])
-                        #n,v=h.split('=')
-                    print n,v
-                    if n=="User-Agent" and v.startswith('http'):
-                        v=self.TelechargPage(url=v)
-                        xbmc.log("v= "+ v)
-                    Entete.append((n,v))
-                EnteteLecture=str(urlib.urlencode(Entete))
 
-            xbmc.log("u= "+ u)
-            html=self.TelechargPage(url=u)
-            if html!="Erreur...":
-                reg='#EXTINF:-1,(.*?(fr:|fr :).*)\s(.*)\s?'
-                xmldata=re.findall(reg,html,re.IGNORECASE)
-                for source in xmldata:
-                    cNom=self.ConvNom(source[0])
-                    if 1==1:
-                        curl=source[2].replace('\r','').replace('.m3u8','.ts')
-                        if str(EnteteLecture)!="":
-                            Retour = "ok"
+    def RechercheChaines2(self,url,Essai=False):
+        ret=[]
+        Erreur = "OK"
+        try:
+            for u in url:
+                EnteteFichier,EnteteLecture=None,""
+                if '|' in u:
+                    u,EnteteFichier,EnteteLecture=u.split('|')
+                    u=u+'|'+EnteteFichier
+                    EnteteDansPage=EnteteLecture.split('&')
+                    Entete=[]
+                    for h in EnteteDansPage:
+                        if len(h.split('='))==2:
+                            n,v=h.split('=')
                         else:
-                            EnteteLecture='User-Agent=VLC/2.2.1 LibVLC/2.2.17&Icy-MetaData=1'
-                        xbmc.log("EnteteLecture= "+str(EnteteLecture))
-                        ret.append((cNom, curl, EnteteLecture))
-                if len(ret)>0:
-                    ret=sorted(ret,key=lambda s: s[0].lower())
-        return ret
+                            vals=h.split('=')
+                            n=vals[0]
+                            v='='.join(vals[1:])
+                            #n,v=h.split('=')
+                        print n,v
+                        if n=="User-Agent" and v.startswith('http'):
+                            v=self.TelechargPage(url=v)
+                            print "v= "+ v #)xbmc.log(
+                        Entete.append((n,v))
+                    EnteteLecture=str(urlib.urlencode(Entete))
+
+                print "u= "+ u #)xbmc.log(
+                html=self.TelechargPage(url=u).replace(chr(13),"")
+                if html!="Erreur...":
+                    if Essai:
+                        print html
+                    M3u = html.split('#EXTINF:-1,sky sport 4 uk HD')
+                    reg='#EXTINF:-1,(.*?.*)\s(.*)\s?'
+                    xmldata=re.findall(reg,M3u[1],re.IGNORECASE)
+                    #print "### xmldata= "+str(xmldata)
+                    for source in xmldata:
+                        try:
+                            cNom=self.ConvNom(source[0])
+                            
+                            if len(source)>0:
+                                curl=source[1].replace('\r','').replace('.m3u8','.ts')
+                                if str(EnteteLecture)!="":
+                                    Retour = "ok"
+                                else:
+                                    EnteteLecture='User-Agent=VLC/2.2.1 LibVLC/2.2.17&Icy-MetaData=1'
+                                #print "EnteteLecture= "+str(EnteteLecture) #)xbmc.log(
+                                ret.append((cNom, curl, EnteteLecture))
+                        except:
+                            if Essai:
+                                print '### Erreur '+ str(sys.exc_info()[0])
+                    if len(ret)>0:
+                        ret=sorted(ret,key=lambda s: s[0].lower())
+            return ret, Erreur
+        except:
+            return ret, "Erreur: "+str(sys.exc_info()[0])
     
     def RechercheSources3(self, Essai = False):
         
@@ -533,3 +540,20 @@ class cLiveSPOpt():
                 return [], "User agent: "+UserAgent
         except:
             return [], "Erreur Mise à jour Liste TV 4: "+"\n Erreur = "+str(sys.exc_info()[0])
+
+    def AdulteSources(self,Url="http://www.mrsexe.com/cat/62/sodomie/"):
+        xbmc.log("Recherche de la liste de chaine...")
+        essai = str(self.TelechargPage(url=Url))#.decode('utf-8'))
+        match = re.compile('thumb-list(.*?)<ul class="right pagination">', re.DOTALL | re.IGNORECASE).findall(essai)
+        match1 = re.compile(r'<li class="[^"]*">\s<a class="thumbnail" href="([^"]+)">\n<script.+?</script>\n<figure>\n<img  id=".+?" src="([^"]+)".+?/>\n<figcaption>\n<span class="video-icon"><i class="fa fa-play"></i></span>\n<span class="duration"><i class="fa fa-clock-o"></i>([^<]+)</span>\n(.+?)\n',
+                            re.DOTALL | re.IGNORECASE).findall(match[0])
+        ret = []
+        for url, image, Temp, Descript in match1:
+            ret.append((url,image,Descript+" "+Temp))
+            xbmc.log("image= "+str(image))
+        try:
+            nextp=re.compile(r'<li class="arrow"><a href="(.+?)">suivant</li>').findall(essai)
+            xbmc.log("next= "+str(nextp))
+            ret.append(('http://www.mrsexe.com' + nextp[0],"","Page Suivante..."))
+        except: pass
+        return ret
