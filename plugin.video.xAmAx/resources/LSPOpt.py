@@ -85,7 +85,9 @@ class cLiveSPOpt():
                         "-", " ").replace(
                         ".", " ").replace(
                         "_", " ").replace(
-                        "FRANCE |", "")
+                        "FRANCE |", "").replace(
+                        "\r", "")
+    
         
     def CreerBouquet(self, CheminxAmAx):
         Bouquet=[]
@@ -312,8 +314,33 @@ class cLiveSPOpt():
                                                        'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
             else:
                 dialog = xbmcgui.Dialog()
-                ok = dialog.ok("Mise a jour Liste TV 4 Impossible!!!", Erreur3)
-                
+                ok = dialog.ok("Mise a jour Liste TV 4 Impossible!!!", Erreur4)
+
+        if 1==2:
+            xbmc.log("Recherche Liste de chaine 5")
+            Retour5, Erreur5 = self.RechercheSources5()
+            if Erreur5=="OK":
+                if len(Retour5)>0 and Retour5!=[]:
+                    xbmc.log("Liste de chaine 5 a afficher: "+str(len(Retour5)))
+                    for Nom,Url in Retour5:
+                        IdLP += 1
+                        while 1:
+                            if Nom[:1]==" ":
+                                Nom = Nom[1:]
+                            else:
+                                break
+                        if ListeEffacer == False:
+                            cUrl.execute("DELETE FROM ListePrincipale;")
+                            ListeEffacer = True
+                        cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                                    VALUES (?,?,?)''',(IdLP,
+                                                       self.ConvNom(Nom)+" [COLOR gold](5)[/COLOR]",
+                                                       'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
+
+            else:
+                dialog = xbmcgui.Dialog()
+                ok = dialog.ok("Mise a jour Liste TV 5 Impossible!!!", Erreur5)
+            
         try:
             if cUrl:
                 cUrl.close()
@@ -531,7 +558,7 @@ class cLiveSPOpt():
                     for Par , Nom , Url in TabM3u :
                         Nom = Nom.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
                         if Nom.startswith('FR:'):
-                            DicM3u = (Nom,Url.replace('\n', '').replace('\r', '')+'|User-Agent='+UserAgent)
+                            DicM3u = (self.ConvNom(Nom),Url.replace('\n', '').replace('\r', '')+'|User-Agent='+UserAgent)
                             ret.append(DicM3u)
                     return ret, "OK"
                 else:
@@ -540,6 +567,40 @@ class cLiveSPOpt():
                 return [], "User agent: "+UserAgent
         except:
             return [], "Erreur Mise à jour Liste TV 4: "+"\n Erreur = "+str(sys.exc_info()[0])
+
+    def RechercheSources5(self):
+        #try:
+        M3u = self.TelechargPage(url="https://raw.githubusercontent.com/quoc66/IfreemanWeb/master/Fr%20main")
+        if not M3u.startswith('Erreur'):
+            TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
+            ret = []
+            for Par, Nom , Url in TabM3u :
+                Nom = self.ConvNom(Nom)
+                DicM3u = (Nom,Url.split("|")[0].replace(".m3u8",".ts"))
+                ret.append(DicM3u)
+            return ret, "OK"
+        else:
+            return [], "M3u: "+M3u
+        #except:
+            #return [], "Erreur Mise à jour Liste TV 5: "+"\n Erreur = "+str(sys.exc_info()[0])
+
+    def LireM3u(self, CheminxAmAx, F4m=False):
+        xbmc.log("Liste de chaine M3u")
+        dialog = xbmcgui.Dialog()
+        fn = dialog.browse(1, 'Ouvrir le fichier M3u', 'files', '.m3u|.m3u8', False, False, 'special://home')
+        ret = []
+        if fn != False and fn != "":
+            if xbmcvfs.exists(fn):
+                f = xbmcvfs.File(fn)
+                M3u = f.read()
+                f.close()
+                if M3u!="":
+                    TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
+                    for Par, Nom , Url in TabM3u :
+                        Nom = self.ConvNom(Nom)
+                        DicM3u = (Nom,Url.split("|")[0].replace(".m3u8",".ts").replace("\r", ""))
+                        ret.append(DicM3u)
+        return ret
 
     def AdulteSources(self,Url="http://www.mrsexe.com/cat/62/sodomie/"):
         xbmc.log("Recherche de la liste de chaine...")
