@@ -18,6 +18,8 @@ import urllib as urlib
 import base64
 from urlparse import parse_qsl
 from time import gmtime, strftime
+import pygtk
+pygtk.require('2.0')
 
         
 from resources.vStreamOpt import cvStreamOpt
@@ -55,7 +57,9 @@ _MenuList={"Chaines TV et bouquet":("TV","VisuLiveStream",True),
            "Options de xAmAx":("xAmAx",'VisuxAmAx',True)}
 _MenuxAmAx={"Version "+__version__:("xAmAx","InfoVersion",False),
            "Mise a jour de xAmAx":("xAmAx",'MiseAJourxAmAx',True),
-            "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)}#,"test":("xAmAx",'test',True)}
+            "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False),
+            "Lire une adresse avec kodi":("xAmAx","LireUrl",False),
+            "Lire une adresse avec F4m":("xAmAx","LireF4m",False)}#,"test":("xAmAx",'test',True)}
 _MenuvStream={"Trier la liste de Recherche vStream":("vStream","RechercheVstream",True),
            "Trier les Marques-Pages vStream":("vStream","MPVstream",True)}
 _MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
@@ -161,6 +165,7 @@ def MajMenuRegroup():
         cUrl2.execute("SELECT IDLP FROM ListePrincipale WHERE Nom LIKE '%"+str(Nom)+"%' ORDER BY Nom ;")
         Retour = cUrl2.fetchall()
         if len(Retour)> 0:
+            xbmc.log("Liste Regroup: "+str(len(Retour)))
             for IDLP in Retour:
                 listID.append(str(IDLP[0]))
             _MenuRegroup.update({str(Affich).replace("_"," "): ("TV","ChaineRegroup"+base64.b64encode(str(Nom)),True)})
@@ -575,7 +580,7 @@ def router(paramstring):
                     if params['ElemMenu']=="test":
                         xbmc.log("test: ")
                         ListAff = cLiveSPOpt().AdulteSources()
-                        xbmc.log("test list: "+str(len(ListAff)))
+                        
                         if len(ListAff)>0:
                             i=0
                             _MenuRegroup={}
@@ -586,9 +591,32 @@ def router(paramstring):
                                 Thumb=base64.b64encode(Thumb)
                                 _MenuRegroup.update({"essai-"+str(i): (Nom, Url, True, Thumb)})
                             AfficheMenu(_MenuRegroup,True)
-
                     if params['ElemMenu']=="ParamxAmAx":
                         addon.openSettings()
+                    if params['ElemMenu']=="LireUrl":
+                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=AdressePlugin)
+                        i=0
+                        _MenuRegroup={}
+                        for Nom,Url in ListAff:
+                            i+=1
+                            Nom=base64.b64encode(Nom)
+                            Url=base64.b64encode(Url)
+                            Thumb=base64.b64encode(os.path.join(AdressePlugin,'play.png'))
+                            _MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
+                        xbmc.log("list m3u: "+str(_MenuRegroup))
+                        AfficheMenu(_MenuRegroup,True)
+                    if params['ElemMenu']=="LireF4m":
+                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=AdressePlugin, F4m=True)
+                        i=0
+                        _MenuRegroup={}
+                        for Nom,Url in ListAff:
+                            i+=1
+                            Nom=base64.b64encode(Nom)
+                            Url=base64.b64encode(Url)
+                            Thumb=base64.b64encode(os.path.join(AdressePlugin,'play.png'))
+                            _MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
+                        xbmc.log("list m3u: "+str(_MenuRegroup))
+                        AfficheMenu(_MenuRegroup,True)
                     
             if params['action'] == 'Play':
                 if params['ElemMenu']=="LireVideo":
