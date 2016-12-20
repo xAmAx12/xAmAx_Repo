@@ -52,14 +52,14 @@ _ArtMenu = {'thumb': os.path.join(AdressePlugin,'play.png'),
             'fanar': os.path.join(AdressePlugin,'fanart.jpg'),
             'info': os.path.join(AdressePlugin,'info.png')}
 _MenuList={"Chaines TV et bouquet":("TV","VisuLiveStream",True),
+            "Ouvrir fichier m3u avec le lecteur de kodi":("xAmAx","LireUrl",True),
+            "Ouvrir fichier m3u avec le lecteur F4m":("xAmAx","LireF4m",True),
            "Options de vStream (Film et séries)":("vStream","VisuVstream",True),
            "Options de Kodi":("Kodi","VisuKodi",True),
            "Options de xAmAx":("xAmAx",'VisuxAmAx',True)}
 _MenuxAmAx={"Version "+__version__:("xAmAx","InfoVersion",False),
            "Mise a jour de xAmAx":("xAmAx",'MiseAJourxAmAx',True),
-            "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False),
-            "Lire une adresse avec kodi":("xAmAx","LireUrl",True),
-            "Lire une adresse avec F4m":("xAmAx","LireF4m",True)}#,"test":("xAmAx",'test',True)}
+            "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)}#,"test":("xAmAx",'test',True)}
 _MenuvStream={"Trier la liste de Recherche vStream":("vStream","RechercheVstream",True),
            "Trier les Marques-Pages vStream":("vStream","MPVstream",True)}
 _MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
