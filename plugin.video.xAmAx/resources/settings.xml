@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <category label="TV">
+    	<setting id="MajtvAuto" type="bool" label="Mise à jour automatique des chaines tous les jours" default="true" />
+    	<setting id="DateTvListe" type="text" label="Date de la dernière mise à jour de la liste de chaines" default="" enable="false" />
         <setting id="Majtv1" type="bool" label="Recherche liste tv 1" default="true" />
         <setting id="Majtv2" type="bool" label="Recherche liste tv 2" default="true" />
         <setting id="Majtv3" type="bool" label="Recherche liste tv 3" default="true" />
         <setting id="Majtv4" type="bool" label="Recherche liste tv 4" default="true" />
-        <setting id="MajtvAuto" type="bool" label="Mise à jour automatique des chaines tous les jours" default="true" />
         <setting id="CreerBouq" type="bool" label="Creer une liste de bouquet tv" default="true" />
-        <setting id="DateTvListe" type="text" label="Date de la dernière mise à jour de la liste de chaines" default="" enable="false" />
         <setting id="ListAutre" type="text" label="Liste Autre" visible="false" />
         <setting id="Adult" type="bool" label="Afficher le menu Adulte" default="false"  visible="false" />
     </category>
     <category label="Mise à jour">
     	<setting id="MajAuto" type="bool" label="Mise à jour automatique de xAmAx" default="true" />
+    	<setting id="default" type="text" label="Démarrage Version" default="0" enable="false" />
         <setting id="xAmAx" type="text" label="Base de donnée Version" default="0" enable="false" />
         <setting id="LSPOpt" type="text" label="Recherche TV Version" default="0" enable="false" />
         <setting id="settings" type="text" label="Parametres Version" default="0" enable="false" />
