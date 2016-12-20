@@ -58,8 +58,8 @@ _MenuList={"Chaines TV et bouquet":("TV","VisuLiveStream",True),
 _MenuxAmAx={"Version "+__version__:("xAmAx","InfoVersion",False),
            "Mise a jour de xAmAx":("xAmAx",'MiseAJourxAmAx',True),
             "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False),
-            "Lire une adresse avec kodi":("xAmAx","LireUrl",False),
-            "Lire une adresse avec F4m":("xAmAx","LireF4m",False)}#,"test":("xAmAx",'test',True)}
+            "Lire une adresse avec kodi":("xAmAx","LireUrl",True),
+            "Lire une adresse avec F4m":("xAmAx","LireF4m",True)}#,"test":("xAmAx",'test',True)}
 _MenuvStream={"Trier la liste de Recherche vStream":("vStream","RechercheVstream",True),
            "Trier les Marques-Pages vStream":("vStream","MPVstream",True)}
 _MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
@@ -140,7 +140,11 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
                 text = text.replace('&amp;','&')
                 text = text.replace('&ntilde;','ñ')
                 Titre = text.replace('&rsquo;','\'')
-                addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder)
+                xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}'.format(_url,Url,"LireVideo2"))
+                if base64.b64decode(icone)==_ArtMenu['lecture']:
+                    addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder)
+                else:
+                    addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder)
             else:
                 xbmc.log("Url="+base64.b64decode(Url))
                 addDir("ZZZ "+base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(_url,"Adult","TV",Url),1,_ArtMenu['lecture'],_ArtMenu['lecture'],is_folder)
@@ -596,15 +600,14 @@ def router(paramstring):
                     if params['ElemMenu']=="LireUrl":
                         ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=AdressePlugin)
                         i=0
-                        _MenuRegroup={}
+                        MenuRegroup={}
                         for Nom,Url in ListAff:
                             i+=1
                             Nom=base64.b64encode(Nom)
                             Url=base64.b64encode(Url)
                             Thumb=base64.b64encode(os.path.join(AdressePlugin,'play.png'))
-                            _MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
-                        xbmc.log("list m3u: "+str(_MenuRegroup))
-                        AfficheMenu(_MenuRegroup,True)
+                            MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
+                        AfficheMenu(MenuRegroup,True)
                     if params['ElemMenu']=="LireF4m":
                         ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=AdressePlugin, F4m=True)
                         i=0
@@ -615,7 +618,6 @@ def router(paramstring):
                             Url=base64.b64encode(Url)
                             Thumb=base64.b64encode(os.path.join(AdressePlugin,'play.png'))
                             _MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
-                        xbmc.log("list m3u: "+str(_MenuRegroup))
                         AfficheMenu(_MenuRegroup,True)
                     
             if params['action'] == 'Play':
@@ -624,17 +626,23 @@ def router(paramstring):
                     xbmc.log("Lecture de: "+finalUrl) 
                     xbmc.executebuiltin('XBMC.RunPlugin('+finalUrl+')')
                 if params['ElemMenu']=="LireVideo2":
-                    html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
-                    videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
-                    xbmc.log(str(videourl[0]))
-                    html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
-                    videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
-                    videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
-                    videourl = videourls[0][0]
+                    if params['Adult']==1:
+                        html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
+                        videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
+                        xbmc.log(str(videourl[0]))
+                        html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
+                        videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
+                        videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
+                        videourl = videourls[0][0]
+                    else:
+                        videourl = base64.b64decode(params['Url'])
                     xbmc.log("Adresse video: "+str(videourl))
-                    listitem = xbmcgui.ListItem("essai1")
-                    listitem.setInfo('video', {'Title': "essai1", 'Genre': 'Porn'})
-                    xbmc.Player().play(videourl, listitem)
+                    if videourl.startswith("plugin://"):
+                        xbmc.executebuiltin('XBMC.RunPlugin('+videourl+')')
+                    else:
+                        listitem = xbmcgui.ListItem("essai1")
+                        listitem.setInfo('video', {'Title': "essai1", 'Genre': 'essai'})
+                        xbmc.Player().play(videourl, listitem)
         else:
             # Affichage du menu si aucune action
             #xbmc.log("Affichage Menux")
@@ -644,6 +652,7 @@ def router(paramstring):
                 MajAuto("settings")
                 MajAuto("vStreamOpt")
                 MajAuto("LSPOpt")
+                MajAuto("default")
             AfficheMenu()
             #xbmcplugin.endOfDirectory(_handle,succeeded=True)
 if __name__ == '__main__':
