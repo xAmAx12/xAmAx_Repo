@@ -598,6 +598,8 @@ class cLiveSPOpt():
                     TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
                     for Par, Nom , Url in TabM3u :
                         Nom = self.ConvNom(Nom)
+                        if F4m==True:
+                            Url='plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))
                         DicM3u = (Nom,Url.split("|")[0].replace(".m3u8",".ts").replace("\r", ""))
                         ret.append(DicM3u)
         return ret
