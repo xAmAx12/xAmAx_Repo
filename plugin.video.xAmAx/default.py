@@ -169,7 +169,7 @@ def MajMenuRegroup():
         cUrl2.execute("SELECT IDLP FROM ListePrincipale WHERE Nom LIKE '%"+str(Nom)+"%' ORDER BY Nom ;")
         Retour = cUrl2.fetchall()
         if len(Retour)> 0:
-            xbmc.log("Liste Regroup: "+str(len(Retour)))
+            #xbmc.log("Liste Regroup: "+str(len(Retour)))
             for IDLP in Retour:
                 listID.append(str(IDLP[0]))
             _MenuRegroup.update({str(Affich).replace("_"," "): ("TV","ChaineRegroup"+base64.b64encode(str(Nom)),True)})
