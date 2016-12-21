@@ -484,6 +484,7 @@ class cLiveSPOpt():
         #print str(ListeM3u)
         ret=[]
         NbAdresse = 0
+        NbAdresse2 = 0
         for NomAdresse in ListeM3u:
             TabNomAdresse = NomAdresse.split("<br/>")
             Nom = TabNomAdresse[0]
@@ -495,7 +496,12 @@ class cLiveSPOpt():
                     for Nom,Url in Retour:
                         ret.append((Nom,Url))
                         NbAdresse += 1
-        if NbAdresse>0:
+            elif Adresse.endswith(".ts") or Adresse.endswith(".m3u8"):
+                ret.append((self.ConvNom(Nom),Adresse.replace(".m3u8",".ts")))
+                NbAdresse2 += 1
+        if Essai:
+            print "Liste directe: "+str(NbAdresse2)+" Liste déporté: "+str(NbAdresse)+" Liste complette: "+str(ret)
+        if NbAdresse>0 or NbAdresse2>0:
             return ret, "OK"
         else:
             return ret, "Pas de Chaines dans la liste 3!"
