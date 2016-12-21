@@ -452,25 +452,23 @@ class cLiveSPOpt():
                 if html!="Erreur...":
                     if Essai:
                         print html
-                    M3u = html.split('#EXTINF:-1,sky sport 4 uk HD')
-                    reg='#EXTINF:-1,(.*?.*)\s(.*)\s?'
-                    xmldata=re.findall(reg,M3u[1],re.IGNORECASE)
-                    #print "### xmldata= "+str(xmldata)
-                    for source in xmldata:
-                        try:
-                            cNom=self.ConvNom(source[0])
-                            
-                            if len(source)>0:
-                                curl=source[1].replace('\r','').replace('.m3u8','.ts')
+                    TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(html)
+                    for Par , Nom , Url in TabM3u :
+                        Nom = Nom.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
+                        if Nom.startswith('FR:'):
+                            try:
+                                cNom=self.ConvNom(Nom)
+                                
+                                curl=Url.replace('\r','').replace('.m3u8','.ts')
                                 if str(EnteteLecture)!="":
                                     Retour = "ok"
                                 else:
-                                    EnteteLecture='User-Agent=VLC/2.2.1 LibVLC/2.2.17&Icy-MetaData=1'
+                                    EnteteLecture="" #'User-Agent=VLC/2.2.1 LibVLC/2.2.17&Icy-MetaData=1'
                                 #print "EnteteLecture= "+str(EnteteLecture) #)xbmc.log(
                                 ret.append((cNom, curl, EnteteLecture))
-                        except:
-                            if Essai:
-                                print '### Erreur '+ str(sys.exc_info()[0])
+                            except:
+                                if Essai:
+                                    print '### Erreur '+ str(sys.exc_info()[0])
                     if len(ret)>0:
                         ret=sorted(ret,key=lambda s: s[0].lower())
             return ret, Erreur
