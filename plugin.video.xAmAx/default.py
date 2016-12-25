@@ -18,8 +18,6 @@ import urllib as urlib
 import base64
 from urlparse import parse_qsl
 from time import gmtime, strftime
-import pygtk
-pygtk.require('2.0')
 
         
 from resources.vStreamOpt import cvStreamOpt
