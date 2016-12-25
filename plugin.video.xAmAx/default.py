@@ -18,7 +18,6 @@ import urllib as urlib
 import base64
 from urlparse import parse_qsl
 from time import gmtime, strftime
-
         
 from resources.vStreamOpt import cvStreamOpt
 from resources.LSPOpt import cLiveSPOpt
