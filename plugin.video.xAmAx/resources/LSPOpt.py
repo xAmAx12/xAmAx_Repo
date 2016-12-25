@@ -292,7 +292,7 @@ class cLiveSPOpt():
                 dialog = xbmcgui.Dialog()
                 ok = dialog.ok("Mise a jour Liste TV 3 Impossible!!!", Erreur3)
 
-        if self.addon.getSetting(id="Majtv4")=="true":
+        if self.addon.getSetting(id="Majtv4")=="true" and 1==2:
             xbmc.log("Recherche Liste de chaine 4")
             Retour4, Erreur4 = self.RechercheSources4()
             if Erreur4=="OK":
@@ -552,9 +552,9 @@ class cLiveSPOpt():
         
     def RechercheSources4(self):
         try:
-            UserAgent = self.TelechargPage(url=self.TelechargPage(url="https://raw.githubusercontent.com/catoalkodi/repository.catoal/master/plugin.video.catoaliptv/resources/Blue/logo.png"))
+            UserAgent = self.TelechargPage(url=self.TelechargPage(url=" "))
             if not UserAgent.startswith('Erreur'):
-                ListeM3u = self.TelechargPage(url="https://raw.githubusercontent.com/catoalkodi/repository.catoal/master/plugin.video.catoaliptv/resources/Blue/logo2.png")
+                ListeM3u = self.TelechargPage(url=" ")
                 M3u = self.TelechargPage(url=ListeM3u)
                 if not M3u.startswith('Erreur'):
                     TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
