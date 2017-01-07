@@ -247,7 +247,7 @@ def TryChercheBackgroud():
             f.closed
             ModifSkin = Ret.split('<setting id="UseCustomBackground" type="bool">')[1].split("</setting>")[0]
         except:
-            ModifSkin == 'false'
+            ModifSkin = 'false'
         if ModifSkin == 'true':
             ModifSkin = Retour.split('<setting id="CustomBackgroundPath" type="string">')[1].split("</setting>")[0]
             if xbmcvfs.exists(ModifSkin):
