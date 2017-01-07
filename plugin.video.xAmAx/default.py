@@ -241,10 +241,13 @@ def TryChercheBackgroud():
     xbmc.log("skindir: "+NomSkin)
     Defaut = os.path.join(xbmc.translatePath('special://home/addons/'),NomSkin,"backgrounds")
     if ((NomSkin == "skin.confluence")or(NomSkin == "skin.qonfluence")):
-        with open(os.path.join(xbmc.translatePath('special://home/'),"userdata","addon_data",NomSkin,"settings.xml")) as f:
-            Retour = f.read()
-        f.closed
-        ModifSkin = Retour.split('<setting id="UseCustomBackground" type="bool">')[1].split("</setting>")[0]
+        try:
+            with open(os.path.join(xbmc.translatePath('special://home/'),"userdata","addon_data",NomSkin,"settings.xml")) as f:
+                Ret = f.read()
+            f.closed
+            ModifSkin = Ret.split('<setting id="UseCustomBackground" type="bool">')[1].split("</setting>")[0]
+        except:
+            ModifSkin == 'false'
         if ModifSkin == 'true':
             ModifSkin = Retour.split('<setting id="CustomBackgroundPath" type="string">')[1].split("</setting>")[0]
             if xbmcvfs.exists(ModifSkin):
