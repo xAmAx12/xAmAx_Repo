@@ -70,6 +70,8 @@ class cLiveSPOpt():
 
     def ConvNom(self, Nom):
         return Nom.upper().replace(
+                        "[ FR ] ","").replace(
+                        "[ FR: ] ","").replace(
                         "FR: ","").replace(
                         "FR : ","").replace(
                         "FR:", "").replace(
@@ -238,7 +240,7 @@ class cLiveSPOpt():
                 for cNom,curl in Retour:
                     j+=1
                     dp.update(j*(100/len(Retour)))
-                    if cNom.capitalize().startswith('S1'):
+                    if cNom.capitalize().startswith('S1') or cNom.capitalize().startswith('S2') or cNom.capitalize().startswith('S4'):
                         i+=1
                         xbmc.log("Adresse chaineTV: "+cNom+" "+curl)
                         Retour2,Erreur2=self.RechercheChaines2(url=[curl])
@@ -455,7 +457,7 @@ class cLiveSPOpt():
                     TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(html)
                     for Par , Nom , Url in TabM3u :
                         Nom = Nom.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
-                        if Nom.startswith('FR:'):
+                        if Nom.startswith('FR:') or Nom.startswith("[ FR ]") or Nom.startswith("[ FR: ]"):
                             try:
                                 cNom=self.ConvNom(Nom)
                                 
@@ -510,14 +512,15 @@ class cLiveSPOpt():
         ListeM3u=[]
         try:
             #print str(Retour)
-            if Nom == "Africa + mix":
-                Retour = self.TelechargPage(url=Url)
-                ListeM3u = Retour.replace(chr(13),"").split('#EXTINF:-1 group-title="French",')
+            #if Nom == "Africa + mix":
+            #    Retour = self.TelechargPage(url=Url)
+            #    ListeM3u = Retour.replace(chr(13),"").split('#EXTINF:-1 group-title="French",')
                 
-            elif Nom=="FR IT" or Nom=="FR, IT" or Nom=="French, IT":
-                Retour = self.TelechargPage(url=Url)
-                ListeM3u = Retour.replace(chr(13),"").split('#EXTINF:-1,------IT')[0].split("#EXTINF:-1,")
-            elif Nom=="Arab FR, DE, UK":
+            #elif Nom=="FR IT" or Nom=="FR, IT" or Nom=="French, IT":
+            #    Retour = self.TelechargPage(url=Url)
+            #    ListeM3u = Retour.replace(chr(13),"").split('#EXTINF:-1,------IT')[0].split("#EXTINF:-1,")
+            #el
+            if Nom=="Arab FR, DE, UK":
                 Retour = TelechargPage(url=Url)
                 ListeM3u = Retour.replace(chr(13),"").split('#EXTINF:-1,FR_')
             else:
@@ -612,15 +615,17 @@ class cLiveSPOpt():
         xbmc.log("Recherche de la liste de chaine...")
         essai = str(self.TelechargPage(url=Url))#.decode('utf-8'))
         match = re.compile('thumb-list(.*?)<ul class="right pagination">', re.DOTALL | re.IGNORECASE).findall(essai)
-        match1 = re.compile(r'<li class="[^"]*">\s<a class="thumbnail" href="([^"]+)">\n<script.+?</script>\n<figure>\n<img  id=".+?" src="([^"]+)".+?/>\n<figcaption>\n<span class="video-icon"><i class="fa fa-play"></i></span>\n<span class="duration"><i class="fa fa-clock-o"></i>([^<]+)</span>\n(.+?)\n',
+        match1 = re.compile(r'<li class="[^"]*">\s<a class="thumbnail" href="([^"]+)">\n<script.+?([^;]+);</script>\n<figure>\n<img  id=".+?" src="([^"]+)".+?/>\n<figcaption>\n<span class="video-icon"><i class="fa fa-play"></i></span>\n<span class="duration"><i class="fa fa-clock-o"></i>([^<]+)</span>\n(.+?)\n',
                             re.DOTALL | re.IGNORECASE).findall(match[0])
         ret = []
-        for url, image, Temp, Descript in match1:
-            ret.append((url,image,Descript+" "+Temp))
-            xbmc.log("image= "+str(image))
+        for url, Timage, image, Temp, Descript in match1:
+            ret.append((url,image, Timage.split("(")[1][:-1].replace("'","").split(","),Descript+" "+Temp))
+            #xbmc.log("Timage= "+str(Timage.split("(")[1][:-1].replace("'","").split(",")))
+            #xbmc.log("image= "+str(image))
+        xbmc.log("Recherche OK...")
         try:
             nextp=re.compile(r'<li class="arrow"><a href="(.+?)">suivant</li>').findall(essai)
-            xbmc.log("next= "+str(nextp))
-            ret.append(('http://www.mrsexe.com' + nextp[0],"","Page Suivante..."))
+            #xbmc.log("next= "+str(nextp))
+            ret.append(('http://www.mrsexe.com' + nextp[0],"",[],"Page Suivante..."))
         except: pass
         return ret
