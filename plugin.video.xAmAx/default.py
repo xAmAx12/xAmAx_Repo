@@ -488,12 +488,12 @@ def router(paramstring):
                         if len(ListAff)>0:
                             i=0
                             _MenuRegroup={}
-                            for Url,Thumb,Nom in ListAff:
+                            for Url,Thumb,Timag,Nom in ListAff:
                                 i+=1
-                                Nom=base64.b64encode(Nom)
+                                Nom2=base64.b64encode(Nom)
                                 Url=base64.b64encode(Url)
                                 Thumb=base64.b64encode(Thumb)
-                                _MenuRegroup.update({"essai-"+str(i): (Nom, Url, True, Thumb)})
+                                _MenuRegroup.update({Nom: (Nom2, Url, False, Thumb)})
                             AfficheMenu(_MenuRegroup,True)
 
                 if params['Option']=='vStream':
@@ -626,13 +626,14 @@ def router(paramstring):
                     xbmc.log("Lecture de: "+finalUrl) 
                     xbmc.executebuiltin('XBMC.RunPlugin('+finalUrl+')')
                 if params['ElemMenu']=="LireVideo2":
-                    if params['Adult']==1:
+                    if params['Adult']=="1":
                         html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
                         videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
-                        xbmc.log(str(videourl[0]))
+                        xbmc.log("--videourl = "+str(videourl[0]))
                         html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
                         videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
                         videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
+                        xbmc.log("--videourl.. = "+(str(videourl[0])))
                         videourl = videourls[0][0]
                     else:
                         videourl = base64.b64decode(params['Url'])
