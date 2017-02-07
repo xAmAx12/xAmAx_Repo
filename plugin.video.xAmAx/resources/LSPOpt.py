@@ -69,7 +69,7 @@ class cLiveSPOpt():
         return key[2:]
 
     def ConvNom(self, Nom):
-        return Nom.upper().replace(
+        NomRet = Nom.upper().replace(
                         "[ FR ] ","").replace(
                         "[ FR: ] ","").replace(
                         "FR: ","").replace(
@@ -88,9 +88,16 @@ class cLiveSPOpt():
                         ".", " ").replace(
                         "_", " ").replace(
                         "FRANCE |", "").replace(
-                        "\r", "")
+                        "\r", "").replace(
+                        "(SERVER 1)","").replace(
+                        "FR ","")
+        while 1:
+            if NomRet.startswith(' '):
+                NomRet = NomRet[1:]
+            else:
+                break
+        return NomRet
     
-        
     def CreerBouquet(self, CheminxAmAx):
         Bouquet=[]
         xbmc.log("CreerBouquet: CheminxAmAx= "+CheminxAmAx)
@@ -318,7 +325,7 @@ class cLiveSPOpt():
                 dialog = xbmcgui.Dialog()
                 ok = dialog.ok("Mise a jour Liste TV 4 Impossible!!!", Erreur4)
 
-        if 1==2:
+        if 1==1:
             xbmc.log("Recherche Liste de chaine 5")
             Retour5, Erreur5 = self.RechercheSources5()
             if Erreur5=="OK":
@@ -449,15 +456,18 @@ class cLiveSPOpt():
                         Entete.append((n,v))
                     EnteteLecture=str(urlib.urlencode(Entete))
 
-                print "u= "+ u #)xbmc.log(
-                html=self.TelechargPage(url=u).replace(chr(13),"")
+                html=self.TelechargPage(url=u.replace("[gettext]","")).replace(chr(13),"")
                 if html!="Erreur...":
                     if Essai:
                         print html
+                    if "https://pastebin" in html:
+                        html=self.TelechargPage(url=html).replace(chr(13),"")
+                        if html=="Erreur...":
+                            return ret, "Erreur: "+str(sys.exc_info()[0])
                     TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(html)
                     for Par , Nom , Url in TabM3u :
                         Nom = Nom.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
-                        if Nom.startswith('FR:') or Nom.startswith("[ FR ]") or Nom.startswith("[ FR: ]"):
+                        if (('FR:'in Nom) or ("[ FR ]" in Nom) or ("[ FR: ]" in Nom)):
                             try:
                                 cNom=self.ConvNom(Nom)
                                 
@@ -482,58 +492,52 @@ class cLiveSPOpt():
         url = 'http://www.oneplaylist.space/database/export/'
         SourcesListe = self.TelechargPage(url=url,Post={'kategorija' : '3'})#urllib.urlopen(req).read()
 
-        ListeM3u = SourcesListe.split("#EXTM3U")[1].split("</div>")[0].split("#EXTINF:0, ")
-        #print str(ListeM3u)
-        ret=[]
-        NbAdresse = 0
-        NbAdresse2 = 0
-        for NomAdresse in ListeM3u:
-            TabNomAdresse = NomAdresse.split("<br/>")
-            Nom = TabNomAdresse[0]
-            Adresse = TabNomAdresse[1]
-            if Adresse!="" and not Adresse.startswith("rtmp:") and "type=m3u" in Adresse:
-                #print str(Nom)+"="+str(Adresse)
-                Retour,Erreur = self.RechercheChaines3(Nom=str(Nom), Url=str(Adresse),Essai=Essai)
-                if Erreur == "OK" and len(Retour)>0:
-                    for Nom,Url in Retour:
-                        ret.append((Nom,Url))
-                        NbAdresse += 1
-            elif Adresse.endswith(".ts") or Adresse.endswith(".m3u8"):
-                ret.append((self.ConvNom(Nom),Adresse.replace(".m3u8",".ts")))
-                NbAdresse2 += 1
-        if Essai:
-            print "Liste directe: "+str(NbAdresse2)+" Liste déporté: "+str(NbAdresse)+" Liste complette: "+str(ret)
-        if NbAdresse>0 or NbAdresse2>0:
-            return ret, "OK"
-        else:
-            return ret, "Pas de Chaines dans la liste 3!"
+        ListeM3u = SourcesListe.split("#EXTM3U")
+        if len(ListeM3u)>0:
+            ListeM3u = ListeM3u[1].split("</div>")[0].split("#EXTINF:0, ")
+            #print str(ListeM3u)
+            ret=[]
+            NbAdresse = 0
+            NbAdresse2 = 0
+            for NomAdresse in ListeM3u:
+                TabNomAdresse = NomAdresse.split("<br/>")
+                Nom = TabNomAdresse[0]
+                Adresse = TabNomAdresse[1]
+                if Adresse!="" and not Adresse.startswith("rtmp:") and "type=m3u" in Adresse:
+                    #print str(Nom)+"="+str(Adresse)
+                    Retour3,Erreur3 = self.RechercheChaines3(Nom=str(Nom), Url=str(Adresse),Essai=Essai)
+                    if Erreur3 == "OK" and len(Retour3)>0:
+                        for Nom,Url in Retour3:
+                            ret.append((Nom,Url))
+                            NbAdresse += 1
+                elif Adresse.endswith(".ts") or Adresse.endswith(".m3u8"):
+                    ret.append((self.ConvNom(Nom),Adresse.replace(".m3u8",".ts")))
+                    NbAdresse2 += 1
+            if Essai:
+                print "Liste directe: "+str(NbAdresse2)+" Liste déporté: "+str(NbAdresse)+" Liste complette: "+str(ret)
+            if NbAdresse>0 or NbAdresse2>0:
+                return ret, "OK"
+            else:
+                return ret, "Pas de Chaines dans la liste 3!"
 
     def RechercheChaines3(self, Nom, Url, Essai = False):
-        ListeM3u=[]
+        ListeM3u2=[]
+        Ret3=""
         try:
-            #print str(Retour)
-            #if Nom == "Africa + mix":
-            #    Retour = self.TelechargPage(url=Url)
-            #    ListeM3u = Retour.replace(chr(13),"").split('#EXTINF:-1 group-title="French",')
-                
-            #elif Nom=="FR IT" or Nom=="FR, IT" or Nom=="French, IT":
-            #    Retour = self.TelechargPage(url=Url)
-            #    ListeM3u = Retour.replace(chr(13),"").split('#EXTINF:-1,------IT')[0].split("#EXTINF:-1,")
-            #el
             if Nom=="Arab FR, DE, UK":
-                Retour = TelechargPage(url=Url)
-                ListeM3u = Retour.replace(chr(13),"").split('#EXTINF:-1,FR_')
+                xbmc.log("Nom Source 3: "+Nom+" Url: "+Url)
+                Ret3 = self.TelechargPage(url=Url)
+                ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,FR_')
             else:
                 if Essai==True:
-                    Retour = self.TelechargPage(url=Url)
+                    Ret3 = self.TelechargPage(url=Url)
                 else:
-                    Retour = ""
+                    Ret3 = ""
                 #print Nom+"="+str(Retour)
-                
-            if len(ListeM3u)>0:
+            if len(ListeM3u2)>0:
                 ret=[]
                 NbAdresse = 0
-                for NomAdresse in ListeM3u:
+                for NomAdresse in ListeM3u2:
                     TabNomAdresse = NomAdresse.split(chr(10))
                     Nom = TabNomAdresse[0]
                     Adresse = TabNomAdresse[1]
@@ -546,10 +550,10 @@ class cLiveSPOpt():
                         #print str(Nom)+"="+str(Adresse)
                         ret.append((self.ConvNom(Nom), str(Adresse)))
                         NbAdresse += 1
-                print str(NbAdresse)
+                if Essai: print str(NbAdresse)
                 return ret, "OK"
             else:
-                return [], Retour
+                return [], Ret3
         except:
             return [], "Erreur Mise à jour Liste TV 3: "+"\n Erreur = "+str(sys.exc_info()[0])
         
@@ -576,20 +580,42 @@ class cLiveSPOpt():
             return [], "Erreur Mise à jour Liste TV 4: "+"\n Erreur = "+str(sys.exc_info()[0])
 
     def RechercheSources5(self):
-        #try:
-        M3u = self.TelechargPage(url="https://raw.githubusercontent.com/quoc66/IfreemanWeb/master/Fr%20main")
-        if not M3u.startswith('Erreur'):
-            TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
-            ret = []
-            for Par, Nom , Url in TabM3u :
-                Nom = self.ConvNom(Nom)
-                DicM3u = (Nom,Url.split("|")[0].replace(".m3u8",".ts"))
-                ret.append(DicM3u)
+        ret = []
+        try:
+            html = self.TelechargPage(url="https://sourcetv.info/category/europe-iptv/france-iptv/")
+            div = html.split('<div class="main-loop-inner">')
+            if len(div)>0:
+                div2 = div[1].split('<div class="panel-wrapper"><div class="panel">')
+                for listTxt in div2:
+                        div3 = listTxt.split('</div></div></div><br class="clearer" />')
+                        if len(div3)>0:
+                            Url0 = div3[0].split('<a href="')
+                            if len(Url0)>1:
+                                Url1 = Url0[1].split('"')
+                                if len(Url1)>0:
+                                    Url = Url1[0]
+                                    NomAddrss = div3[0].split('title="')[1].split('"')[0]
+                                    if "France" in NomAddrss:
+                                        html = self.TelechargPage(url=Url)
+                                        div3 = html.split('<pre class="alt2"')
+                                        if len(div3)>0:
+                                            m3u = div3[1].split("> ")[1].split("</pre")[0]
+                                            TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(m3u)
+                                            for Par , Nom2 , Url in TabM3u :
+                                                Nom2 = Nom2.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
+                                                try:
+                                                    cNom=self.ConvNom(Nom2)
+                                                    curl=Url.replace('\r','').replace('.m3u8','.ts')
+                                                    Ret2 = "ok"
+                                                    #print "EnteteLecture= "+str(EnteteLecture) #)xbmc.log(
+                                                    ret.append((cNom, curl))
+                                                except:
+                                                    return ret, "Erreur Mise à jour Liste TV 5: "+"\n Erreur = "+str(sys.exc_info()[0])
+                                            if len(ret)>0:
+                                                ret=sorted(ret,key=lambda s: s[0].lower())
+                                        if len(ret)>0: break
             return ret, "OK"
-        else:
-            return [], "M3u: "+M3u
-        #except:
-            #return [], "Erreur Mise à jour Liste TV 5: "+"\n Erreur = "+str(sys.exc_info()[0])
+        except: return ret, "Erreur Mise à jour Liste TV 5: "+"\n Erreur = "+str(sys.exc_info()[0])
 
     def LireM3u(self, CheminxAmAx, F4m=False):
         xbmc.log("Liste de chaine M3u")
