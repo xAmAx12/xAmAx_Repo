@@ -19,54 +19,23 @@ except:
 
 class cLiveSPOpt():
 
-    LiveStream = None
-    CheminLive = ""
-    SourceFile = ""
     nomPlugin = 'plugin.video.xAmAx'
-    addon = xbmcaddon.Addon(nomPlugin)
 
     def __init__(self):
-        try:
-            self.LiveStream  = xbmcaddon.Addon('plugin.video.vstream')
-            self.CheminLive=str(xbmc.translatePath(self.vStream.getAddonInfo('profile').decode('utf-8')))
-            if not os.path.isdir(self.CheminLive):
-                xbmc.log("Chemin LiveStreamPro creer: " + self.CheminLive)
-                xbmcvfs.mkdirs(self.CheminLive)
-        except:
-            pass
+        self.addon = xbmcaddon.Addon(self.nomPlugin)
 
-    def TryConnectLiveStream(self):
-        try:
-            xbmc.log("TryConnectLiveStream")
-            self.LiveStream  = xbmcaddon.Addon('plugin.video.live.streamspro')
-            self.CheminLive = str(xbmc.translatePath(self.LiveStream.getAddonInfo('profile').decode('utf-8')))
-            xbmc.log("Chemin LiveStreamPro: " + self.CheminLive)
-            self.SourceFile = str(os.path.join(self.CheminLive, 'source_file'))
-            return "OK"
-        except:
-            return "LiveStreamPro non installer!"
-
-    def EffaceFich(self):
-        try:
-            with open(os.path.join(self.CheminLive,'listeTV.m3u')) as f:
-                pass
-            f.closed
-            os.remove(os.path.join(self.CheminLive,'listeTV.m3u'))
-        except IOError:
-            pass
-
-    def Crack(self, code):
-        zeros = ''
-        ones = ''
+    def UrlADFLY(self, code):
+        zero = ''
+        un = ''
         for n,letter in enumerate(code):
             if n%2 == 0:
-                zeros += code[n]
+                zero += code[n]
             else:
-                ones =code[n] + ones
-        key = zeros + ones
-        xbmc.log("Key ADFLY: "+str(key))
-        key = base64.b64decode(key.encode("utf-8"))
-        return key[2:]
+                un =code[n] + un
+        clef = zero + un
+        xbmc.log("clef ADFLY: "+str(clef))
+        clef = base64.b64decode(clef.encode("utf-8"))
+        return clef[2:]
 
     def ConvNom(self, Nom):
         NomRet = Nom.upper().replace(
@@ -301,7 +270,7 @@ class cLiveSPOpt():
                 dialog = xbmcgui.Dialog()
                 ok = dialog.ok("Mise a jour Liste TV 3 Impossible!!!", Erreur3)
 
-        if self.addon.getSetting(id="Majtv4")=="true" and 1==2:
+        if self.addon.getSetting(id="Majtv4")=="true":
             xbmc.log("Recherche Liste de chaine 4")
             Retour4, Erreur4 = self.RechercheSources4()
             if Erreur4=="OK":
@@ -325,7 +294,7 @@ class cLiveSPOpt():
                 dialog = xbmcgui.Dialog()
                 ok = dialog.ok("Mise a jour Liste TV 4 Impossible!!!", Erreur4)
 
-        if 1==1:
+        if 1==2:
             xbmc.log("Recherche Liste de chaine 5")
             Retour5, Erreur5 = self.RechercheSources5()
             if Erreur5=="OK":
@@ -386,7 +355,7 @@ class cLiveSPOpt():
                 xbmc.log(" [+] Recherche adresse du téléchargement . . .")
                 ysmm = adfly_data.split("ysmm = ")[1].split("'")[1].split("';")[0]
                 xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
-                essai2 = str(self.Crack(str(ysmm)))
+                essai2 = str(self.UrlADFLY(str(ysmm)))
                 dp.update(50,"Adresse du fichier Trouvée..")
                 
                 xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
@@ -462,8 +431,10 @@ class cLiveSPOpt():
                         print html
                     if "https://pastebin" in html:
                         html=self.TelechargPage(url=html).replace(chr(13),"")
-                        if html=="Erreur...":
-                            return ret, "Erreur: "+str(sys.exc_info()[0])
+                    if "http://" in html:
+                        html=self.TelechargPage(url=html).replace(chr(13),"")
+                    if html=="Erreur...":
+                        return ret, "Erreur: "+str(sys.exc_info()[0])
                     TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(html)
                     for Par , Nom , Url in TabM3u :
                         Nom = Nom.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
@@ -489,7 +460,7 @@ class cLiveSPOpt():
     
     def RechercheSources3(self, Essai = False):
         
-        url = 'http://www.oneplaylist.space/database/export/'
+        url = 'https://www.oneplaylist.space/database/export'
         SourcesListe = self.TelechargPage(url=url,Post={'kategorija' : '3'})#urllib.urlopen(req).read()
 
         ListeM3u = SourcesListe.split("#EXTM3U")
@@ -524,10 +495,16 @@ class cLiveSPOpt():
         ListeM3u2=[]
         Ret3=""
         try:
+            xbmc.log("Nom Source 3: "+Nom+" Url: "+Url)
             if Nom=="Arab FR, DE, UK":
-                xbmc.log("Nom Source 3: "+Nom+" Url: "+Url)
                 Ret3 = self.TelechargPage(url=Url)
                 ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,FR_')
+            elif Nom=="FR, AR, USA":
+                Retour = self.TelechargPage(url=Url)
+                ListeM3u = Retour.replace(chr(13),"").split('#EXTINF:-1,FR:')
+            elif Nom == "IT, FR, UK":
+                Ret3 = self.TelechargPage(url=Url)
+                ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,FR: ')
             else:
                 if Essai==True:
                     Ret3 = self.TelechargPage(url=Url)
@@ -558,28 +535,6 @@ class cLiveSPOpt():
             return [], "Erreur Mise à jour Liste TV 3: "+"\n Erreur = "+str(sys.exc_info()[0])
         
     def RechercheSources4(self):
-        try:
-            UserAgent = self.TelechargPage(url=self.TelechargPage(url=" "))
-            if not UserAgent.startswith('Erreur'):
-                ListeM3u = self.TelechargPage(url=" ")
-                M3u = self.TelechargPage(url=ListeM3u)
-                if not M3u.startswith('Erreur'):
-                    TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
-                    ret = []
-                    for Par , Nom , Url in TabM3u :
-                        Nom = Nom.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
-                        if Nom.startswith('FR:'):
-                            DicM3u = (self.ConvNom(Nom),Url.replace('\n', '').replace('\r', '')+'|User-Agent='+UserAgent)
-                            ret.append(DicM3u)
-                    return ret, "OK"
-                else:
-                    return [], "M3u: "+UserAgent
-            else:
-                return [], "User agent: "+UserAgent
-        except:
-            return [], "Erreur Mise à jour Liste TV 4: "+"\n Erreur = "+str(sys.exc_info()[0])
-
-    def RechercheSources5(self):
         ret = []
         try:
             html = self.TelechargPage(url="https://sourcetv.info/category/europe-iptv/france-iptv/")
@@ -610,12 +565,34 @@ class cLiveSPOpt():
                                                     #print "EnteteLecture= "+str(EnteteLecture) #)xbmc.log(
                                                     ret.append((cNom, curl))
                                                 except:
-                                                    return ret, "Erreur Mise à jour Liste TV 5: "+"\n Erreur = "+str(sys.exc_info()[0])
+                                                    return ret, "Erreur Mise à jour Liste TV 4: "+"\n Erreur = "+str(sys.exc_info()[0])
                                             if len(ret)>0:
                                                 ret=sorted(ret,key=lambda s: s[0].lower())
                                         if len(ret)>0: break
             return ret, "OK"
-        except: return ret, "Erreur Mise à jour Liste TV 5: "+"\n Erreur = "+str(sys.exc_info()[0])
+        except: return ret, "Erreur Mise à jour Liste TV 4: "+"\n Erreur = "+str(sys.exc_info()[0])
+        
+    def RechercheSources5(self):
+        try:
+            UserAgent = self.TelechargPage(url=self.TelechargPage(url=" "))
+            if not UserAgent.startswith('Erreur'):
+                ListeM3u = self.TelechargPage(url=" ")
+                M3u = self.TelechargPage(url=ListeM3u)
+                if not M3u.startswith('Erreur'):
+                    TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
+                    ret = []
+                    for Par , Nom , Url in TabM3u :
+                        Nom = Nom.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
+                        if Nom.startswith('FR:'):
+                            DicM3u = (self.ConvNom(Nom),Url.replace('\n', '').replace('\r', '')+'|User-Agent='+UserAgent)
+                            ret.append(DicM3u)
+                    return ret, "OK"
+                else:
+                    return [], "M3u: "+UserAgent
+            else:
+                return [], "User agent: "+UserAgent
+        except:
+            return [], "Erreur Mise à jour Liste TV 5: "+"\n Erreur = "+str(sys.exc_info()[0])
 
     def LireM3u(self, CheminxAmAx, F4m=False):
         xbmc.log("Liste de chaine M3u")
