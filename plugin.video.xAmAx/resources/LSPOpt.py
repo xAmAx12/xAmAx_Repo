@@ -499,12 +499,9 @@ class cLiveSPOpt():
             if Nom=="Arab FR, DE, UK":
                 Ret3 = self.TelechargPage(url=Url)
                 ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,FR_')
-            elif Nom=="FR, AR, USA":
+            elif Nom=="France IPTV":
                 Retour = self.TelechargPage(url=Url)
-                ListeM3u = Retour.replace(chr(13),"").split('#EXTINF:-1,FR:')
-            elif Nom == "IT, FR, UK":
-                Ret3 = self.TelechargPage(url=Url)
-                ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,FR: ')
+                ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,')
             else:
                 if Essai==True:
                     Ret3 = self.TelechargPage(url=Url)
