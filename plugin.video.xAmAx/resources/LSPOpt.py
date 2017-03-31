@@ -467,7 +467,7 @@ class cLiveSPOpt():
         ret=[]
         NbAdresse = 0
         NbAdresse2 = 0
-        if len(ListeM3u)>0:
+        if len(ListeM3u)>1:
             ListeM3u = ListeM3u[1].split("</div>")
             if len(ListeM3u)>0:
                 ListeM3u = ListeM3u[0].split("#EXTINF:0, ")
