@@ -619,9 +619,9 @@ class cLiveSPOpt():
                             re.DOTALL | re.IGNORECASE).findall(match[0])
         ret = []
         for url, Timage, image, Temp, Descript in match1:
-            ret.append((url,image, Timage.split("(")[1][:-1].replace("'","").split(","),Descript+" "+Temp))
+            ret.append((url,"http:"+image, Timage.split("(")[1][:-1].replace("'","").split(","),Descript+" "+Temp))
             #xbmc.log("Timage= "+str(Timage.split("(")[1][:-1].replace("'","").split(",")))
-            #xbmc.log("image= "+str(image))
+            xbmc.log("image= "+"http:"+str(image))
         xbmc.log("Recherche OK...")
         try:
             nextp=re.compile(r'<li class="arrow"><a href="(.+?)">suivant</li>').findall(essai)
