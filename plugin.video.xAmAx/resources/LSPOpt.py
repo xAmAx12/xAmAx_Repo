@@ -464,30 +464,32 @@ class cLiveSPOpt():
         SourcesListe = self.TelechargPage(url=url,Post={'kategorija' : '3'})#urllib.urlopen(req).read()
 
         ListeM3u = SourcesListe.split("#EXTM3U")
-        if len(ListeM3u)>0:
-            ListeM3u = ListeM3u[1].split("</div>")[0].split("#EXTINF:0, ")
-            #print str(ListeM3u)
+        if len(ListeM3u)>1:
+            ListeM3u = ListeM3u[1].split("</div>")
             ret=[]
-            NbAdresse = 0
-            NbAdresse2 = 0
-            for NomAdresse in ListeM3u:
-                TabNomAdresse = NomAdresse.split("<br/>")
-                Nom = TabNomAdresse[0]
-                Adresse = TabNomAdresse[1]
-                if Adresse!="" and not Adresse.startswith("rtmp:") and "type=m3u" in Adresse:
-                    #print str(Nom)+"="+str(Adresse)
-                    Retour3,Erreur3 = self.RechercheChaines3(Nom=str(Nom), Url=str(Adresse),Essai=Essai)
-                    if Erreur3 == "OK" and len(Retour3)>0:
-                        for Nom,Url in Retour3:
-                            ret.append((Nom,Url))
-                            NbAdresse += 1
-                elif Adresse.endswith(".ts") or Adresse.endswith(".m3u8"):
-                    ret.append((self.ConvNom(Nom),Adresse.replace(".m3u8",".ts")))
-                    NbAdresse2 += 1
-            if Essai:
-                print "Liste directe: "+str(NbAdresse2)+" Liste déporté: "+str(NbAdresse)+" Liste complette: "+str(ret)
-            if NbAdresse>0 or NbAdresse2>0:
-                return ret, "OK"
+            if len(ListeM3u)>0:
+                ListeM3u = ListeM3u[0].split("#EXTINF:0, ")
+                #print str(ListeM3u)
+                NbAdresse = 0
+                NbAdresse2 = 0
+                for NomAdresse in ListeM3u:
+                    TabNomAdresse = NomAdresse.split("<br/>")
+                    Nom = TabNomAdresse[0]
+                    Adresse = TabNomAdresse[1]
+                    if Adresse!="" and not Adresse.startswith("rtmp:") and "type=m3u" in Adresse:
+                        #print str(Nom)+"="+str(Adresse)
+                        Retour3,Erreur3 = self.RechercheChaines3(Nom=str(Nom), Url=str(Adresse),Essai=Essai)
+                        if Erreur3 == "OK" and len(Retour3)>0:
+                            for Nom,Url in Retour3:
+                                ret.append((Nom,Url))
+                                NbAdresse += 1
+                    elif Adresse.endswith(".ts") or Adresse.endswith(".m3u8"):
+                        ret.append((self.ConvNom(Nom),Adresse.replace(".m3u8",".ts")))
+                        NbAdresse2 += 1
+                if Essai:
+                    print "Liste directe: "+str(NbAdresse2)+" Liste déporté: "+str(NbAdresse)+" Liste complette: "+str(ret)
+                if NbAdresse>0 or NbAdresse2>0:
+                    return ret, "OK"
             else:
                 return ret, "Pas de Chaines dans la liste 3!"
 
