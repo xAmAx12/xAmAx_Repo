@@ -149,9 +149,12 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
         # Création de chaque élément
         if _vStream != "OK":
             addDir(_vStream,'{0}?action=Menu&ElemMenu={1}'.format(_url, 'InstallvStream'),1,_ArtMenu['info'],_ArtMenu['fanar'],True)
+        if addon.getSetting(id="Adult")=="true":
+            addDir("Plus",'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, "Adult", 'TV'),1,_ArtMenu['lecture'],_ArtMenu['fanar'],True)
     xbmcplugin.setPluginCategory( handle=int(sys.argv[1]), category="xAmAx" )
     xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
+        
 
 def MajMenuRegroup():
     _MenuRegroup={}
@@ -414,7 +417,7 @@ def Efface_thumb(env):
 
 
 def router(paramstring):
-        #xbmc.log("dans router")
+        xbmc.log("dans router")
         # reception des paramètres du menu
         if len(paramstring)>=2:
             params = dict(parse_qsl(paramstring))
@@ -631,10 +634,11 @@ def router(paramstring):
                         videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
                         xbmc.log("--videourl = "+str(videourl[0]))
                         html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
+                        #xbmc.log("--html = "+html)
                         videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
                         videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
                         xbmc.log("--videourl.. = "+(str(videourl[0])))
-                        videourl = videourls[0][0]
+                        videourl = "http:"+str(videourls[0][0])
                     else:
                         videourl = base64.b64decode(params['Url'])
                     xbmc.log("Adresse video: "+str(videourl))
