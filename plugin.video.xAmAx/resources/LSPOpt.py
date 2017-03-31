@@ -464,14 +464,14 @@ class cLiveSPOpt():
         SourcesListe = self.TelechargPage(url=url,Post={'kategorija' : '3'})#urllib.urlopen(req).read()
 
         ListeM3u = SourcesListe.split("#EXTM3U")
-        if len(ListeM3u)>1:
+        ret=[]
+        NbAdresse = 0
+        NbAdresse2 = 0
+        if len(ListeM3u)>0:
             ListeM3u = ListeM3u[1].split("</div>")
-            ret=[]
             if len(ListeM3u)>0:
                 ListeM3u = ListeM3u[0].split("#EXTINF:0, ")
                 #print str(ListeM3u)
-                NbAdresse = 0
-                NbAdresse2 = 0
                 for NomAdresse in ListeM3u:
                     TabNomAdresse = NomAdresse.split("<br/>")
                     Nom = TabNomAdresse[0]
@@ -488,9 +488,10 @@ class cLiveSPOpt():
                         NbAdresse2 += 1
                 if Essai:
                     print "Liste directe: "+str(NbAdresse2)+" Liste déporté: "+str(NbAdresse)+" Liste complette: "+str(ret)
-                if NbAdresse>0 or NbAdresse2>0:
-                    return ret, "OK"
+            if NbAdresse>0 or NbAdresse2>0:
+                return ret, "OK"
             else:
+                ret.append(("Erreur","Pas de Chaines dans la liste 3!"))
                 return ret, "Pas de Chaines dans la liste 3!"
 
     def RechercheChaines3(self, Nom, Url, Essai = False):
