@@ -493,6 +493,8 @@ class cLiveSPOpt():
             else:
                 ret.append(("Erreur","Pas de Chaines dans la liste 3!"))
                 return ret, "Pas de Chaines dans la liste 3!"
+        else:
+            return ret, "Pas de Chaines dans la liste 3!"
 
     def RechercheChaines3(self, Nom, Url, Essai = False):
         ListeM3u2=[]
