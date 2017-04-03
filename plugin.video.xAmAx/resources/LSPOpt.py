@@ -616,21 +616,27 @@ class cLiveSPOpt():
                         ret.append(DicM3u)
         return ret
 
-    def AdulteSources(self,Url="http://www.mrsexe.com/cat/62/sodomie/"):
+    def AdulteSources(self,Url='http://www.mrsexe.com/cat/62/sodomie/'):
         xbmc.log("Recherche de la liste de chaine...")
         essai = str(self.TelechargPage(url=Url))#.decode('utf-8'))
-        match = re.compile('thumb-list(.*?)<ul class="right pagination">', re.DOTALL | re.IGNORECASE).findall(essai)
-        match1 = re.compile(r'<li class="[^"]*">\s<a class="thumbnail" href="([^"]+)">\n<script.+?([^;]+);</script>\n<figure>\n<img  id=".+?" src="([^"]+)".+?/>\n<figcaption>\n<span class="video-icon"><i class="fa fa-play"></i></span>\n<span class="duration"><i class="fa fa-clock-o"></i>([^<]+)</span>\n(.+?)\n',
-                            re.DOTALL | re.IGNORECASE).findall(match[0])
+        xbmc.log("page: "+essai)
         ret = []
-        for url, Timage, image, Temp, Descript in match1:
-            ret.append((url,"http:"+image, Timage.split("(")[1][:-1].replace("'","").split(","),Descript+" "+Temp))
-            #xbmc.log("Timage= "+str(Timage.split("(")[1][:-1].replace("'","").split(",")))
-            xbmc.log("image= "+"http:"+str(image))
-        xbmc.log("Recherche OK...")
-        try:
-            nextp=re.compile(r'<li class="arrow"><a href="(.+?)">suivant</li>').findall(essai)
-            #xbmc.log("next= "+str(nextp))
-            ret.append(('http://www.mrsexe.com' + nextp[0],"",[],"Page Suivante..."))
-        except: pass
+        if not essai.startswith("Erreur"):
+            match = re.compile('thumb-list(.*?)<ul class="right pagination">', re.DOTALL | re.IGNORECASE).findall(essai)
+            xbmc.log("Resulta 1 tri: "+str(match))
+            match1 = re.compile(r'<li class="[^"]*">\s<a class="thumbnail" href="([^"]+)">\n<script.+?([^;]+);</script>\n<figure>\n<img  id=".+?" src="([^"]+)".+?/>\n<figcaption>\n<span class="video-icon"><i class="fa fa-play"></i></span>\n<span class="duration"><i class="fa fa-clock-o"></i>([^<]+)</span>\n(.+?)\n',
+                                re.DOTALL | re.IGNORECASE).findall(match[0])
+            for url, Timage, image, Temp, Descript in match1:
+                ret.append((url,"http:"+image, Timage.split("(")[1][:-1].replace("'","").split(","),Descript+" "+Temp))
+                #xbmc.log("Timage= "+str(Timage.split("(")[1][:-1].replace("'","").split(",")))
+                xbmc.log("image= "+"http:"+str(image))
+            xbmc.log("Recherche OK...")
+            try:
+                nextp=re.compile(r'<li class="arrow"><a href="(.+?)">suivant</li>').findall(essai)
+                #xbmc.log("next= "+str(nextp))
+                ret.append(('http://www.mrsexe.com' + nextp[0],"",[],"Page Suivante..."))
+            except: pass
+        else:
+            dialog = xbmcgui.Dialog()
+            ok = dialog.ok("Telechargement impossible...", essai)
         return ret
