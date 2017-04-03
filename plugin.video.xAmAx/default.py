@@ -47,7 +47,8 @@ _ArtMenu = {'thumb': os.path.join(AdressePlugin,'play.png'),
             'lecture': os.path.join(AdressePlugin,'menu.png'),
             'param': os.path.join(AdressePlugin,'param.png'),
             'fanar': os.path.join(AdressePlugin,'fanart.jpg'),
-            'info': os.path.join(AdressePlugin,'info.png')}
+            'info': os.path.join(AdressePlugin,'info.png'),
+            'DL': os.path.join(AdressePlugin,'Telech.png')}
 _MenuList={"Chaines TV et bouquet":("TV","VisuLiveStream",True),
             "Ouvrir fichier m3u avec le lecteur de kodi":("xAmAx","LireUrl",True),
             "Ouvrir fichier m3u avec le lecteur F4m":("xAmAx","LireF4m",True),
@@ -126,22 +127,37 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
     else:
         for tag, (Titre, Url, is_folder, icone) in Menu.items():
             if icone != "":
-                text = base64.b64decode(str(Titre)).replace('&#8211;','-')
-                text = text.replace('&ndash;','-')
-                text = text.replace('&#038;','&')
-                text = text.replace('&#8217;','\'')
-                text = text.replace('&#8216;','\'')
-                text = text.replace('&#8230;','...')
-                text = text.replace('&quot;','"')
-                text = text.replace('&#039;','`')
-                text = text.replace('&amp;','&')
-                text = text.replace('&ntilde;','ñ')
-                Titre = text.replace('&rsquo;','\'')
-                xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}'.format(_url,Url,"LireVideo2"))
-                if base64.b64decode(icone)==_ArtMenu['lecture']:
-                    addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder)
-                else:
-                    addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder)
+                if tag[:5] == "ZZZDL":
+                    text = base64.b64decode(str(Titre)).replace('&#8211;','-')
+                    text = text.replace('&ndash;','-')
+                    text = text.replace('&#038;','&')
+                    text = text.replace('&#8217;','\'')
+                    text = text.replace('&#8216;','\'')
+                    text = text.replace('&#8230;','...')
+                    text = text.replace('&quot;','"')
+                    text = text.replace('&#039;','`')
+                    text = text.replace('&amp;','&')
+                    text = text.replace('&ntilde;','ñ')
+                    Titre = text.replace('&rsquo;','\'')
+                    xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}'.format(_url,Url,"DL"))
+                    addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(_url,Url,"DL"),1,icone,icone,is_folder) #"[COLOR green]"++"[/COLOR]"
+                else:    
+                    text = base64.b64decode(str(Titre)).replace('&#8211;','-')
+                    text = text.replace('&ndash;','-')
+                    text = text.replace('&#038;','&')
+                    text = text.replace('&#8217;','\'')
+                    text = text.replace('&#8216;','\'')
+                    text = text.replace('&#8230;','...')
+                    text = text.replace('&quot;','"')
+                    text = text.replace('&#039;','`')
+                    text = text.replace('&amp;','&')
+                    text = text.replace('&ntilde;','ñ')
+                    Titre = text.replace('&rsquo;','\'')
+                    xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}'.format(_url,Url,"LireVideo2"))
+                    if base64.b64decode(icone)==_ArtMenu['lecture']:
+                        addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder)
+                    else:
+                        addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder)
             else:
                 xbmc.log("Url="+base64.b64decode(Url))
                 addDir("ZZZ "+base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(_url,"Adult","TV",Url),1,_ArtMenu['lecture'],_ArtMenu['lecture'],is_folder)
@@ -286,6 +302,22 @@ def TelechargementZip(url,dest):
     except:
         xbmc.log("Téléchargement de: " + url)
         xbmc.log("Téléchargement dans le dossier: " + dest)
+        req = urllib.Request(url)
+        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
+        essai = urllib.urlopen(req)#.decode('utf-8'))
+        fichier = open(dest, "wb")
+        fichier.write(essai.read())
+        fichier.close()
+
+def DLFich(url,dest, DPView=True):
+    if DPView:
+        dp = xbmcgui.DialogProgressBG()
+        dp.create("Telechargement du fichier...",url)
+    try:
+        urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
+    except:
+        #xbmc.log("Téléchargement de: " + url)
+        #xbmc.log("Téléchargement dans le dossier: " + dest)
         req = urllib.Request(url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
         essai = urllib.urlopen(req)#.decode('utf-8'))
@@ -451,7 +483,7 @@ def router(paramstring):
                             cUrl.close()
                             NewDB.close()
                         if addon.getSetting(id="Adult")=="true":
-                            _MenuTV.update({"X Page":("TV","Adult",True)})
+                            _MenuTV.update({"Pluss":("TV","Adult",True)})
                         AfficheMenu(_MenuTV)
                     if params['ElemMenu']=='AffichTV':
                         AfficheMenu(MajMenuRegroup())
@@ -494,9 +526,14 @@ def router(paramstring):
                             for Url,Thumb,Timag,Nom in ListAff:
                                 i+=1
                                 Nom2=base64.b64encode(Nom)
+                                Nom3=base64.b64encode(Nom+str(i))
                                 Url=base64.b64encode(Url)
                                 Thumb=base64.b64encode(Thumb)
                                 _MenuRegroup.update({Nom: (Nom2, Url, False, Thumb)})
+                                if Nom!="Page Suivante...":
+                                    xbmc.log("menuRegroup "+"{ZZZDL"+str(i)+": ("+Nom3+", "+Url+", "+str(False)+", "+_ArtMenu['DL']+")}")
+                                    _MenuRegroup.update({"ZZZDL"+str(i): (Nom3, Url, False, _ArtMenu['DL'])})
+                            #_MenuRegroup.update({"ZZZDL"+str(i): (base64.b64encode("[COLOR green]TELECHARGEMENT[/COLOR]"), "", False, _ArtMenu['DL'])})
                             AfficheMenu(_MenuRegroup,True)
 
                 if params['Option']=='vStream':
@@ -648,6 +685,31 @@ def router(paramstring):
                         listitem = xbmcgui.ListItem("essai1")
                         listitem.setInfo('video', {'Title': "essai1", 'Genre': 'essai'})
                         xbmc.Player().play(videourl, listitem)
+                if params['ElemMenu']=="DL":
+                    if params['Adult']=="1":
+                        html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
+                        videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
+                        xbmc.log("--videourl_DL = "+str(videourl[0]))
+                        html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
+                        #xbmc.log("--html = "+html)
+                        videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
+                        videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
+                        xbmc.log("--videourl_DL.. = "+(str(videourl[0])))
+                        videourl = "http:"+str(videourls[0][0])
+                    else:
+                        videourl = base64.b64decode(params['Url'])
+                    
+                    xbmc.log("Adresse video DL: "+str(videourl))
+                    for i in range(0,999):
+                        if i < 10:
+                            NomFichVid = "vid00"+str(i)+".mp4"
+                        elif i < 100:
+                            NomFichVid = "vid0"+str(i)+".mp4"
+                        else:
+                            NomFichVid = "vid"+str(i)+".mp4"
+                        if not xbmcvfs.exists(os.path.join(profile,NomFichVid)):
+                            break
+                    DLFich(videourl,os.path.join(profile,NomFichVid), DPView=True)
         else:
             # Affichage du menu si aucune action
             #xbmc.log("Affichage Menux")
