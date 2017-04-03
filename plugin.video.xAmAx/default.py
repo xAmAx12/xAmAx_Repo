@@ -686,30 +686,32 @@ def router(paramstring):
                         listitem.setInfo('video', {'Title': "essai1", 'Genre': 'essai'})
                         xbmc.Player().play(videourl, listitem)
                 if params['ElemMenu']=="DL":
-                    if params['Adult']=="1":
-                        html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
-                        videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
-                        xbmc.log("--videourl_DL = "+str(videourl[0]))
-                        html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
-                        #xbmc.log("--html = "+html)
-                        videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
-                        videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
-                        xbmc.log("--videourl_DL.. = "+(str(videourl[0])))
-                        videourl = "http:"+str(videourls[0][0])
-                    else:
-                        videourl = base64.b64decode(params['Url'])
-                    
-                    xbmc.log("Adresse video DL: "+str(videourl))
-                    for i in range(0,999):
-                        if i < 10:
-                            NomFichVid = "vid00"+str(i)+".mp4"
-                        elif i < 100:
-                            NomFichVid = "vid0"+str(i)+".mp4"
+                    dialog = xbmcgui.Dialog()
+                    if dialog.yesno('Telechargement du fichier...', 'Voulez-vous télécharger le fichier?','','','Non', 'Oui'):
+                        if params['Adult']=="1":
+                            html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
+                            videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
+                            xbmc.log("--videourl_DL = "+str(videourl[0]))
+                            html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
+                            #xbmc.log("--html = "+html)
+                            videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
+                            videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
+                            xbmc.log("--videourl_DL.. = "+(str(videourl[0])))
+                            videourl = "http:"+str(videourls[0][0])
                         else:
-                            NomFichVid = "vid"+str(i)+".mp4"
-                        if not xbmcvfs.exists(os.path.join(profile,NomFichVid)):
-                            break
-                    DLFich(videourl,os.path.join(profile,NomFichVid), DPView=True)
+                            videourl = base64.b64decode(params['Url'])
+                        
+                        xbmc.log("Adresse video DL: "+str(videourl))
+                        for i in range(0,999):
+                            if i < 10:
+                                NomFichVid = "vid00"+str(i)+".mp4"
+                            elif i < 100:
+                                NomFichVid = "vid0"+str(i)+".mp4"
+                            else:
+                                NomFichVid = "vid"+str(i)+".mp4"
+                            if not xbmcvfs.exists(os.path.join(profile,NomFichVid)):
+                                break
+                        DLFich(videourl,os.path.join(profile,NomFichVid), DPView=True)
         else:
             # Affichage du menu si aucune action
             #xbmc.log("Affichage Menux")
