@@ -110,11 +110,11 @@ class LogAffich():
 def AfficheMenu(Menu=_MenuList, Icone=False):
     # creation du menu
     xbmc.log("Menu")
-    _vStream = cvStreamOpt().TryConnectvStream() # "vStream non installer!" TryConnectvStream()
-    _ChercheBackgroud = TryChercheBackgroud()
     # Création de la liste d'élément.
     #xbmc.log(str(Menu.items()))
     if not Icone:
+        _vStream = cvStreamOpt().TryConnectvStream() # "vStream non installer!" TryConnectvStream()
+        _ChercheBackgroud = TryChercheBackgroud()
         for tag, (Titre, Act, is_folder) in Menu.items():
             if ((_vStream == "OK" and Titre == "vStream")or
             (_ChercheBackgroud == "OK" and Titre == "ChangeFonDecran")or
@@ -125,48 +125,40 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
                     icone = _ArtMenu['param']
                 addDir(tag,'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, Act, Titre),1,icone,icone,is_folder)
     else:
-        for tag, (Titre, Url, is_folder, icone) in Menu.items():
+        for tag, (Titre, Url, is_folder, icone, List) in Menu.items():
             if icone != "":
-                if tag[:5] == "ZZZDL":
-                    text = base64.b64decode(str(Titre)).replace('&#8211;','-')
-                    text = text.replace('&ndash;','-')
-                    text = text.replace('&#038;','&')
-                    text = text.replace('&#8217;','\'')
-                    text = text.replace('&#8216;','\'')
-                    text = text.replace('&#8230;','...')
-                    text = text.replace('&quot;','"')
-                    text = text.replace('&#039;','`')
-                    text = text.replace('&amp;','&')
-                    text = text.replace('&ntilde;','ñ')
-                    Titre = text.replace('&rsquo;','\'')
-                    xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}'.format(_url,Url,"DL"))
-                    addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(_url,Url,"DL"),1,icone,icone,is_folder) #"[COLOR green]"++"[/COLOR]"
-                else:    
-                    text = base64.b64decode(str(Titre)).replace('&#8211;','-')
-                    text = text.replace('&ndash;','-')
-                    text = text.replace('&#038;','&')
-                    text = text.replace('&#8217;','\'')
-                    text = text.replace('&#8216;','\'')
-                    text = text.replace('&#8230;','...')
-                    text = text.replace('&quot;','"')
-                    text = text.replace('&#039;','`')
-                    text = text.replace('&amp;','&')
-                    text = text.replace('&ntilde;','ñ')
-                    Titre = text.replace('&rsquo;','\'')
-                    xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}'.format(_url,Url,"LireVideo2"))
-                    if base64.b64decode(icone)==_ArtMenu['lecture']:
-                        addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder)
-                    else:
-                        addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder)
+                text = base64.b64decode(str(Titre)).replace('&#8211;','-')
+                text = text.replace('&ndash;','-')
+                text = text.replace('&#038;','&')
+                text = text.replace('&#8217;','\'')
+                text = text.replace('&#8216;','\'')
+                text = text.replace('&#8230;','...')
+                text = text.replace('&quot;','"')
+                text = text.replace('&#039;','`')
+                text = text.replace('&amp;','&')
+                text = text.replace('&ntilde;','ñ')
+                Titre = text.replace('&rsquo;','\'')   
+                xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}&Timag={3}'.format(_url,Url,"LireVideo2",List)+" Icone= "+base64.b64decode(icone))
+                if base64.b64decode(icone)==_ArtMenu['lecture']:
+                    addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(_url,Url,"LireVideo2"),1,_ArtMenu['lecture'],_ArtMenu['lecture'],is_folder)
+                else:
+                    cCommands=[]
+                    cCommands.append(("Telecharger",'XBMC.RunPlugin({0}?action=Play&Url={1}&ElemMenu={2}&Adult=1&Timag={3})'.format(_url,Url,"DL",List)))
+                    xbmc.log("cCommands: "+str(cCommands))
+                    RetAdd = addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1&Timag={3}'.format(_url,Url,"LireVideo2",List),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder,contextCommands=cCommands)
+                    xbmc.log("RetAdd: "+str(RetAdd))
             else:
                 xbmc.log("Url="+base64.b64decode(Url))
-                addDir("ZZZ "+base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(_url,"Adult","TV",Url),1,_ArtMenu['lecture'],_ArtMenu['lecture'],is_folder)
+                addDir(base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(_url,"Adult","TV",Url),1,_ArtMenu['lecture'],_ArtMenu['lecture'],True)
     if Menu==_MenuList:
         # Création de chaque élément
         if _vStream != "OK":
             addDir(_vStream,'{0}?action=Menu&ElemMenu={1}'.format(_url, 'InstallvStream'),1,_ArtMenu['info'],_ArtMenu['fanar'],True)
         if addon.getSetting(id="Adult")=="true":
-            addDir("Plus",'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, "Adult", 'TV'),1,_ArtMenu['lecture'],_ArtMenu['fanar'],True)
+            cCommands=[]
+            cCommands.append(("Label",'XBMC.RunPlugin({0}?action=FichierEnCour&ElemMenu={1}&Adult=1)'.format(_url,"Label")))       
+            addDir("Plus",'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, "Adult", 'TV'),1,_ArtMenu['lecture'],_ArtMenu['fanar'],True,contextCommands=cCommands)
+            
     xbmcplugin.setPluginCategory( handle=int(sys.argv[1]), category="xAmAx" )
     xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -199,14 +191,16 @@ def MajMenuRegroup():
     return _MenuRegroup
     
 
-def addDir(name,url,mode,iconimage,fanart,is_Folder,infos={},cat=''):
+def addDir(name,url,mode,iconimage,fanart,is_Folder,infos={},cat='',contextCommands=[]):
     u  =url#sys.argv[0]+"?url="+urllib.quote(url)+"&mode="+str(mode)+"&name="+urllib.quote(name)+"&iconimage="+urllib.quote(iconimage)+"&cat="+urllib.quote(cat)
     ok =True
     liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-    infos['Title'] = name
     liz.setInfo( type="Video", infoLabels=infos )
     liz.setProperty('Fanart_Image',fanart)
-    
+    xbmc.log("contextCommands: "+str(contextCommands))
+    if len(contextCommands)>0:
+        liz.addContextMenuItems ( contextCommands, replaceItems=False)
+        
     ok =xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=is_Folder)
     return ok
 
@@ -529,10 +523,11 @@ def router(paramstring):
                                 Nom3=base64.b64encode(Nom+str(i))
                                 Url=base64.b64encode(Url)
                                 Thumb=base64.b64encode(Thumb)
-                                _MenuRegroup.update({Nom: (Nom2, Url, False, Thumb)})
-                                if Nom!="Page Suivante...":
-                                    xbmc.log("menuRegroup "+"{ZZZDL"+str(i)+": ("+Nom3+", "+Url+", "+str(False)+", "+_ArtMenu['DL']+")}")
-                                    _MenuRegroup.update({"ZZZDL"+str(i): (Nom3, Url, False, _ArtMenu['DL'])})
+                                _MenuRegroup.update({Nom: (Nom2, Url, False, Thumb, Timag)})
+                                #xbmc.log("List timag= "+str(Timag))
+                                #if Nom!="Page Suivante...":
+                                #    xbmc.log("menuRegroup "+"{ZZZDL"+str(i)+": ("+Nom3+", "+Url+", "+str(False)+", "+_ArtMenu['DL']+")}")
+                                #    _MenuRegroup.update({"ZZZDL"+str(i): (Nom3, Url, False, _ArtMenu['DL'])})
                             #_MenuRegroup.update({"ZZZDL"+str(i): (base64.b64encode("[COLOR green]TELECHARGEMENT[/COLOR]"), "", False, _ArtMenu['DL'])})
                             AfficheMenu(_MenuRegroup,True)
 
@@ -712,6 +707,13 @@ def router(paramstring):
                             if not xbmcvfs.exists(os.path.join(profile,NomFichVid)):
                                 break
                         DLFich(videourl,os.path.join(profile,NomFichVid), DPView=True)
+            if params['action'] == 'FichierEnCour':
+                win = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+                curctl = win.getFocusId()
+                cursel = win.getControl( curctl ).getSelectedItem()
+                if params['ElemMenu']=="Label":
+                    label = cursel.getLabel()
+                    xbmc.log("Label= "+str(label))
         else:
             # Affichage du menu si aucune action
             #xbmc.log("Affichage Menux")
