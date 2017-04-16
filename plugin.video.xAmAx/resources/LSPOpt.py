@@ -262,10 +262,16 @@ class cLiveSPOpt():
                         if ListeEffacer == False:
                             cUrl.execute("DELETE FROM ListePrincipale;")
                             ListeEffacer = True
-                        cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                        if Url.endswith(".ts"):
+                            cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
                                     VALUES (?,?,?)''',(IdLP,
                                                        Nom+" [COLOR gold](3)[/COLOR]",
                                                        'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
+                        else:
+                            cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                                    VALUES (?,?,?)''',(IdLP,
+                                                       Nom+" [COLOR gold](3)[/COLOR]",
+                                                       'plugin://plugin.video.f4mTester/?url=%s'%(urlib.quote_plus(Url))))
             else:
                 dialog = xbmcgui.Dialog()
                 ok = dialog.ok("Mise a jour Liste TV 3 Impossible!!!", Erreur3)
@@ -507,6 +513,9 @@ class cLiveSPOpt():
             elif Nom=="France IPTV":
                 Retour = self.TelechargPage(url=Url)
                 ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,')
+            elif Nom == "Mix World":
+                Retour = self.TelechargPage(url=Url)
+                ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,FR:')
             else:
                 if Essai==True:
                     Ret3 = self.TelechargPage(url=Url)
@@ -616,25 +625,54 @@ class cLiveSPOpt():
                         ret.append(DicM3u)
         return ret
 
-    def AdulteSources(self,Url='http://www.mrsexe.com/cat/62/sodomie/'):
+    def AdulteSources(self,Url='https://www.mrsexe.com/cat/62/sodomie/'):
         xbmc.log("Recherche de la liste de chaine...")
-        essai = str(self.TelechargPage(url=Url))#.decode('utf-8'))
-        xbmc.log("page: "+essai)
+        
+        req = urllib.Request(Url)
+        req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.154 Safari/537.36')      
+        #try:
+
+        #opener = urlib.FancyURLopener({})
+        #f = opener.open(Url)
+        #essai = f.read()
+
+        #user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
+        #headers = { 'User-Agent' : user_agent }
+
+        #req = urllib.Request(Url, None, headers)
+        #response = urllib.urlopen(req)
+        #FichTelecharg = response.read()
+        #response.close() # its always safe to close an open connection
+        
+        cookie = urllib.HTTPCookieProcessor(None)
+        opener = urllib.build_opener(cookie, urllib.HTTPBasicAuthHandler(), urllib.HTTPHandler())
+        response = opener.open(req,None,timeout=20)
+        FichTelecharg=response.read()
+        response.close()
+        
+        essai = FichTelecharg
+        
+        #except:
+        #    xbmc.log("Erreur téléchargement Page: "+str(Url)+"\n Erreur = "+str(sys.exc_info()[0]))
+        #    essai = "Erreur téléchargement Page: "+str(Url)+"\n Erreur = "+str(sys.exc_info()[0])
+        #essai = str(self.TelechargPage(url=Url))#.decode('utf-8'))
+
+        #xbmc.log("page: "+essai)
         ret = []
         if not essai.startswith("Erreur"):
             match = re.compile('thumb-list(.*?)<ul class="right pagination">', re.DOTALL | re.IGNORECASE).findall(essai)
-            xbmc.log("Resulta 1 tri: "+str(match))
+            #xbmc.log("Resulta 1 tri: "+str(match))
             match1 = re.compile(r'<li class="[^"]*">\s<a class="thumbnail" href="([^"]+)">\n<script.+?([^;]+);</script>\n<figure>\n<img  id=".+?" src="([^"]+)".+?/>\n<figcaption>\n<span class="video-icon"><i class="fa fa-play"></i></span>\n<span class="duration"><i class="fa fa-clock-o"></i>([^<]+)</span>\n(.+?)\n',
                                 re.DOTALL | re.IGNORECASE).findall(match[0])
             for url, Timage, image, Temp, Descript in match1:
-                ret.append((url,"http:"+image, Timage.split("(")[1][:-1].replace("'","").split(","),Descript+" "+Temp))
+                ret.append((url,"https:"+image, Timage.split("(")[1][:-1].replace("'","").split(","),Descript+" "+Temp))
                 #xbmc.log("Timage= "+str(Timage.split("(")[1][:-1].replace("'","").split(",")))
-                xbmc.log("image= "+"http:"+str(image))
+                #xbmc.log("image= "+"http:"+str(image))
             xbmc.log("Recherche OK...")
             try:
                 nextp=re.compile(r'<li class="arrow"><a href="(.+?)">suivant</li>').findall(essai)
                 #xbmc.log("next= "+str(nextp))
-                ret.append(('http://www.mrsexe.com' + nextp[0],"",[],"Page Suivante..."))
+                ret.append(('https://www.mrsexe.com' + nextp[0],"",[],"Page Suivante..."))
             except: pass
         else:
             dialog = xbmcgui.Dialog()
