@@ -125,7 +125,7 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
                     icone = _ArtMenu['param']
                 addDir(tag,'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, Act, Titre),1,icone,icone,is_folder)
     else:
-        for tag, (Titre, Url, is_folder, icone, List) in Menu.items():
+        for tag, (Titre, Url, is_folder, icone, Tmage) in Menu.items():
             if icone != "":
                 text = base64.b64decode(str(Titre)).replace('&#8211;','-')
                 text = text.replace('&ndash;','-')
@@ -138,14 +138,15 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
                 text = text.replace('&amp;','&')
                 text = text.replace('&ntilde;','ñ')
                 Titre = text.replace('&rsquo;','\'')   
-                xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}&Timag={3}'.format(_url,Url,"LireVideo2",List)+" Icone= "+base64.b64decode(icone))
+                xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}&Tmage={3}'.format(_url,Url,"LireVideo2",Tmage)+" Icone= "+base64.b64decode(icone))
                 if base64.b64decode(icone)==_ArtMenu['lecture']:
                     addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(_url,Url,"LireVideo2"),1,_ArtMenu['lecture'],_ArtMenu['lecture'],is_folder)
                 else:
                     cCommands=[]
-                    cCommands.append(("Telecharger",'XBMC.RunPlugin({0}?action=Play&Url={1}&ElemMenu={2}&Adult=1&Timag={3})'.format(_url,Url,"DL",List)))
+                    cCommands.append(("Telecharger vidéo",'XBMC.RunPlugin({0}?action=Play&Url={1}&ElemMenu={2}&Adult=1)'.format(_url,Url,"DL")))
+                    cCommands.append(("Afficher les photos",'XBMC.RunPlugin({0}?action=FichierEnCour&ElemMenu={1}&Adult=1&Icone={2}&timage={3})'.format(_url,"Photo",base64.b64decode(icone),Tmage)))    
                     xbmc.log("cCommands: "+str(cCommands))
-                    RetAdd = addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1&Timag={3}'.format(_url,Url,"LireVideo2",List),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder,contextCommands=cCommands)
+                    RetAdd = addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder,contextCommands=cCommands)
                     xbmc.log("RetAdd: "+str(RetAdd))
             else:
                 xbmc.log("Url="+base64.b64decode(Url))
@@ -155,9 +156,7 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
         if _vStream != "OK":
             addDir(_vStream,'{0}?action=Menu&ElemMenu={1}'.format(_url, 'InstallvStream'),1,_ArtMenu['info'],_ArtMenu['fanar'],True)
         if addon.getSetting(id="Adult")=="true":
-            cCommands=[]
-            cCommands.append(("Label",'XBMC.RunPlugin({0}?action=FichierEnCour&ElemMenu={1}&Adult=1)'.format(_url,"Label")))       
-            addDir("Plus",'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, "Adult", 'TV'),1,_ArtMenu['lecture'],_ArtMenu['fanar'],True,contextCommands=cCommands)
+            addDir("Plus",'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, "Adult", 'TV'),1,_ArtMenu['lecture'],_ArtMenu['fanar'],True)
             
     xbmcplugin.setPluginCategory( handle=int(sys.argv[1]), category="xAmAx" )
     xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
@@ -288,9 +287,10 @@ def TryChercheBackgroud():
     #except:
     #        return "Fond d'écran indisponible!"
 
-def TelechargementZip(url,dest):
-    dp = xbmcgui.DialogProgress()
-    dp.create("Telechargement Mise a jour:","Fichier en téléchargement",url)
+def TelechargementZip(url,dest,DPAff=True):
+    if DPAff:
+        dp = xbmcgui.DialogProgress()
+        dp.create("Telechargement Mise a jour:","Fichier en téléchargement",url)
     try:
         urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
     except:
@@ -443,289 +443,307 @@ def Efface_thumb(env):
 
 
 def router(paramstring):
-        xbmc.log("dans router")
-        # reception des paramètres du menu
-        if len(paramstring)>=2:
-            params = dict(parse_qsl(paramstring))
-        else:
-            params = None
-        # Si aucun paramètre on ouvre le menu
-        if params:
-            xbmc.log(str(params))
-            if params['action'] == 'Menu':
-                
-                if params['Option'] =="TV":
-                    if params['ElemMenu']=="VisuLiveStream":
-                        if addon.getSetting(id="MajtvAuto")=="true":
-                            xbmc.log("Recherche mise a jour si première ouverture de la journée")
-                            DateDerMajTv = str(addon.getSetting(id="DateTvListe"))
-                            xbmc.log("Dernière Mise a jour: "+DateDerMajTv)
-                            if str(DateDerMajTv)!=strftime("%d-%m-%Y", gmtime()):
-                                Retour = cLiveSPOpt().RechercheChaine(AdressePlugin)
-                                if Retour=="OK":
-                                    if addon.getSetting(id="CreerBouq")=="true":
-                                        cLiveSPOpt().CreerBouquet(AdressePlugin)
-                                    addon.setSetting(id="DateTvListe", value=strftime("%d-%m-%Y", gmtime())) #%H:%M:%S"
-                        if addon.getSetting(id="CreerBouq")=="true":
-                            dbxAmAx = os.path.join(AdressePlugin, "resources", "xAmAx.db")
-                            xbmc.log("Ouverture Liste Bouquet de: "+dbxAmAx)
-                            NewDB = lite.connect(dbxAmAx)
-                            cUrl = NewDB.cursor()
-                            cUrl.execute("SELECT NomBouq FROM Bouquet ORDER BY Ordre ;")
-                            for NomBouq in cUrl:
-                                _MenuTV.update({"Bouquet "+str(NomBouq[0]): ("TV","Bouq"+str(NomBouq[0]),True)})
-                            cUrl.close()
-                            NewDB.close()
-                        if addon.getSetting(id="Adult")=="true":
-                            _MenuTV.update({"Pluss":("TV","Adult",True)})
-                        AfficheMenu(_MenuTV)
-                    if params['ElemMenu']=='AffichTV':
-                        AfficheMenu(MajMenuRegroup())
-                    if params['ElemMenu']=='MajTV':
-
-                        VRech = urllib.urlopen("https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/resources/LSPOpt").read()
-                        VLspopt = addon.getSetting(id="LSPOpt")
-                        xbmc.log("Version Recherche TV: "+VLspopt+" Version sur internet: "+VRech)
-                        if VLspopt!=str(VRech):
-                            LSPOpt = urllib.urlopen("https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/resources/LSPOpt.py").read()
-                            dest = os.path.join(AdressePlugin, "resources", "LSPOpt.py")
-                            fichier = open(dest, "w")
-                            fichier.write(LSPOpt)
-                            fichier.close()
-                            addon.setSetting(id="LSPOpt", value=str(VRech))
-                            
-                        Retour2 = cLiveSPOpt().RechercheChaine(AdressePlugin)
-                        if Retour2=="OK":
-                            cLiveSPOpt().CreerBouquet(AdressePlugin)
-                            AfficheMenu(MajMenuRegroup())
-                        else:
-                            dialog = xbmcgui.Dialog()
-                            ok = dialog.ok("Erreur chaines TV", Retour2)
-                    if params['ElemMenu'][:4]=="Bouq":
-                        AfichListeTS(Bouquet=params['ElemMenu'][4:])
-                    if params['ElemMenu'][:13]=="ChaineRegroup":
-                        if params['ElemMenu'][13:]=="LesAutres":
-                            AfichListeTS(Where="IDLP NOT IN "+str(addon.getSetting(id="ListAutre")))
-                        else:
-                            AfichListeTS(Where="Nom LIKE '%"+base64.b64decode(str(params['ElemMenu'][13:]))+"%'")
-                    if params['ElemMenu']=="Adult":
-                        try:
-                            Url = params['Url']
-                            ListAff = cLiveSPOpt().AdulteSources(base64.b64decode(Url))
-                        except:
-                            ListAff = cLiveSPOpt().AdulteSources()
-                        if len(ListAff)>0:
-                            i=0
-                            _MenuRegroup={}
-                            for Url,Thumb,Timag,Nom in ListAff:
-                                i+=1
-                                Nom2=base64.b64encode(Nom)
-                                Nom3=base64.b64encode(Nom+str(i))
-                                Url=base64.b64encode(Url)
-                                Thumb=base64.b64encode(Thumb)
-                                _MenuRegroup.update({Nom: (Nom2, Url, False, Thumb, Timag)})
-                                #xbmc.log("List timag= "+str(Timag))
-                                #if Nom!="Page Suivante...":
-                                #    xbmc.log("menuRegroup "+"{ZZZDL"+str(i)+": ("+Nom3+", "+Url+", "+str(False)+", "+_ArtMenu['DL']+")}")
-                                #    _MenuRegroup.update({"ZZZDL"+str(i): (Nom3, Url, False, _ArtMenu['DL'])})
-                            #_MenuRegroup.update({"ZZZDL"+str(i): (base64.b64encode("[COLOR green]TELECHARGEMENT[/COLOR]"), "", False, _ArtMenu['DL'])})
-                            AfficheMenu(_MenuRegroup,True)
-
-                if params['Option']=='vStream':
-                    if params['ElemMenu']=="VisuVstream":
-                        AfficheMenu(_MenuvStream)
-                    if params['ElemMenu']=='MPVstream':
-                        Retour = cvStreamOpt().MiseAJourVstream("MarquePage")
-                        dialog = xbmcgui.Dialog()
-                        ok = dialog.ok("Trier les Marques-Pages vStream", Retour)
-                    if params['ElemMenu']=='RechercheVstream':
-                        Retour = cvStreamOpt().MiseAJourVstream("Recherche")
-                        dialog = xbmcgui.Dialog()
-                        ok = dialog.ok("Trier la liste de Recherche vStream", Retour)
-                    
-                if params['Option']=="Kodi":
-                    if params['ElemMenu']=="VisuKodi":
-                        AfficheMenu(_MenuKodi)
-                    if params['ElemMenu']=="AffichLog":
-                        xbmc.log("AffichLog: ")
-                        Affich=LogAffich()
-                        Affich.Fenetre(Chemin=xbmc.translatePath('special://logpath')+"kodi.log",
-                                        line_number=0,Invertion=True,LabTitre="Journal d'erreur")
-                    if params['ElemMenu']=='ChangeFonDecran':
-                        xbmc.log("ChangeFonDecran")
-                        _ChercheBackgroud = TryChercheBackgroud()
-                        if _ChercheBackgroud == "OK":
-                            CheminSplit = Param["Chemin"][:Param["Chemin"].rfind("/")+1]
-                            NomFichier = Param["Chemin"][Param["Chemin"].rfind("/")+1:]
-                            Extension = NomFichier[-4:]
-                            NomFichier = NomFichier[:-4]
-                            xbmc.log(CheminSplit+" "+NomFichier+" "+Extension)
-                            Efface_thumb('thumb')
-                            dialog = xbmcgui.Dialog()
-                            Defaut = CheminSplit
-                            fn = dialog.browse(2, "Choisir l'image de fond d'écran", 'files', '.jpg,.png',
-                                               True, False, Defaut)
-                            if fn != Defaut and fn != "":
-                                if xbmcvfs.exists(fn):
-                                    if not xbmcvfs.exists(Defaut+NomFichier+"_Sauve"+Extension):
-                                        xbmcvfs.rename(Defaut+NomFichier+Extension,
-                                                       Defaut+NomFichier+"_Sauve"+Extension)
-                                    success = xbmcvfs.copy(fn, Defaut+NomFichier+Extension)
-                                    dialog = xbmcgui.Dialog()
-                                    if success:
-                                        ok = dialog.ok("Le fond d'écran a était modifier!!!",
-                                                       "Le fond d'écran a bien était modifier!!!",
-                                                       "Si le fond ne s'affiche pas veuillez redémarrer Kodi")
-                                    else:
-                                        ok = dialog.ok("Erreur de recherche du fond d'ecran",
-                                                       "Le font d'écran n'a pas pu être modifier!!!",
-                                                       "       DESOLE!!!")
-                        else:
-                            dialog = xbmcgui.Dialog()
-                            ok = dialog.ok("Erreur de copy du fichier",_ChercheBackgroud)
-                    if params['ElemMenu']=="SupTemp":
-                        xbmc.log("SupTemp")
-                        dialog = xbmcgui.Dialog()
-                        if dialog.yesno('Effacer les fichier temporaires...', 'Êtes-vous sûr ?','','','Non', 'Oui'):
-                            Retour = Efface_thumb('fi')
+    xbmc.log("dans router")
+    # reception des paramètres du menu
+    if len(paramstring)>=2:
+        params = dict(parse_qsl(paramstring))
+    else:
+        params = None
+    # Si aucun paramètre on ouvre le menu
+    if params:
+        xbmc.log(str(params))
+        if params['action'] == 'Menu':
+            
+            if params['Option'] =="TV":
+                if params['ElemMenu']=="VisuLiveStream":
+                    if addon.getSetting(id="MajtvAuto")=="true":
+                        xbmc.log("Recherche mise a jour si première ouverture de la journée")
+                        DateDerMajTv = str(addon.getSetting(id="DateTvListe"))
+                        xbmc.log("Dernière Mise a jour: "+DateDerMajTv)
+                        if str(DateDerMajTv)!=strftime("%d-%m-%Y", gmtime()):
+                            Retour = cLiveSPOpt().RechercheChaine(AdressePlugin)
                             if Retour=="OK":
-                                xbmc.executebuiltin("XBMC.Notification(Effacement des fichiers temporaires ,OK,2000,"")")
-                            else:
-                                xbmc.executebuiltin("XBMC.Notification(Effacement des fichiers temporaires ," + Retour + ",2000,"")")
-                                
-                    if params['ElemMenu']=="SupThumb":
-                        xbmc.log("SupThumb")
-                        dialog = xbmcgui.Dialog()
-                        if dialog.yesno('Effacer les miniatures...', 'Êtes-vous sûr ?','','','Non', 'Oui'):
-                            Retour=Efface_thumb('thumb')
-                            if Retour=="OK":
-                                xbmc.executebuiltin("XBMC.Notification(Effacement Miniatures ,OK,2000,"")")
-                            else:
-                                xbmc.executebuiltin("XBMC.Notification(Effacement Miniatures ,"+Retour+",2000,"")")
-                
-                if params['Option']=="xAmAx":
-                    if params['ElemMenu']=="VisuxAmAx":
-                        xbmc.log("Afficher menu xAmAx")
-                        AfficheMenu(_MenuxAmAx)
-                    if params['ElemMenu']=="InfoVersion":
-                        xbmc.log("InfoVersion: ")
-                        Affich=LogAffich()
-                        Affich.Fenetre(Chemin=os.path.join(AdressePlugin,"changelog.txt"),line_number=0)
-                    if params['ElemMenu']=="MiseAJourxAmAx":
-                        Retour = RechercheMAJ()
-                        if Retour != "OK":
-                            dialog = xbmcgui.Dialog()
-                            ok = dialog.ok("Mise à jour xAmAx", Retour)
-                    if params['ElemMenu']=="test":
-                        xbmc.log("test: ")
-                        ListAff = cLiveSPOpt().AdulteSources()
+                                if addon.getSetting(id="CreerBouq")=="true":
+                                    cLiveSPOpt().CreerBouquet(AdressePlugin)
+                                addon.setSetting(id="DateTvListe", value=strftime("%d-%m-%Y", gmtime())) #%H:%M:%S"
+                    if addon.getSetting(id="CreerBouq")=="true":
+                        dbxAmAx = os.path.join(AdressePlugin, "resources", "xAmAx.db")
+                        xbmc.log("Ouverture Liste Bouquet de: "+dbxAmAx)
+                        NewDB = lite.connect(dbxAmAx)
+                        cUrl = NewDB.cursor()
+                        cUrl.execute("SELECT NomBouq FROM Bouquet ORDER BY Ordre ;")
+                        for NomBouq in cUrl:
+                            _MenuTV.update({"Bouquet "+str(NomBouq[0]): ("TV","Bouq"+str(NomBouq[0]),True)})
+                        cUrl.close()
+                        NewDB.close()
+                    if addon.getSetting(id="Adult")=="true":
+                        _MenuTV.update({"Pluss":("TV","Adult",True)})
+                    AfficheMenu(_MenuTV)
+                if params['ElemMenu']=='AffichTV':
+                    AfficheMenu(MajMenuRegroup())
+                if params['ElemMenu']=='MajTV':
+
+                    VRech = urllib.urlopen("https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/resources/LSPOpt").read()
+                    VLspopt = addon.getSetting(id="LSPOpt")
+                    xbmc.log("Version Recherche TV: "+VLspopt+" Version sur internet: "+VRech)
+                    if VLspopt!=str(VRech):
+                        LSPOpt = urllib.urlopen("https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/resources/LSPOpt.py").read()
+                        dest = os.path.join(AdressePlugin, "resources", "LSPOpt.py")
+                        fichier = open(dest, "w")
+                        fichier.write(LSPOpt)
+                        fichier.close()
+                        addon.setSetting(id="LSPOpt", value=str(VRech))
                         
-                        if len(ListAff)>0:
-                            i=0
-                            _MenuRegroup={}
-                            for Url,Thumb,Nom in ListAff:
-                                i+=1
-                                Nom=base64.b64encode(Nom)
-                                Url=base64.b64encode(Url)
-                                Thumb=base64.b64encode(Thumb)
-                                _MenuRegroup.update({"essai-"+str(i): (Nom, Url, True, Thumb)})
-                            AfficheMenu(_MenuRegroup,True)
-                    if params['ElemMenu']=="ParamxAmAx":
-                        addon.openSettings()
-                    if params['ElemMenu']=="LireUrl":
-                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=AdressePlugin)
-                        i=0
-                        MenuRegroup={}
-                        for Nom,Url in ListAff:
-                            i+=1
-                            Nom=base64.b64encode(Nom)
-                            Url=base64.b64encode(Url)
-                            Thumb=base64.b64encode(os.path.join(AdressePlugin,'play.png'))
-                            MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
-                        AfficheMenu(MenuRegroup,True)
-                    if params['ElemMenu']=="LireF4m":
-                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=AdressePlugin, F4m=True)
+                    Retour2 = cLiveSPOpt().RechercheChaine(AdressePlugin)
+                    if Retour2=="OK":
+                        cLiveSPOpt().CreerBouquet(AdressePlugin)
+                        AfficheMenu(MajMenuRegroup())
+                    else:
+                        dialog = xbmcgui.Dialog()
+                        ok = dialog.ok("Erreur chaines TV", Retour2)
+                if params['ElemMenu'][:4]=="Bouq":
+                    AfichListeTS(Bouquet=params['ElemMenu'][4:])
+                if params['ElemMenu'][:13]=="ChaineRegroup":
+                    if params['ElemMenu'][13:]=="LesAutres":
+                        AfichListeTS(Where="IDLP NOT IN "+str(addon.getSetting(id="ListAutre")))
+                    else:
+                        AfichListeTS(Where="Nom LIKE '%"+base64.b64decode(str(params['ElemMenu'][13:]))+"%'")
+                if params['ElemMenu']=="Adult":
+                    try:
+                        Url = params['Url']
+                        ListAff = cLiveSPOpt().AdulteSources(base64.b64decode(Url))
+                    except:
+                        ListAff = cLiveSPOpt().AdulteSources()
+                    if len(ListAff)>0:
                         i=0
                         _MenuRegroup={}
-                        for Nom,Url in ListAff:
+                        for Url,Thumb,Timag,Nom in ListAff:
+                            i+=1
+                            Nom2=base64.b64encode(Nom)
+                            Nom3=base64.b64encode(Nom+str(i))
+                            Url=base64.b64encode(Url)
+                            Thumb=base64.b64encode(Thumb)
+                            Tima=base64.b64encode(str(Timag))
+                            _MenuRegroup.update({Nom: (Nom2, Url, False, Thumb, Tima)})
+                            #xbmc.log("List timag= "+str(Timag))
+                            #if Nom!="Page Suivante...":
+                            #    xbmc.log("menuRegroup "+"{ZZZDL"+str(i)+": ("+Nom3+", "+Url+", "+str(False)+", "+_ArtMenu['DL']+")}")
+                            #    _MenuRegroup.update({"ZZZDL"+str(i): (Nom3, Url, False, _ArtMenu['DL'])})
+                        #_MenuRegroup.update({"ZZZDL"+str(i): (base64.b64encode("[COLOR green]TELECHARGEMENT[/COLOR]"), "", False, _ArtMenu['DL'])})
+                        AfficheMenu(_MenuRegroup,True)
+
+            if params['Option']=='vStream':
+                if params['ElemMenu']=="VisuVstream":
+                    AfficheMenu(_MenuvStream)
+                if params['ElemMenu']=='MPVstream':
+                    Retour = cvStreamOpt().MiseAJourVstream("MarquePage")
+                    dialog = xbmcgui.Dialog()
+                    ok = dialog.ok("Trier les Marques-Pages vStream", Retour)
+                if params['ElemMenu']=='RechercheVstream':
+                    Retour = cvStreamOpt().MiseAJourVstream("Recherche")
+                    dialog = xbmcgui.Dialog()
+                    ok = dialog.ok("Trier la liste de Recherche vStream", Retour)
+                
+            if params['Option']=="Kodi":
+                if params['ElemMenu']=="VisuKodi":
+                    AfficheMenu(_MenuKodi)
+                if params['ElemMenu']=="AffichLog":
+                    xbmc.log("AffichLog: ")
+                    Affich=LogAffich()
+                    Affich.Fenetre(Chemin=xbmc.translatePath('special://logpath')+"kodi.log",
+                                    line_number=0,Invertion=True,LabTitre="Journal d'erreur")
+                if params['ElemMenu']=='ChangeFonDecran':
+                    xbmc.log("ChangeFonDecran")
+                    _ChercheBackgroud = TryChercheBackgroud()
+                    if _ChercheBackgroud == "OK":
+                        CheminSplit = Param["Chemin"][:Param["Chemin"].rfind("/")+1]
+                        NomFichier = Param["Chemin"][Param["Chemin"].rfind("/")+1:]
+                        Extension = NomFichier[-4:]
+                        NomFichier = NomFichier[:-4]
+                        xbmc.log(CheminSplit+" "+NomFichier+" "+Extension)
+                        Efface_thumb('thumb')
+                        dialog = xbmcgui.Dialog()
+                        Defaut = CheminSplit
+                        fn = dialog.browse(2, "Choisir l'image de fond d'écran", 'files', '.jpg,.png',
+                                           True, False, Defaut)
+                        if fn != Defaut and fn != "":
+                            if xbmcvfs.exists(fn):
+                                if not xbmcvfs.exists(Defaut+NomFichier+"_Sauve"+Extension):
+                                    xbmcvfs.rename(Defaut+NomFichier+Extension,
+                                                   Defaut+NomFichier+"_Sauve"+Extension)
+                                success = xbmcvfs.copy(fn, Defaut+NomFichier+Extension)
+                                dialog = xbmcgui.Dialog()
+                                if success:
+                                    ok = dialog.ok("Le fond d'écran a était modifier!!!",
+                                                   "Le fond d'écran a bien était modifier!!!",
+                                                   "Si le fond ne s'affiche pas veuillez redémarrer Kodi")
+                                else:
+                                    ok = dialog.ok("Erreur de recherche du fond d'ecran",
+                                                   "Le font d'écran n'a pas pu être modifier!!!",
+                                                   "       DESOLE!!!")
+                    else:
+                        dialog = xbmcgui.Dialog()
+                        ok = dialog.ok("Erreur de copy du fichier",_ChercheBackgroud)
+                if params['ElemMenu']=="SupTemp":
+                    xbmc.log("SupTemp")
+                    dialog = xbmcgui.Dialog()
+                    if dialog.yesno('Effacer les fichier temporaires...', 'Êtes-vous sûr ?','','','Non', 'Oui'):
+                        Retour = Efface_thumb('fi')
+                        if Retour=="OK":
+                            xbmc.executebuiltin("XBMC.Notification(Effacement des fichiers temporaires ,OK,2000,"")")
+                        else:
+                            xbmc.executebuiltin("XBMC.Notification(Effacement des fichiers temporaires ," + Retour + ",2000,"")")
+                            
+                if params['ElemMenu']=="SupThumb":
+                    xbmc.log("SupThumb")
+                    dialog = xbmcgui.Dialog()
+                    if dialog.yesno('Effacer les miniatures...', 'Êtes-vous sûr ?','','','Non', 'Oui'):
+                        Retour=Efface_thumb('thumb')
+                        if Retour=="OK":
+                            xbmc.executebuiltin("XBMC.Notification(Effacement Miniatures ,OK,2000,"")")
+                        else:
+                            xbmc.executebuiltin("XBMC.Notification(Effacement Miniatures ,"+Retour+",2000,"")")
+            
+            if params['Option']=="xAmAx":
+                if params['ElemMenu']=="VisuxAmAx":
+                    xbmc.log("Afficher menu xAmAx")
+                    AfficheMenu(_MenuxAmAx)
+                if params['ElemMenu']=="InfoVersion":
+                    xbmc.log("InfoVersion: ")
+                    Affich=LogAffich()
+                    Affich.Fenetre(Chemin=os.path.join(AdressePlugin,"changelog.txt"),line_number=0)
+                if params['ElemMenu']=="MiseAJourxAmAx":
+                    Retour = RechercheMAJ()
+                    if Retour != "OK":
+                        dialog = xbmcgui.Dialog()
+                        ok = dialog.ok("Mise à jour xAmAx", Retour)
+                if params['ElemMenu']=="test":
+                    xbmc.log("test: ")
+                    ListAff = cLiveSPOpt().AdulteSources()
+                    
+                    if len(ListAff)>0:
+                        i=0
+                        _MenuRegroup={}
+                        for Url,Thumb,Nom in ListAff:
                             i+=1
                             Nom=base64.b64encode(Nom)
                             Url=base64.b64encode(Url)
-                            Thumb=base64.b64encode(os.path.join(AdressePlugin,'play.png'))
-                            _MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
+                            Thumb=base64.b64encode(Thumb)
+                            _MenuRegroup.update({"essai-"+str(i): (Nom, Url, True, Thumb)})
                         AfficheMenu(_MenuRegroup,True)
-                    
-            if params['action'] == 'Play':
-                if params['ElemMenu']=="LireVideo":
-                    finalUrl=params['Url']
-                    xbmc.log("Lecture de: "+finalUrl) 
-                    xbmc.executebuiltin('XBMC.RunPlugin('+finalUrl+')')
-                if params['ElemMenu']=="LireVideo2":
+                if params['ElemMenu']=="ParamxAmAx":
+                    addon.openSettings()
+                if params['ElemMenu']=="LireUrl":
+                    ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=AdressePlugin)
+                    i=0
+                    MenuRegroup={}
+                    for Nom,Url in ListAff:
+                        i+=1
+                        Nom=base64.b64encode(Nom)
+                        Url=base64.b64encode(Url)
+                        Thumb=base64.b64encode(os.path.join(AdressePlugin,'play.png'))
+                        MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
+                    AfficheMenu(MenuRegroup,True)
+                if params['ElemMenu']=="LireF4m":
+                    ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=AdressePlugin, F4m=True)
+                    i=0
+                    _MenuRegroup={}
+                    for Nom,Url in ListAff:
+                        i+=1
+                        Nom=base64.b64encode(Nom)
+                        Url=base64.b64encode(Url)
+                        Thumb=base64.b64encode(os.path.join(AdressePlugin,'play.png'))
+                        _MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
+                    AfficheMenu(_MenuRegroup,True)
+                
+        if params['action'] == 'Play':
+            if params['ElemMenu']=="LireVideo":
+                finalUrl=params['Url']
+                xbmc.log("Lecture de: "+finalUrl) 
+                xbmc.executebuiltin('XBMC.RunPlugin('+finalUrl+')')
+            if params['ElemMenu']=="LireVideo2":
+                if params['Adult']=="1":
+                    html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
+                    videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
+                    xbmc.log("--videourl = "+str(videourl[0]))
+                    html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
+                    #xbmc.log("--html = "+html)
+                    videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
+                    videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
+                    xbmc.log("--videourl.. = "+(str(videourl[0])))
+                    videourl = "http:"+str(videourls[0][0])
+                else:
+                    videourl = base64.b64decode(params['Url'])
+                xbmc.log("Adresse video: "+str(videourl))
+                if videourl.startswith("plugin://"):
+                    xbmc.executebuiltin('XBMC.RunPlugin('+videourl+')')
+                else:
+                    listitem = xbmcgui.ListItem("essai1")
+                    listitem.setInfo('video', {'Title': "essai1", 'Genre': 'essai'})
+                    xbmc.Player().play(videourl, listitem)
+            if params['ElemMenu']=="DL":
+                dialog = xbmcgui.Dialog()
+                if dialog.yesno('Telechargement du fichier...', 'Voulez-vous télécharger le fichier?','','','Non', 'Oui'):
                     if params['Adult']=="1":
                         html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
                         videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
-                        xbmc.log("--videourl = "+str(videourl[0]))
+                        xbmc.log("--videourl_DL = "+str(videourl[0]))
                         html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
                         #xbmc.log("--html = "+html)
                         videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
                         videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
-                        xbmc.log("--videourl.. = "+(str(videourl[0])))
+                        xbmc.log("--videourl_DL.. = "+(str(videourl[0])))
                         videourl = "http:"+str(videourls[0][0])
                     else:
                         videourl = base64.b64decode(params['Url'])
-                    xbmc.log("Adresse video: "+str(videourl))
-                    if videourl.startswith("plugin://"):
-                        xbmc.executebuiltin('XBMC.RunPlugin('+videourl+')')
-                    else:
-                        listitem = xbmcgui.ListItem("essai1")
-                        listitem.setInfo('video', {'Title': "essai1", 'Genre': 'essai'})
-                        xbmc.Player().play(videourl, listitem)
-                if params['ElemMenu']=="DL":
-                    dialog = xbmcgui.Dialog()
-                    if dialog.yesno('Telechargement du fichier...', 'Voulez-vous télécharger le fichier?','','','Non', 'Oui'):
-                        if params['Adult']=="1":
-                            html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
-                            videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
-                            xbmc.log("--videourl_DL = "+str(videourl[0]))
-                            html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
-                            #xbmc.log("--html = "+html)
-                            videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
-                            videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
-                            xbmc.log("--videourl_DL.. = "+(str(videourl[0])))
-                            videourl = "http:"+str(videourls[0][0])
+                    
+                    xbmc.log("Adresse video DL: "+str(videourl))
+                    for i in range(0,999):
+                        if i < 10:
+                            NomFichVid = "vid00"+str(i)+".mp4"
+                        elif i < 100:
+                            NomFichVid = "vid0"+str(i)+".mp4"
                         else:
-                            videourl = base64.b64decode(params['Url'])
-                        
-                        xbmc.log("Adresse video DL: "+str(videourl))
-                        for i in range(0,999):
-                            if i < 10:
-                                NomFichVid = "vid00"+str(i)+".mp4"
-                            elif i < 100:
-                                NomFichVid = "vid0"+str(i)+".mp4"
-                            else:
-                                NomFichVid = "vid"+str(i)+".mp4"
-                            if not xbmcvfs.exists(os.path.join(profile,NomFichVid)):
-                                break
-                        DLFich(videourl,os.path.join(profile,NomFichVid), DPView=True)
-            if params['action'] == 'FichierEnCour':
+                            NomFichVid = "vid"+str(i)+".mp4"
+                        if not xbmcvfs.exists(os.path.join(profile,NomFichVid)):
+                            break
+                    DLFich(videourl,os.path.join(profile,NomFichVid), DPView=True)
+        if params['action'] == 'FichierEnCour':
+            if params['ElemMenu']=="Label":
                 win = xbmcgui.Window(xbmcgui.getCurrentWindowId())
                 curctl = win.getFocusId()
                 cursel = win.getControl( curctl ).getSelectedItem()
-                if params['ElemMenu']=="Label":
-                    label = cursel.getLabel()
-                    xbmc.log("Label= "+str(label))
-        else:
-            # Affichage du menu si aucune action
-            #xbmc.log("Affichage Menux")
-            if addon.getSetting(id="MajAuto")=="true":
-                xbmc.log("Recherche auto de Mise a jour: ")
-                MajAuto("xAmAx")
-                MajAuto("settings")
-                MajAuto("vStreamOpt")
-                MajAuto("LSPOpt")
-                MajAuto("default")
-            AfficheMenu()
-            #xbmcplugin.endOfDirectory(_handle,succeeded=True)
+                label = cursel.getLabel()
+                xbmc.log("Label= "+str(label))
+            if params['ElemMenu']=="Photo":
+                listPhoto = ""
+                ListeImage = base64.b64decode(params['timage']).replace("[","").replace("]","").replace(chr(39),"").split(",")
+                i=0
+                cheminPhoto=os.path.join(profile,"photo")
+                xbmcvfs.mkdir(cheminPhoto)
+                Dir,Phot = xbmcvfs.listdir(cheminPhoto)
+                for ph in Phot:
+                    xbmcvfs.delete(os.path.join(cheminPhoto,ph))
+                for photo in ListeImage:
+                    i+=1
+                    CheminFich = os.path.join(cheminPhoto,"Photo"+str(i)+".jpg")
+                    if photo.startswith(" "):
+                        photo = photo[1:]
+                    listPhoto = params['Icone'][:params['Icone'].rfind("_")+1]+photo+params['Icone'][-4:]
+                    TelechargementZip(listPhoto,CheminFich)       
+                xbmc.executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')')
+    else:
+        # Affichage du menu si aucune action
+        #xbmc.log("Affichage Menux")
+        if addon.getSetting(id="MajAuto")=="true":
+            xbmc.log("Recherche auto de Mise a jour: ")
+            MajAuto("xAmAx")
+            MajAuto("settings")
+            MajAuto("vStreamOpt")
+            MajAuto("LSPOpt")
+            MajAuto("default")
+        AfficheMenu()
+        #xbmcplugin.endOfDirectory(_handle,succeeded=True)
 if __name__ == '__main__':
         
         xbmc.log("Demarrage xAmAx: commande = " + str(sys.argv[2]))
