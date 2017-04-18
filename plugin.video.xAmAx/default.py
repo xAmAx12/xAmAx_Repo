@@ -138,18 +138,18 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
                 text = text.replace('&amp;','&')
                 text = text.replace('&ntilde;','ñ')
                 Titre = text.replace('&rsquo;','\'')   
-                xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}&Tmage={3}'.format(_url,Url,"LireVideo2",Tmage)+" Icone= "+base64.b64decode(icone))
+                #xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}&Tmage={3}'.format(_url,Url,"LireVideo2",Tmage)+" Icone= "+base64.b64decode(icone))
                 if base64.b64decode(icone)==_ArtMenu['lecture']:
                     addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(_url,Url,"LireVideo2"),1,_ArtMenu['lecture'],_ArtMenu['lecture'],is_folder)
                 else:
                     cCommands=[]
                     cCommands.append(("Telecharger vidéo",'XBMC.RunPlugin({0}?action=Play&Url={1}&ElemMenu={2}&Adult=1)'.format(_url,Url,"DL")))
                     cCommands.append(("Afficher les photos",'XBMC.RunPlugin({0}?action=FichierEnCour&ElemMenu={1}&Adult=1&Icone={2}&timage={3})'.format(_url,"Photo",base64.b64decode(icone),Tmage)))    
-                    xbmc.log("cCommands: "+str(cCommands))
+                    #xbmc.log("cCommands: "+str(cCommands))
                     RetAdd = addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder,contextCommands=cCommands)
-                    xbmc.log("RetAdd: "+str(RetAdd))
+                    #xbmc.log("RetAdd: "+str(RetAdd))
             else:
-                xbmc.log("Url="+base64.b64decode(Url))
+                #xbmc.log("Url="+base64.b64decode(Url))
                 addDir(base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(_url,"Adult","TV",Url),1,_ArtMenu['lecture'],_ArtMenu['lecture'],True)
     if Menu==_MenuList:
         # Création de chaque élément
@@ -196,7 +196,7 @@ def addDir(name,url,mode,iconimage,fanart,is_Folder,infos={},cat='',contextComma
     liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels=infos )
     liz.setProperty('Fanart_Image',fanart)
-    xbmc.log("contextCommands: "+str(contextCommands))
+    #xbmc.log("contextCommands: "+str(contextCommands))
     if len(contextCommands)>0:
         liz.addContextMenuItems ( contextCommands, replaceItems=False)
         
@@ -476,8 +476,6 @@ def router(paramstring):
                             _MenuTV.update({"Bouquet "+str(NomBouq[0]): ("TV","Bouq"+str(NomBouq[0]),True)})
                         cUrl.close()
                         NewDB.close()
-                    if addon.getSetting(id="Adult")=="true":
-                        _MenuTV.update({"Pluss":("TV","Adult",True)})
                     AfficheMenu(_MenuTV)
                 if params['ElemMenu']=='AffichTV':
                     AfficheMenu(MajMenuRegroup())
@@ -641,8 +639,8 @@ def router(paramstring):
                         i+=1
                         Nom=base64.b64encode(Nom)
                         Url=base64.b64encode(Url)
-                        Thumb=base64.b64encode(os.path.join(AdressePlugin,'play.png'))
-                        MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
+                        Thumb=base64.b64encode(_ArtMenu['lecture']) #os.path.join(AdressePlugin,'play.png'))
+                        MenuRegroup.update({"Video"+str(i): (Nom, Url, True, Thumb,[])})
                     AfficheMenu(MenuRegroup,True)
                 if params['ElemMenu']=="LireF4m":
                     ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=AdressePlugin, F4m=True)
@@ -652,8 +650,8 @@ def router(paramstring):
                         i+=1
                         Nom=base64.b64encode(Nom)
                         Url=base64.b64encode(Url)
-                        Thumb=base64.b64encode(os.path.join(AdressePlugin,'play.png'))
-                        _MenuRegroup.update({"Essai"+str(i): (Nom, Url, True, Thumb)})
+                        Thumb=base64.b64encode(_ArtMenu['lecture']) #os.path.join(AdressePlugin,'play.png'))
+                        _MenuRegroup.update({"Video"+str(i): (Nom, Url, True, Thumb,[])})
                     AfficheMenu(_MenuRegroup,True)
                 
         if params['action'] == 'Play':
