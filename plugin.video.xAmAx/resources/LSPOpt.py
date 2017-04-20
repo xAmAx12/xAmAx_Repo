@@ -359,7 +359,7 @@ class cLiveSPOpt():
                 dp.update(40,"Décodage de l'adresse . . .")
                 
                 xbmc.log(" [+] Recherche adresse du téléchargement . . .")
-                ysmm = adfly_data.split("ysmm = ")[1].split("'")[1].split("';")[0]
+                ysmm = adfly_data.split('data-ysmm="')[1].split('"')[0]
                 xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
                 essai2 = str(self.UrlADFLY(str(ysmm)))
                 dp.update(50,"Adresse du fichier Trouvée..")
