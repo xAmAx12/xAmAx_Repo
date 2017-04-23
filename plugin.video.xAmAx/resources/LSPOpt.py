@@ -12,12 +12,28 @@ import urllib2 as urllib
 import urllib as urlib
 import base64
 import sqlite3 as lite
+#import resources.utils as utils
 try:
     import json
 except:
     import simplejson as json
 
+USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3'
+
+headers = {'User-Agent': USER_AGENT,
+           'Accept': '*/*',
+           'Connection': 'keep-alive'}
+
+hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+       'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+       'Accept-Encoding': 'none',
+       'Accept-Language': 'en-US,en;q=0.8',
+       'Connection': 'keep-alive'}
+
 class cLiveSPOpt():
+
+    
 
     nomPlugin = 'plugin.video.xAmAx'
 
@@ -140,12 +156,12 @@ class cLiveSPOpt():
         if '|' in url:
             url,EnteteDansPage=url.split('|')
         if len(Post)==0:
-            req = urllib.Request(url)
+            req = urllib.Request(url,headers=hdr)
         else:
             data = urlib.urlencode(Post)
-            req = urllib.Request(url,data)
+            req = urllib.Request(url,data,headers=hdr)
             
-        req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.154 Safari/537.36')
+        #req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.154 Safari/537.36')
         if Entete:
             for h,hv in Entete:
                 req.add_header(h,hv)
@@ -163,11 +179,11 @@ class cLiveSPOpt():
         try:
             response = opener.open(req,None,timeout=20)
             if response.info().get('Content-Encoding') == 'gzip':
-                    from StringIO import StringIO
-                    import gzip
-                    Tempon = StringIO( response.read())
-                    f = gzip.GzipFile(fileobj=Tempon)
-                    FichTelecharg = f.read()
+                from StringIO import StringIO
+                import gzip
+                Tempon = StringIO( response.read())
+                f = gzip.GzipFile(fileobj=Tempon)
+                FichTelecharg = f.read()
             else:
                 FichTelecharg=response.read()
             response.close()
@@ -175,6 +191,23 @@ class cLiveSPOpt():
         except:
             xbmc.log("Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sys.exc_info()[0]))
             return "Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sys.exc_info()[0])
+
+    def getHtml2(self, url, Post={}):
+        if len(Post)>0:
+            UrlPost = urlib.urlencode(Post)
+            req = urllib.Request(url,data=UrlPost,headers=hdr)
+        else:
+            req = urllib.Request(url,headers=hdr)
+
+        try:
+            response = urllib.urlopen(req,timeout=60)
+            page = response.read()
+            response.close()
+            return page
+        except:
+            print "Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sys.exc_info()[0])
+            return "Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sys.exc_info()[0])
+
     
     def RechercheChaine(self, CheminxAmAx):
         i=0
@@ -339,55 +372,55 @@ class cLiveSPOpt():
 
     def RechercheSources1(self):
         ListeChaine=[]
-        try:
-            xbmc.log("Recherche de la liste de chaine...")
-            dp = xbmcgui.DialogProgress()
-            dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine...")
-            dp.update(10)
-            essai = str(self.TelechargPage(url="http://redeneobux.com/fr/updated-kodi-iptv-m3u-playlist/"))
-            essai2 = essai.split("France IPTV")[1].split("location.href=\'")[1].split("\';")[0]
-            dp.update(20,"Page Internet France IPTV...")
-            
-            essai = str(self.TelechargPage(url=essai2))
-            essai2 = essai.split("http://adf.ly/")[1].split(" ")[0]
-            dp.update(30,"Recherche Adresse ADFLY...")
+        #try:
+        xbmc.log("Recherche de la liste de chaine...")
+        dp = xbmcgui.DialogProgress()
+        dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine...")
+        dp.update(10)
+        essai = str(self.TelechargPage("http://redeneobux.com/fr/updated-kodi-iptv-m3u-playlist/"))
+        essai2 = essai.split("France IPTV")[1].split("location.href=\'")[1].split("\';")[0]
+        dp.update(20,"Page Internet France IPTV...")
+        
+        essai = str(self.TelechargPage(essai2))
+        essai2 = essai.split("http://adf.ly/")[1].split(" ")[0]
+        dp.update(30,"Recherche Adresse ADFLY...")
 
-            url = "http://adf.ly/"+essai2
-            xbmc.log(" [+] Connection a ADFLY. . . "+url)
-            adfly_data = str(self.TelechargPage(url=url))#str(urllib.urlopen(url).read())#.decode('utf-8'))
-            if not('#EXTM3U' in adfly_data):
-                dp.update(40,"Décodage de l'adresse . . .")
-                
-                xbmc.log(" [+] Recherche adresse du téléchargement . . .")
-                ysmm = adfly_data.split('data-ysmm="')[1].split('"')[0]
-                xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
-                essai2 = str(self.UrlADFLY(str(ysmm)))
-                dp.update(50,"Adresse du fichier Trouvée..")
-                
-                xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
-                essai = str(self.TelechargPage(url=essai2.replace("b'",'').replace("'",'')))
-            else:
-                essai = adfly_data
+        url = "http://adf.ly/"+essai2
+        xbmc.log(" [+] Connection a ADFLY. . . "+url)
+        adfly_data = str(self.TelechargPage(url))#str(urllib.urlopen(url).read())#.decode('utf-8'))
+        if not('#EXTM3U' in adfly_data):
+            dp.update(40,"Décodage de l'adresse . . .")
             
-            dp.update(70,"Enregistrement de la liste de chaine...")
+            xbmc.log(" [+] Recherche adresse du téléchargement . . .")
+            ysmm = adfly_data.replace("ysmm =","ysmm=").split("ysmm=")[1].replace('"',"'").split("'")[1]
+            xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
+            essai2 = str(self.UrlADFLY(str(ysmm)))
+            dp.update(50,"Adresse du fichier Trouvée..")
             
-            ListeChaine=[]
-            Chaine = essai.split("#EXTINF:-1,")
-            for Ch in Chaine:
-                InfoChaine = str(Ch).replace('\r','').split(chr(10))
-                if len(InfoChaine) > 1:
-                    Nom =InfoChaine[0]
-                    if InfoChaine[1]!="" and not Nom.startswith("***")and not Nom.startswith("+++")and not Nom.startswith("---")and not Nom.startswith("==="):
-                        ListeChaine.append((self.ConvNom(Nom),InfoChaine[1]))
-                        
-            dp.update(100,"Fichier télécharger!")
-            xbmc.sleep(1000)
-            dp.close()
-            xbmc.sleep(1000)
-            return ListeChaine, ""
-        except:
-            xbmc.log("Erreur téléchargement liste 1: "+str(sys.exc_info()[0]))
-            return ListeChaine, "Erreur téléchargement liste 1: "+str(sys.exc_info()[0])
+            xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
+            essai = str(self.TelechargPage(essai2.replace("b'",'').replace("'",'')))
+        else:
+            essai = adfly_data
+        
+        dp.update(70,"Enregistrement de la liste de chaine...")
+        
+        ListeChaine=[]
+        Chaine = essai.split("#EXTINF:-1,")
+        for Ch in Chaine:
+            InfoChaine = str(Ch).replace('\r','').split(chr(10))
+            if len(InfoChaine) > 1:
+                Nom =InfoChaine[0]
+                if InfoChaine[1]!="" and not Nom.startswith("***")and not Nom.startswith("+++")and not Nom.startswith("---")and not Nom.startswith("==="):
+                    ListeChaine.append((self.ConvNom(Nom),InfoChaine[1]))
+                    
+        dp.update(100,"Fichier télécharger!")
+        xbmc.sleep(1000)
+        dp.close()
+        xbmc.sleep(1000)
+        return ListeChaine, ""
+        #except:
+        #    xbmc.log("Erreur téléchargement liste 1: "+str(sys.exc_info()[0]))
+        #    return ListeChaine, "Erreur téléchargement liste 1: "+str(sys.exc_info()[0])
     
     def RechercheSources2(self):
         ret=[]
