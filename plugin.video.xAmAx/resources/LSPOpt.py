@@ -12,6 +12,7 @@ import urllib2 as urllib
 import urllib as urlib
 import base64
 import sqlite3 as lite
+import httplib
 #import resources.utils as utils
 try:
     import json
@@ -208,6 +209,26 @@ class cLiveSPOpt():
             print "Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sys.exc_info()[0])
             return "Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sys.exc_info()[0])
 
+    def getHtml3(self, host, url, Post={}):
+        headers = {'User-Agent': 'python',
+                   'Content-Type': 'application/x-www-form-urlencoded'}
+        conn = httplib.HTTPSConnection(host)
+        if len(Post)>0:
+            values = Post
+            values = urlib.urlencode(values)
+
+            conn.request("POST", url, values, headers)
+
+        try:
+            response = conn.getresponse()
+            data = response.read()
+            print 'Response: ', response.status, response.reason
+            print 'Data:'
+            return data
+        except:
+            print "Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sys.exc_info()[0])
+            return "Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sys.exc_info()[0])
+
     
     def RechercheChaine(self, CheminxAmAx):
         i=0
@@ -372,55 +393,55 @@ class cLiveSPOpt():
 
     def RechercheSources1(self):
         ListeChaine=[]
-        #try:
-        xbmc.log("Recherche de la liste de chaine...")
-        dp = xbmcgui.DialogProgress()
-        dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine...")
-        dp.update(10)
-        essai = str(self.TelechargPage("http://redeneobux.com/fr/updated-kodi-iptv-m3u-playlist/"))
-        essai2 = essai.split("France IPTV")[1].split("location.href=\'")[1].split("\';")[0]
-        dp.update(20,"Page Internet France IPTV...")
-        
-        essai = str(self.TelechargPage(essai2))
-        essai2 = essai.split("http://adf.ly/")[1].split(" ")[0]
-        dp.update(30,"Recherche Adresse ADFLY...")
+        try:
+            xbmc.log("Recherche de la liste de chaine...")
+            dp = xbmcgui.DialogProgress()
+            dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine...")
+            dp.update(10)
+            essai = str(self.TelechargPage("http://redeneobux.com/fr/updated-kodi-iptv-m3u-playlist/"))
+            essai2 = essai.split("France IPTV")[1].split("location.href=\'")[1].split("\';")[0]
+            dp.update(20,"Page Internet France IPTV...")
+            
+            essai = str(self.TelechargPage(essai2))
+            essai2 = essai.split("http://adf.ly/")[1].split(" ")[0]
+            dp.update(30,"Recherche Adresse ADFLY...")
 
-        url = "http://adf.ly/"+essai2
-        xbmc.log(" [+] Connection a ADFLY. . . "+url)
-        adfly_data = str(self.TelechargPage(url))#str(urllib.urlopen(url).read())#.decode('utf-8'))
-        if not('#EXTM3U' in adfly_data):
-            dp.update(40,"Décodage de l'adresse . . .")
+            url = "http://adf.ly/"+essai2
+            xbmc.log(" [+] Connection a ADFLY. . . "+url)
+            adfly_data = str(self.TelechargPage(url))#str(urllib.urlopen(url).read())#.decode('utf-8'))
+            if not('#EXTM3U' in adfly_data):
+                dp.update(40,"Décodage de l'adresse . . .")
+                
+                xbmc.log(" [+] Recherche adresse du téléchargement . . .")
+                ysmm = adfly_data.replace("ysmm =","ysmm=").split("ysmm=")[1].replace('"',"'").split("'")[1]
+                xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
+                essai2 = str(self.UrlADFLY(str(ysmm)))
+                dp.update(50,"Adresse du fichier Trouvée..")
+                
+                xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
+                essai = str(self.TelechargPage(essai2.replace("b'",'').replace("'",'')))
+            else:
+                essai = adfly_data
             
-            xbmc.log(" [+] Recherche adresse du téléchargement . . .")
-            ysmm = adfly_data.replace("ysmm =","ysmm=").split("ysmm=")[1].replace('"',"'").split("'")[1]
-            xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
-            essai2 = str(self.UrlADFLY(str(ysmm)))
-            dp.update(50,"Adresse du fichier Trouvée..")
+            dp.update(70,"Enregistrement de la liste de chaine...")
             
-            xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
-            essai = str(self.TelechargPage(essai2.replace("b'",'').replace("'",'')))
-        else:
-            essai = adfly_data
-        
-        dp.update(70,"Enregistrement de la liste de chaine...")
-        
-        ListeChaine=[]
-        Chaine = essai.split("#EXTINF:-1,")
-        for Ch in Chaine:
-            InfoChaine = str(Ch).replace('\r','').split(chr(10))
-            if len(InfoChaine) > 1:
-                Nom =InfoChaine[0]
-                if InfoChaine[1]!="" and not Nom.startswith("***")and not Nom.startswith("+++")and not Nom.startswith("---")and not Nom.startswith("==="):
-                    ListeChaine.append((self.ConvNom(Nom),InfoChaine[1]))
-                    
-        dp.update(100,"Fichier télécharger!")
-        xbmc.sleep(1000)
-        dp.close()
-        xbmc.sleep(1000)
-        return ListeChaine, ""
-        #except:
-        #    xbmc.log("Erreur téléchargement liste 1: "+str(sys.exc_info()[0]))
-        #    return ListeChaine, "Erreur téléchargement liste 1: "+str(sys.exc_info()[0])
+            ListeChaine=[]
+            Chaine = essai.split("#EXTINF:-1,")
+            for Ch in Chaine:
+                InfoChaine = str(Ch).replace('\r','').split(chr(10))
+                if len(InfoChaine) > 1:
+                    Nom =InfoChaine[0]
+                    if InfoChaine[1]!="" and not Nom.startswith("***")and not Nom.startswith("+++")and not Nom.startswith("---")and not Nom.startswith("==="):
+                        ListeChaine.append((self.ConvNom(Nom),InfoChaine[1]))
+                        
+            dp.update(100,"Fichier télécharger!")
+            xbmc.sleep(1000)
+            dp.close()
+            xbmc.sleep(1000)
+            return ListeChaine, ""
+        except:
+            xbmc.log("Erreur téléchargement liste 1: "+str(sys.exc_info()[0]))
+            return ListeChaine, "Erreur téléchargement liste 1: "+str(sys.exc_info()[0])
     
     def RechercheSources2(self):
         ret=[]
@@ -499,8 +520,13 @@ class cLiveSPOpt():
     
     def RechercheSources3(self, Essai = False):
         
-        url = 'https://www.oneplaylist.space/database/export'
-        SourcesListe = self.TelechargPage(url=url,Post={'kategorija' : '3'})#urllib.urlopen(req).read()
+        #url = 'https://www.oneplaylist.space/database/export'
+        #SourcesListe = self.TelechargPage(url=url,Post={'kategorija' : '3'})#urllib.urlopen(req).read()
+
+
+        host = 'www.oneplaylist.space'
+        url = '/database/export'
+        SourcesListe = self.getHtml3(host,url,{'kategorija' : '3'})
 
         ListeM3u = SourcesListe.split("#EXTM3U")
         ret=[]
@@ -638,7 +664,7 @@ class cLiveSPOpt():
         except:
             return [], "Erreur Mise à jour Liste TV 5: "+"\n Erreur = "+str(sys.exc_info()[0])
 
-    def LireM3u(self, CheminxAmAx, F4m=False):
+    def LireM3u(self, CheminxAmAx, F4m=False, cvNom=True):
         xbmc.log("Liste de chaine M3u")
         dialog = xbmcgui.Dialog()
         fn = dialog.browse(1, 'Ouvrir le fichier M3u', 'files', '.m3u|.m3u8', False, False, 'special://home')
@@ -651,10 +677,12 @@ class cLiveSPOpt():
                 if M3u!="":
                     TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
                     for Par, Nom , Url in TabM3u :
-                        Nom = self.ConvNom(Nom)
+                        if cvNom==True:
+                            Nom = self.ConvNom(Nom)
+                        Url=Url.split("|")[0].replace(".m3u8",".ts").replace("\r", "")
                         if F4m==True:
                             Url='plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))
-                        DicM3u = (Nom,Url.split("|")[0].replace(".m3u8",".ts").replace("\r", ""))
+                        DicM3u = (Nom,Url)
                         ret.append(DicM3u)
         return ret
 
