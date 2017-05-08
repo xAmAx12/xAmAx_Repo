@@ -360,7 +360,7 @@ class cLiveSPOpt():
             if Erreur5=="OK":
                 if len(Retour5)>0 and Retour5!=[]:
                     xbmc.log("Liste de chaine 5 a afficher: "+str(len(Retour5)))
-                    for Nom,Url in Retour5:
+                    for Nom,Url,icon,cat in Retour5:
                         IdLP += 1
                         while 1:
                             if Nom[:1]==" ":
@@ -575,9 +575,12 @@ class cLiveSPOpt():
             elif Nom == "Mix World":
                 Retour = self.TelechargPage(url=Url)
                 ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,FR:')
+            elif Nom == "France, World IPTV":
+                Retour = self.TelechargPage(url=Url)
+                ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,=====_Swiss')[0].split('#EXTINF:-1,')
             else:
                 if Essai==True:
-                    Ret3 = self.TelechargPage(url=Url)
+                    Ret3 = "" #self.TelechargPage(url=Url)
                 else:
                     Ret3 = ""
                 #print Nom+"="+str(Retour)
@@ -644,23 +647,18 @@ class cLiveSPOpt():
         
     def RechercheSources5(self):
         try:
-            UserAgent = self.TelechargPage(url=self.TelechargPage(url=" "))
-            if not UserAgent.startswith('Erreur'):
-                ListeM3u = self.TelechargPage(url=" ")
-                M3u = self.TelechargPage(url=ListeM3u)
-                if not M3u.startswith('Erreur'):
-                    TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
-                    ret = []
-                    for Par , Nom , Url in TabM3u :
-                        Nom = Nom.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
-                        if Nom.startswith('FR:'):
-                            DicM3u = (self.ConvNom(Nom),Url.replace('\n', '').replace('\r', '')+'|User-Agent='+UserAgent)
-                            ret.append(DicM3u)
-                    return ret, "OK"
-                else:
-                    return [], "M3u: "+UserAgent
+            ListeM3u = []
+            M3u = str(self.TelechargPage(url="https://raw.githubusercontent.com/Jaguar868/cars/master/lists/roku.txt"))
+            if not M3u.startswith('Erreur'):
+                TabM3u = re.compile('^#.+?:-?[0-9]*(.*?), (.*?)\nlogo=(.*?) stream=(.*?) cat=(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
+                for Par , Nom , icon, Url, cat in TabM3u :
+                    Nom = Nom.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
+                    if 'FRENCH' in Nom:
+                        DicM3u = (Nom,Url.replace('\n', '').replace('\r', ''),icon,cat)
+                        ListeM3u.append(DicM3u)
+                return ListeM3u, "OK"
             else:
-                return [], "User agent: "+UserAgent
+                return [], M3u
         except:
             return [], "Erreur Mise à jour Liste TV 5: "+"\n Erreur = "+str(sys.exc_info()[0])
 
@@ -688,54 +686,21 @@ class cLiveSPOpt():
 
     def AdulteSources(self,Url='https://www.mrsexe.com/cat/62/sodomie/'):
         xbmc.log("Recherche de la liste de chaine...")
-        
-        req = urllib.Request(Url)
-        req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.154 Safari/537.36')      
-        #try:
-
-        #opener = urlib.FancyURLopener({})
-        #f = opener.open(Url)
-        #essai = f.read()
-
-        #user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
-        #headers = { 'User-Agent' : user_agent }
-
-        #req = urllib.Request(Url, None, headers)
-        #response = urllib.urlopen(req)
-        #FichTelecharg = response.read()
-        #response.close() # its always safe to close an open connection
-        
-        cookie = urllib.HTTPCookieProcessor(None)
-        opener = urllib.build_opener(cookie, urllib.HTTPBasicAuthHandler(), urllib.HTTPHandler())
-        response = opener.open(req,None,timeout=20)
-        FichTelecharg=response.read()
-        response.close()
-        
-        essai = FichTelecharg
-        
-        #except:
-        #    xbmc.log("Erreur téléchargement Page: "+str(Url)+"\n Erreur = "+str(sys.exc_info()[0]))
-        #    essai = "Erreur téléchargement Page: "+str(Url)+"\n Erreur = "+str(sys.exc_info()[0])
-        #essai = str(self.TelechargPage(url=Url))#.decode('utf-8'))
-
-        #xbmc.log("page: "+essai)
+        Page = str(self.TelechargPage(url=Url))
         ret = []
-        if not essai.startswith("Erreur"):
-            match = re.compile('thumb-list(.*?)<ul class="right pagination">', re.DOTALL | re.IGNORECASE).findall(essai)
+        if not Page.startswith("Erreur"):
+            match = re.compile('thumb-list(.*?)<ul class="right pagination">', re.DOTALL | re.IGNORECASE).findall(Page)
             #xbmc.log("Resulta 1 tri: "+str(match))
             match1 = re.compile(r'<li class="[^"]*">\s<a class="thumbnail" href="([^"]+)">\n<script.+?([^;]+);</script>\n<figure>\n<img  id=".+?" src="([^"]+)".+?/>\n<figcaption>\n<span class="video-icon"><i class="fa fa-play"></i></span>\n<span class="duration"><i class="fa fa-clock-o"></i>([^<]+)</span>\n(.+?)\n',
                                 re.DOTALL | re.IGNORECASE).findall(match[0])
             for url, Timage, image, Temp, Descript in match1:
                 ret.append((url,"https:"+image, Timage.split("(")[1][:-1].replace("'","").split(","),Descript+" "+Temp))
-                #xbmc.log("Timage= "+str(Timage.split("(")[1][:-1].replace("'","").split(",")))
-                #xbmc.log("image= "+"http:"+str(image))
             xbmc.log("Recherche OK...")
             try:
-                nextp=re.compile(r'<li class="arrow"><a href="(.+?)">suivant</li>').findall(essai)
-                #xbmc.log("next= "+str(nextp))
+                nextp=re.compile(r'<li class="arrow"><a href="(.+?)">suivant</li>').findall(Page)
                 ret.append(('https://www.mrsexe.com' + nextp[0],"",[],"Page Suivante..."))
             except: pass
         else:
             dialog = xbmcgui.Dialog()
-            ok = dialog.ok("Telechargement impossible...", essai)
+            ok = dialog.ok("Telechargement impossible...", Page)
         return ret
