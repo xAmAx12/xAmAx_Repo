@@ -47,8 +47,7 @@ _ArtMenu = {'thumb': os.path.join(AdressePlugin,'play.png'),
             'lecture': os.path.join(AdressePlugin,'menu.png'),
             'param': os.path.join(AdressePlugin,'param.png'),
             'fanar': os.path.join(AdressePlugin,'fanart.jpg'),
-            'info': os.path.join(AdressePlugin,'info.png'),
-            'DL': os.path.join(AdressePlugin,'Telech.png')}
+            'info': os.path.join(AdressePlugin,'info.png')}
 _MenuList={"Chaines TV et bouquet":("TV","VisuLiveStream",True),
             "Ouvrir fichier m3u avec le lecteur de kodi":("xAmAx","LireUrl",True),
             "Ouvrir fichier m3u avec le lecteur F4m":("xAmAx","LireF4m",True),
@@ -123,7 +122,12 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
                     icone = _ArtMenu['lecture']
                 else:
                     icone = _ArtMenu['param']
-                addDir(tag,'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, Act, Titre),1,icone,icone,is_folder)
+                addDir(tag,
+                       '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, Act, Titre),
+                       1,
+                       icone,
+                       icone,
+                       is_folder)
     else:
         for tag, (Titre, Url, is_folder, icone, Tmage) in Menu.items():
             if icone != "":
@@ -140,23 +144,51 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
                 Titre = text.replace('&rsquo;','\'')   
                 #xbmc.log("list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}&Tmage={3}'.format(_url,Url,"LireVideo2",Tmage)+" Icone= "+base64.b64decode(icone))
                 if base64.b64decode(icone)==_ArtMenu['lecture']:
-                    addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(_url,Url,"LireVideo2"),1,_ArtMenu['lecture'],_ArtMenu['lecture'],is_folder)
+                    addDir(Titre,
+                           '{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(_url,Url,"LireVideo2"),
+                           1,
+                           _ArtMenu['lecture'],
+                           _ArtMenu['lecture'],
+                           is_folder)
                 else:
                     cCommands=[]
-                    cCommands.append(("Telecharger vidéo",'XBMC.RunPlugin({0}?action=Play&Url={1}&ElemMenu={2}&Adult=1)'.format(_url,Url,"DL")))
-                    cCommands.append(("Afficher les photos",'XBMC.RunPlugin({0}?action=FichierEnCour&ElemMenu={1}&Adult=1&Icone={2}&timage={3})'.format(_url,"Photo",base64.b64decode(icone),Tmage)))    
-                    #xbmc.log("cCommands: "+str(cCommands))
-                    RetAdd = addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(_url,Url,"LireVideo2"),1,base64.b64decode(icone),_ArtMenu['lecture'],is_folder,contextCommands=cCommands)
-                    #xbmc.log("RetAdd: "+str(RetAdd))
+                    cCommands.append(("Telecharger vidéo",
+                                      'XBMC.RunPlugin({0}?action=Play&Url={1}&ElemMenu={2}&Adult=1)'.format(_url,Url,"DL")))
+                    cCommands.append(("Afficher les photos",
+                                      'XBMC.RunPlugin({0}?action=FichierEnCour&ElemMenu={1}&Adult=1&Icone={2}&timage={3})'.format(_url,
+                                                                                                                                  "Photo",
+                                                                                                                                  base64.b64decode(icone),
+                                                                                                                                  Tmage)))
+                    RetAdd = addDir(Titre,
+                                    '{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(_url,Url,"LireVideo2"),
+                                    1,
+                                    base64.b64decode(icone),
+                                    _ArtMenu['lecture'],
+                                    is_folder,
+                                    contextCommands=cCommands)
             else:
-                #xbmc.log("Url="+base64.b64decode(Url))
-                addDir(base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(_url,"Adult","TV",Url),1,_ArtMenu['lecture'],_ArtMenu['lecture'],True)
+                addDir(base64.b64decode(Titre),
+                       '{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(_url,"Adult","TV",Url),
+                       1,
+                       _ArtMenu['lecture'],
+                       _ArtMenu['lecture'],
+                       True)
     if Menu==_MenuList:
         # Création de chaque élément
         if _vStream != "OK":
-            addDir(_vStream,'{0}?action=Menu&ElemMenu={1}'.format(_url, 'InstallvStream'),1,_ArtMenu['info'],_ArtMenu['fanar'],True)
+            addDir(_vStream,
+                   '{0}?action=Menu&ElemMenu={1}'.format(_url, 'InstallvStream'),
+                   1,
+                   _ArtMenu['info'],
+                   _ArtMenu['fanar'],
+                   True)
         if addon.getSetting(id="Adult")=="true":
-            addDir("Plus",'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, "Adult", 'TV'),1,_ArtMenu['lecture'],_ArtMenu['fanar'],True)
+            addDir("Plus",
+                   '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, "Adult", 'TV'),
+                   1,
+                   _ArtMenu['lecture'],
+                   _ArtMenu['fanar'],
+                   True)
             
     xbmcplugin.setPluginCategory( handle=int(sys.argv[1]), category="xAmAx" )
     xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
@@ -176,7 +208,6 @@ def MajMenuRegroup():
         cUrl2.execute("SELECT IDLP FROM ListePrincipale WHERE Nom LIKE '%"+str(Nom)+"%' ORDER BY Nom ;")
         Retour = cUrl2.fetchall()
         if len(Retour)> 0:
-            #xbmc.log("Liste Regroup: "+str(len(Retour)))
             for IDLP in Retour:
                 listID.append(str(IDLP[0]))
             _MenuRegroup.update({str(Affich).replace("_"," "): ("TV","ChaineRegroup"+base64.b64encode(str(Nom)),True)})
@@ -191,12 +222,11 @@ def MajMenuRegroup():
     
 
 def addDir(name,url,mode,iconimage,fanart,is_Folder,infos={},cat='',contextCommands=[]):
-    u  =url#sys.argv[0]+"?url="+urllib.quote(url)+"&mode="+str(mode)+"&name="+urllib.quote(name)+"&iconimage="+urllib.quote(iconimage)+"&cat="+urllib.quote(cat)
+    u  =url
     ok =True
     liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels=infos )
     liz.setProperty('Fanart_Image',fanart)
-    #xbmc.log("contextCommands: "+str(contextCommands))
     if len(contextCommands)>0:
         liz.addContextMenuItems ( contextCommands, replaceItems=False)
         
@@ -298,7 +328,7 @@ def TelechargementZip(url,dest,DPAff=True):
         xbmc.log("Téléchargement dans le dossier: " + dest)
         req = urllib.Request(url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
-        essai = urllib.urlopen(req)#.decode('utf-8'))
+        essai = urllib.urlopen(req)
         fichier = open(dest, "wb")
         fichier.write(essai.read())
         fichier.close()
@@ -310,11 +340,9 @@ def DLFich(url,dest, DPView=True):
     try:
         urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
     except:
-        #xbmc.log("Téléchargement de: " + url)
-        #xbmc.log("Téléchargement dans le dossier: " + dest)
         req = urllib.Request(url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
-        essai = urllib.urlopen(req)#.decode('utf-8'))
+        essai = urllib.urlopen(req)
         fichier = open(dest, "wb")
         fichier.write(essai.read())
         fichier.close()
@@ -338,7 +366,6 @@ def RechercheMAJ():
     except:
         version_publique = ""
         xbmc.log('xAmAx version locale:' + __version__)
-        xbmc.log('Check fail !@*')
     xbmc.log('xAmAx version Publique: ' + str(numVersionPub) +  ' version locale: ' + str(numVersionLoc))
     if version_publique!="" and __version__!="" and len(numVersionPub)==3 and len(numVersionLoc)==3:
         if ((int(numVersionPub[0]) > int(numVersionLoc[0]))or
@@ -454,7 +481,7 @@ def router(paramstring):
         xbmc.log(str(params))
         if params['action'] == 'Menu':
             
-            if params['Option'] =="TV":
+            if params['Option'] =="TV":#----------------------------------------------------------------------------------------
                 if params['ElemMenu']=="VisuLiveStream":
                     if addon.getSetting(id="MajtvAuto")=="true":
                         xbmc.log("Recherche mise a jour si première ouverture de la journée")
@@ -480,7 +507,6 @@ def router(paramstring):
                 if params['ElemMenu']=='AffichTV':
                     AfficheMenu(MajMenuRegroup())
                 if params['ElemMenu']=='MajTV':
-
                     VRech = urllib.urlopen("https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/resources/LSPOpt").read()
                     VLspopt = addon.getSetting(id="LSPOpt")
                     xbmc.log("Version Recherche TV: "+VLspopt+" Version sur internet: "+VRech)
@@ -523,14 +549,9 @@ def router(paramstring):
                             Thumb=base64.b64encode(Thumb)
                             Tima=base64.b64encode(str(Timag))
                             _MenuRegroup.update({Nom: (Nom2, Url, False, Thumb, Tima)})
-                            #xbmc.log("List timag= "+str(Timag))
-                            #if Nom!="Page Suivante...":
-                            #    xbmc.log("menuRegroup "+"{ZZZDL"+str(i)+": ("+Nom3+", "+Url+", "+str(False)+", "+_ArtMenu['DL']+")}")
-                            #    _MenuRegroup.update({"ZZZDL"+str(i): (Nom3, Url, False, _ArtMenu['DL'])})
-                        #_MenuRegroup.update({"ZZZDL"+str(i): (base64.b64encode("[COLOR green]TELECHARGEMENT[/COLOR]"), "", False, _ArtMenu['DL'])})
                         AfficheMenu(_MenuRegroup,True)
 
-            if params['Option']=='vStream':
+            if params['Option']=='vStream':#----------------------------------------------------------------------------------------
                 if params['ElemMenu']=="VisuVstream":
                     AfficheMenu(_MenuvStream)
                 if params['ElemMenu']=='MPVstream':
@@ -542,7 +563,7 @@ def router(paramstring):
                     dialog = xbmcgui.Dialog()
                     ok = dialog.ok("Trier la liste de Recherche vStream", Retour)
                 
-            if params['Option']=="Kodi":
+            if params['Option']=="Kodi": #----------------------------------------------------------------------------------------
                 if params['ElemMenu']=="VisuKodi":
                     AfficheMenu(_MenuKodi)
                 if params['ElemMenu']=="AffichLog":
@@ -602,7 +623,7 @@ def router(paramstring):
                         else:
                             xbmc.executebuiltin("XBMC.Notification(Effacement Miniatures ,"+Retour+",2000,"")")
             
-            if params['Option']=="xAmAx":
+            if params['Option']=="xAmAx": #----------------------------------------------------------------------------------------
                 if params['ElemMenu']=="VisuxAmAx":
                     xbmc.log("Afficher menu xAmAx")
                     AfficheMenu(_MenuxAmAx)
@@ -639,7 +660,7 @@ def router(paramstring):
                         i+=1
                         Nom=base64.b64encode(Nom)
                         Url=base64.b64encode(Url)
-                        Thumb=base64.b64encode(_ArtMenu['lecture']) #os.path.join(AdressePlugin,'play.png'))
+                        Thumb=base64.b64encode(_ArtMenu['lecture'])
                         MenuRegroup.update({"Video"+str(i): (Nom, Url, True, Thumb,[])})
                     AfficheMenu(MenuRegroup,True)
                 if params['ElemMenu']=="LireF4m":
@@ -650,7 +671,7 @@ def router(paramstring):
                         i+=1
                         Nom=base64.b64encode(Nom)
                         Url=base64.b64encode(Url)
-                        Thumb=base64.b64encode(_ArtMenu['lecture']) #os.path.join(AdressePlugin,'play.png'))
+                        Thumb=base64.b64encode(_ArtMenu['lecture'])
                         _MenuRegroup.update({"Video"+str(i): (Nom, Url, True, Thumb,[])})
                     AfficheMenu(_MenuRegroup,True)
                 
@@ -732,7 +753,6 @@ def router(paramstring):
                 xbmc.executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')')
     else:
         # Affichage du menu si aucune action
-        #xbmc.log("Affichage Menux")
         if addon.getSetting(id="MajAuto")=="true":
             xbmc.log("Recherche auto de Mise a jour: ")
             MajAuto("xAmAx")
@@ -741,10 +761,8 @@ def router(paramstring):
             MajAuto("LSPOpt")
             MajAuto("default")
         AfficheMenu()
-        #xbmcplugin.endOfDirectory(_handle,succeeded=True)
 if __name__ == '__main__':
-        
         xbmc.log("Demarrage xAmAx: commande = " + str(sys.argv[2]))
-        # Envoi des paramètre du menu
+        # Envoi des paramètres du menu
         router(sys.argv[2][1:])
 
