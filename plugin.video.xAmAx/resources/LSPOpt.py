@@ -179,14 +179,7 @@ class cLiveSPOpt():
                 
         try:
             response = opener.open(req,None,timeout=20)
-            if response.info().get('Content-Encoding') == 'gzip':
-                from StringIO import StringIO
-                import gzip
-                Tempon = StringIO( response.read())
-                f = gzip.GzipFile(fileobj=Tempon)
-                FichTelecharg = f.read()
-            else:
-                FichTelecharg=response.read()
+            FichTelecharg=response.read()
             response.close()
             return FichTelecharg;
         except:
