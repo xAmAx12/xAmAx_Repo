@@ -251,8 +251,9 @@ class cLiveSPOpt():
                                 VALUES (?,?,?)''',(IdLP,Nom+" [COLOR gold](1)[/COLOR]",Url))
             else:
                 if Erreur!="":
-                    dialog = xbmcgui.Dialog()
-                    ok = dialog.ok("Mise a jour Liste TV 1 Impossible!!!", Erreur)
+                    xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 1 Impossible!!! ,"+Erreur+",5000,"")")
+                    #dialog = xbmcgui.Dialog()
+                    #ok = dialog.ok("Mise a jour Liste TV 1 Impossible!!!", Erreur)
                     
         if self.addon.getSetting(id="Majtv2")=="true":
             xbmc.log("Recherche Liste de chaine 2")
@@ -288,8 +289,7 @@ class cLiveSPOpt():
                                                                'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
                             dp.update(100,"Liste de chaine tv 2 a jour!")
             else:
-                dialog = xbmcgui.Dialog()
-                ok = dialog.ok("Mise a jour Liste TV 2 Impossible!!!", Erreur2)
+                xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 2 Impossible!!! ,"+Erreur2+",5000,"")")
             xbmc.sleep(1000)
             dp.close()
                 
@@ -320,8 +320,7 @@ class cLiveSPOpt():
                                                        Nom+" [COLOR gold](3)[/COLOR]",
                                                        'plugin://plugin.video.f4mTester/?url=%s'%(urlib.quote_plus(Url))))
             else:
-                dialog = xbmcgui.Dialog()
-                ok = dialog.ok("Mise a jour Liste TV 3 Impossible!!!", Erreur3)
+                xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 3 Impossible!!! ,"+Erreur3+",5000,"")")
 
         if self.addon.getSetting(id="Majtv4")=="true":
             xbmc.log("Recherche Liste de chaine 4")
@@ -344,8 +343,7 @@ class cLiveSPOpt():
                                                        self.ConvNom(Nom)+" [COLOR gold](4)[/COLOR]",
                                                        'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
             else:
-                dialog = xbmcgui.Dialog()
-                ok = dialog.ok("Mise a jour Liste TV 4 Impossible!!!", Erreur4)
+                xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 4 Impossible!!! ,"+Erreur4+",5000,"")")
 
         if 1==2:
             xbmc.log("Recherche Liste de chaine 5")
@@ -369,8 +367,7 @@ class cLiveSPOpt():
                                                        'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
 
             else:
-                dialog = xbmcgui.Dialog()
-                ok = dialog.ok("Mise a jour Liste TV 5 Impossible!!!", Erreur5)
+                xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 5 Impossible!!! ,"+Erreur5+",5000,"")")
             
         try:
             if cUrl:
@@ -620,20 +617,22 @@ class cLiveSPOpt():
                                         html = self.TelechargPage(url=Url)
                                         div3 = html.split('<pre class="alt2"')
                                         if len(div3)>0:
-                                            m3u = div3[1].split("> ")[1].split("</pre")[0]
-                                            TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(m3u)
-                                            for Par , Nom2 , Url in TabM3u :
-                                                Nom2 = Nom2.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
-                                                try:
-                                                    cNom=self.ConvNom(Nom2)
-                                                    curl=Url.replace('\r','').replace('.m3u8','.ts')
-                                                    Ret2 = "ok"
-                                                    #print "EnteteLecture= "+str(EnteteLecture) #)xbmc.log(
-                                                    ret.append((cNom, curl))
-                                                except:
-                                                    return ret, "Erreur Mise à jour Liste TV 4: "+"\n Erreur = "+str(sys.exc_info()[0])
-                                            if len(ret)>0:
-                                                ret=sorted(ret,key=lambda s: s[0].lower())
+                                            div3 = div3[1].split("> ")
+                                            if len(div3)>1:
+                                                m3u = div3[1].split("</pre")[0]
+                                                TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(m3u)
+                                                for Par , Nom2 , Url in TabM3u :
+                                                    Nom2 = Nom2.replace(' :', ':').replace(' |', ':').replace('\r','').upper()
+                                                    try:
+                                                        cNom=self.ConvNom(Nom2)
+                                                        curl=Url.replace('\r','').replace('.m3u8','.ts')
+                                                        Ret2 = "ok"
+                                                        #print "EnteteLecture= "+str(EnteteLecture) #)xbmc.log(
+                                                        ret.append((cNom, curl))
+                                                    except:
+                                                        return ret, "Erreur Mise à jour Liste TV 4: "+"\n Erreur = "+str(sys.exc_info()[0])
+                                                if len(ret)>0:
+                                                    ret=sorted(ret,key=lambda s: s[0].lower())
                                         if len(ret)>0: break
             return ret, "OK"
         except: return ret, "Erreur Mise à jour Liste TV 4: "+"\n Erreur = "+str(sys.exc_info()[0])
