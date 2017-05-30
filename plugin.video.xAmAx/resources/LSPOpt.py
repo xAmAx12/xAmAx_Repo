@@ -33,9 +33,6 @@ hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML,
        'Connection': 'keep-alive'}
 
 class cLiveSPOpt():
-
-    
-
     nomPlugin = 'plugin.video.xAmAx'
 
     def __init__(self):
@@ -55,7 +52,7 @@ class cLiveSPOpt():
         return clef[2:]
 
     def ConvNom(self, Nom):
-        NomRet = Nom.upper().replace(
+        NomRet = str(Nom).upper().replace(
                         "[ FR ] ","").replace(
                         "[ FR: ] ","").replace(
                         "FR: ","").replace(
@@ -76,7 +73,25 @@ class cLiveSPOpt():
                         "FRANCE |", "").replace(
                         "\r", "").replace(
                         "(SERVER 1)","").replace(
-                        "FR ","")
+                        "*","").replace(
+                        "'"," ").replace(
+                        "=","").replace(
+                        ">","").replace(
+                        "/","").replace(
+                        ":","").replace(
+                        ","," ").replace(
+                        "ê",'E').replace(
+                        "é",'E').replace(
+                        "è",'E').replace(
+                        "Ã",'A').replace(
+                        "©","").replace(
+                        "В","").replace(
+                        "і","").replace(
+                        "н","").replace(
+                        "т","").replace(
+                        "а","").replace(
+                        "ж","").replace(
+                        "’"," ")
         while 1:
             if NomRet.startswith(' '):
                 NomRet = NomRet[1:]
@@ -233,117 +248,153 @@ class cLiveSPOpt():
         NewDB.text_factory = str
         cUrl = NewDB.cursor()
         IdLP = 0
-        if self.addon.getSetting(id="Majtv1")=="true":
-            xbmc.log("Recherche Liste de chaine 1")
-            Retour,Erreur = self.RechercheSources1()
-            if len(Retour)>0 and Erreur=="":
-                xbmc.log("Liste de chaine 1 a afficher: "+str(len(Retour)))
-                cUrl.execute("DELETE FROM ListePrincipale;")
-                ListeEffacer = True
-                for Nom,Url in Retour:
-                    IdLP += 1
-                    while 1:
-                        if Nom[:1]==" ":
-                            Nom = Nom[1:]
-                        else:
-                            break
-                    cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
-                                VALUES (?,?,?)''',(IdLP,Nom+" [COLOR gold](1)[/COLOR]",Url))
-            else:
-                if Erreur!="":
-                    xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 1 Impossible!!! ,"+Erreur+",5000,"")")
-                    #dialog = xbmcgui.Dialog()
-                    #ok = dialog.ok("Mise a jour Liste TV 1 Impossible!!!", Erreur)
-                    
-        if self.addon.getSetting(id="Majtv2")=="true":
-            xbmc.log("Recherche Liste de chaine 2")
-            dp = xbmcgui.DialogProgress()
-            dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine 2...")
-            Retour, Erreur2 = self.RechercheSources2()
-            if Erreur2=="OK":
-                for cNom,curl in Retour:
-                    j+=1
-                    dp.update(j*(100/len(Retour)))
-                    if cNom.capitalize().startswith('S1') or cNom.capitalize().startswith('S2') or cNom.capitalize().startswith('S4'):
-                        i+=1
-                        xbmc.log("Adresse chaineTV: "+cNom+" "+curl)
-                        Retour2,Erreur2=self.RechercheChaines2(url=[curl])
-                        xbmc.log("Liste de chaine 2 a afficher: "+str(len(Retour2)))
-                        xbmc.log("Liste de chaine 2 Erreur: "+Erreur2)
-                        if len(Retour2)>0 and Retour2!=[]:
-                            for Nom,Url,Entete in Retour2:
-                                IdLP += 1
-                                if Entete!="":
-                                    Url=Url+"|"+Entete
-                                while 1:
-                                    if Nom[:1]==" ":
-                                        Nom = Nom[1:]
-                                    else:
-                                        break
-                                if ListeEffacer == False:
-                                    cUrl.execute("DELETE FROM ListePrincipale;")
-                                    ListeEffacer = True
-                                cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
-                                            VALUES (?,?,?)''',(IdLP,
-                                                               Nom+" [COLOR gold](2)[/COLOR]",
-                                                               'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
-                            dp.update(100,"Liste de chaine tv 2 a jour!")
-            else:
-                xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 2 Impossible!!! ,"+Erreur2+",5000,"")")
-            xbmc.sleep(1000)
-            dp.close()
-                
-        if self.addon.getSetting(id="Majtv3")=="true":
-            xbmc.log("Recherche Liste de chaine 3")
-            Retour3, Erreur3 = self.RechercheSources3()
-            if Erreur3=="OK":
-                if len(Retour3)>0 and Retour3!=[]:
-                    xbmc.log("Liste de chaine 3 a afficher: "+str(len(Retour3)))
-                    for Nom,Url in Retour3:
-                        IdLP += 1
-                        while 1:
-                            if Nom[:1]==" ":
-                                Nom = Nom[1:]
-                            else:
-                                break
-                        if ListeEffacer == False:
-                            cUrl.execute("DELETE FROM ListePrincipale;")
-                            ListeEffacer = True
-                        if Url.endswith(".ts"):
-                            cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
-                                    VALUES (?,?,?)''',(IdLP,
-                                                       Nom+" [COLOR gold](3)[/COLOR]",
-                                                       'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
-                        else:
-                            cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
-                                    VALUES (?,?,?)''',(IdLP,
-                                                       Nom+" [COLOR gold](3)[/COLOR]",
-                                                       'plugin://plugin.video.f4mTester/?url=%s'%(urlib.quote_plus(Url))))
-            else:
-                xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 3 Impossible!!! ,"+Erreur3+",5000,"")")
 
-        if self.addon.getSetting(id="Majtv4")=="true":
-            xbmc.log("Recherche Liste de chaine 4")
-            Retour4, Erreur4 = self.RechercheSources4()
-            if Erreur4=="OK":
-                if len(Retour4)>0 and Retour4!=[]:
-                    xbmc.log("Liste de chaine 4 a afficher: "+str(len(Retour4)))
-                    for Nom,Url in Retour4:
+        Majtv1=self.addon.getSetting(id="Majtv1")=="true"
+        Majtv2=self.addon.getSetting(id="Majtv2")=="true"
+        Majtv3=self.addon.getSetting(id="Majtv3")=="true"
+        Majtv4=self.addon.getSetting(id="Majtv4")=="true"
+
+        NbMaj=Majtv1+Majtv2+Majtv3+Majtv4
+        
+        if NbMaj>0:
+            self.MajDiv = 100/NbMaj
+            self.TotMaj = 0
+            self.dp = xbmcgui.DialogProgress()
+            self.dp.create("Telechargement de la liste de chaine:")
+            NbMajEc = 0
+            if Majtv1:
+                NbMajEc += 1
+                xbmc.log("Recherche Liste de chaine 1")
+                self.dp.update(self.TotMaj,"Recherche Liste de chaine 1")
+                Retour,Erreur = self.RechercheSources1()
+                if len(Retour)>0 and Erreur=="":
+                    xbmc.log("Liste de chaine 1 a afficher: "+str(len(Retour)))
+                    cUrl.execute("DELETE FROM ListePrincipale;")
+                    ListeEffacer = True
+                    for Nom,Url in Retour:
                         IdLP += 1
                         while 1:
                             if Nom[:1]==" ":
                                 Nom = Nom[1:]
                             else:
                                 break
-                        if ListeEffacer == False:
-                            cUrl.execute("DELETE FROM ListePrincipale;")
-                            ListeEffacer = True
                         cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
-                                    VALUES (?,?,?)''',(IdLP,
-                                                       self.ConvNom(Nom)+" [COLOR gold](4)[/COLOR]",
-                                                       'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
-            else:
-                xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 4 Impossible!!! ,"+Erreur4+",5000,"")")
+                                    VALUES (?,?,?)''',(IdLP,Nom+" [COLOR gold](1)[/COLOR]",Url+"&name="+Nom))
+                else:
+                    if Erreur!="":
+                        xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 1 Impossible!!! ,"+Erreur+",5000,"")")
+                        #dialog = xbmcgui.Dialog()
+                        #ok = dialog.ok("Mise a jour Liste TV 1 Impossible!!!", Erreur)
+                self.TotMaj = self.MajDiv*NbMajEc
+            xbmc.log("Telechargement de la liste de chaine:"+str(self.TotMaj)+"%")
+            if Majtv2:
+                NbMajEc += 1
+                xbmc.log("Recherche Liste de chaine 2")
+                NbDivSrc = 7
+                self.TotMaj += self.MajDiv/NbDivSrc
+                self.dp.update(self.TotMaj,"Recherche Liste de chaine 2")
+                xbmc.sleep(50)
+                Retour, Erreur2 = self.RechercheSources2()
+                if Erreur2=="OK" and len(Retour)>0:
+                    NbSouDivSrc = ((self.MajDiv-(self.MajDiv/NbDivSrc))/len(Retour))
+                    for cNom,curl in Retour:
+                        j+=1
+                        self.TotMaj += NbSouDivSrc
+                        self.dp.update(self.TotMaj)
+                        xbmc.sleep(50)
+                        if cNom.capitalize().startswith('S4'): #cNom.capitalize().startswith('S1') or cNom.capitalize().startswith('S2') or 
+                            i+=1
+                            xbmc.log("Adresse chaineTV: "+cNom+" "+curl)
+                            Retour2,Erreur2=self.RechercheChaines2(url=[curl])
+                            xbmc.log("Liste de chaine 2 a afficher: "+str(len(Retour2)))
+                            xbmc.log("Liste de chaine 2 Erreur: "+Erreur2)
+                            if len(Retour2)>0 and Retour2!=[]:
+                                for Nom,Url,Entete in Retour2:
+                                    IdLP += 1
+                                    if Entete!="":
+                                        Url=Url+"|"+Entete
+                                    while 1:
+                                        if Nom[:1]==" ":
+                                            Nom = Nom[1:]
+                                        else:
+                                            break
+                                    if ListeEffacer == False:
+                                        cUrl.execute("DELETE FROM ListePrincipale;")
+                                        ListeEffacer = True
+                                    cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                                                VALUES (?,?,?)''',(IdLP,
+                                                                   Nom+" [COLOR gold](2)[/COLOR]",
+                                                                   'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),Nom)))
+                else:
+                    xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 2 Impossible!!! ,"+Erreur2+",5000,"")")
+                xbmc.sleep(100)
+                self.TotMaj = self.MajDiv*NbMajEc
+                xbmc.log("Telechargement de la liste de chaine:"+str(self.TotMaj)+"%")
+            if Majtv3:
+                self.TotMaj = self.MajDiv*NbMajEc
+                self.dp.update(self.TotMaj,"Recherche Liste de chaine 3")
+                NbMajEc += 1
+                xbmc.log("Recherche Liste de chaine 3")
+                Retour3, Erreur3 = self.RechercheSources3()
+                if Erreur3=="OK":
+                    if len(Retour3)>0 and Retour3!=[]:
+                        xbmc.log("Liste de chaine 3 a afficher: "+str(len(Retour3)))
+                        for Nom,Url in Retour3:
+                            IdLP += 1
+                            while 1:
+                                if Nom[:1]==" ":
+                                    Nom = Nom[1:]
+                                else:
+                                    break
+                            if ListeEffacer == False:
+                                cUrl.execute("DELETE FROM ListePrincipale;")
+                                ListeEffacer = True
+                            if Url.endswith(".ts"):
+                                cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                                        VALUES (?,?,?)''',(IdLP,
+                                                           Nom+" [COLOR gold](3)[/COLOR]",
+                                                           'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),Nom)))
+                            else:
+                                cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                                        VALUES (?,?,?)''',(IdLP,
+                                                           Nom+" [COLOR gold](3)[/COLOR]",
+                                                           'plugin://plugin.video.f4mTester/?url=%s'%(urlib.quote_plus(Url))))
+                else:
+                    xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 3 Impossible!!! ,"+Erreur3+",5000,"")")
+                self.TotMaj = self.MajDiv*NbMajEc
+                self.dp.update(self.TotMaj)
+                xbmc.sleep(50)
+                xbmc.log("Telechargement de la liste de chaine:"+str(self.TotMaj)+"%")
+            if Majtv4:
+                self.dp.update(self.TotMaj,"Recherche Liste de chaine 4")
+                xbmc.sleep(50)
+                NbMajEc += 1
+                xbmc.log("Recherche Liste de chaine 4")
+                Retour4, Erreur4 = self.RechercheSources4()
+                if Erreur4=="OK":
+                    if len(Retour4)>0 and Retour4!=[]:
+                        xbmc.log("Liste de chaine 4 a afficher: "+str(len(Retour4)))
+                        for Nom,Url in Retour4:
+                            IdLP += 1
+                            while 1:
+                                if Nom[:1]==" ":
+                                    Nom = Nom[1:]
+                                else:
+                                    break
+                            if ListeEffacer == False:
+                                cUrl.execute("DELETE FROM ListePrincipale;")
+                                ListeEffacer = True
+                                Nom=self.ConvNom(Nom)
+                            cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                                        VALUES (?,?,?)''',(IdLP,
+                                                           Nom+" [COLOR gold](4)[/COLOR]",
+                                                           'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),Nom)))
+                else:
+                    xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 4 Impossible!!! ,"+Erreur4+",5000,"")")
+                self.TotMaj = self.MajDiv*NbMajEc
+                self.dp.update(self.TotMaj)
+                xbmc.log("Telechargement de la liste de chaine:"+str(self.TotMaj)+"%")
+                xbmc.sleep(50)
 
         if 1==2:
             xbmc.log("Recherche Liste de chaine 5")
@@ -361,10 +412,11 @@ class cLiveSPOpt():
                         if ListeEffacer == False:
                             cUrl.execute("DELETE FROM ListePrincipale;")
                             ListeEffacer = True
+                            Nom=self.ConvNom(Nom)
                         cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
                                     VALUES (?,?,?)''',(IdLP,
-                                                       self.ConvNom(Nom)+" [COLOR gold](5)[/COLOR]",
-                                                       'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))))
+                                                       Nom+" [COLOR gold](5)[/COLOR]",
+                                                       'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),Nom)))
 
             else:
                 xbmc.executebuiltin("XBMC.Notification(Mise a jour Liste TV 5 Impossible!!! ,"+Erreur5+",5000,"")")
@@ -378,42 +430,53 @@ class cLiveSPOpt():
                 NewDB.commit()
                 NewDB.close()
         except: pass
-        
+        xbmc.sleep(1000)
+        self.dp.close()
         return "OK"
 
     def RechercheSources1(self):
         ListeChaine=[]
         try:
             xbmc.log("Recherche de la liste de chaine...")
-            dp = xbmcgui.DialogProgress()
-            dp.create("Telechargement de la liste de chaine:","Recherche de la liste de chaine...")
-            dp.update(10)
+            NbDivSrc = 7
+            self.TotMaj += self.MajDiv/NbDivSrc
+            self.dp.update(self.TotMaj,"Recherche Liste de chaine 1")
+            xbmc.sleep(50)
             essai = str(self.TelechargPage("http://redeneobux.com/fr/updated-kodi-iptv-m3u-playlist/"))
             essai2 = essai.split("France IPTV")[1].split("location.href=\'")[1].split("\';")[0]
-            dp.update(20,"Page Internet France IPTV...")
+            self.TotMaj += self.MajDiv/NbDivSrc
+            self.dp.update(self.TotMaj)
+            xbmc.sleep(50)
             
             essai = str(self.TelechargPage(essai2))
             essai2 = essai.split("http://adf.ly/")[1].split(" ")[0]
-            dp.update(30,"Recherche Adresse ADFLY...")
+            self.TotMaj += self.MajDiv/NbDivSrc
+            self.dp.update(self.TotMaj,"Recherche Liste de chaine 1")
+            xbmc.sleep(50)
 
             url = "http://adf.ly/"+essai2
             xbmc.log(" [+] Connection a ADFLY. . . "+url)
             adfly_data = str(self.TelechargPage(url))#str(urllib.urlopen(url).read())#.decode('utf-8'))
             if not('#EXTM3U' in adfly_data):
-                dp.update(40,"Décodage de l'adresse . . .")
+                self.TotMaj += self.MajDiv/NbDivSrc
+                self.dp.update(self.TotMaj,"Recherche Liste de chaine 1")
                 
                 xbmc.log(" [+] Recherche adresse du téléchargement . . .")
                 ysmm = adfly_data.replace("ysmm =","ysmm=").split("ysmm=")[1].replace('"',"'").split("'")[1]
                 xbmc.log(" [+] Décodage de l'adresse . . ." + str(ysmm))
                 essai2 = str(self.UrlADFLY(str(ysmm)))
-                dp.update(50,"Adresse du fichier Trouvée..")
+                self.TotMaj += self.MajDiv/NbDivSrc
+                self.dp.update(self.TotMaj)
+                xbmc.sleep(50)
                 
                 xbmc.log("\n ### L'adresse du fichier : " + essai2.replace("b'",'').replace("'",''))
                 essai = str(self.TelechargPage(essai2.replace("b'",'').replace("'",'')))
             else:
                 essai = adfly_data
             
-            dp.update(70,"Enregistrement de la liste de chaine...")
+            self.TotMaj += self.MajDiv/NbDivSrc
+            self.dp.update(self.TotMaj)
+            xbmc.sleep(50)
             
             ListeChaine=[]
             Chaine = essai.split("#EXTINF:-1,")
@@ -424,10 +487,9 @@ class cLiveSPOpt():
                     if InfoChaine[1]!="" and not Nom.startswith("***")and not Nom.startswith("+++")and not Nom.startswith("---")and not Nom.startswith("==="):
                         ListeChaine.append((self.ConvNom(Nom),InfoChaine[1]))
                         
-            dp.update(100,"Fichier télécharger!")
-            xbmc.sleep(1000)
-            dp.close()
-            xbmc.sleep(1000)
+            self.TotMaj += self.MajDiv/NbDivSrc
+            self.dp.update(self.TotMaj)
+            xbmc.sleep(50)
             return ListeChaine, ""
         except:
             xbmc.log("Erreur téléchargement liste 1: "+str(sys.exc_info()[0]))
@@ -617,7 +679,7 @@ class cLiveSPOpt():
                                         html = self.TelechargPage(url=Url)
                                         div3 = html.split('<pre class="alt2"')
                                         if len(div3)>0:
-                                            div3 = div3[1].split("> ")
+                                            div3 = div3[1].split("> ")
                                             if len(div3)>1:
                                                 m3u = div3[1].split("</pre")[0]
                                                 TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(m3u)
