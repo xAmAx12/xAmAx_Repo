@@ -91,7 +91,8 @@ class cLiveSPOpt():
                         "т","").replace(
                         "а","").replace(
                         "ж","").replace(
-                        "’"," ")
+                        "’"," ").replace(
+                        chr(160), "")
         while 1:
             if NomRet.startswith(' '):
                 NomRet = NomRet[1:]
