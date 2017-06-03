@@ -83,6 +83,7 @@ class cLiveSPOpt():
                         "ê",'E').replace(
                         "é",'E').replace(
                         "è",'E').replace(
+                        "ï", "I").replace(
                         "Ã",'A').replace(
                         "©","").replace(
                         "В","").replace(
