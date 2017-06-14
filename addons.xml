@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addons>
-	<addon id="plugin.video.xAmAx"
-		   name="xAmAx"
-		   version="1.3.3" 
-		   provider-name="xAmAx">
-	  <extension point="xbmc.python.pluginsource" library="default.py">
-	  	<provides>video</provides>
-	  </extension>
-	  <extension point="xbmc.addon.metadata">
-		<summary lang="fr">xAmAx</summary>
-		<description lang="fr">xAmAx est un module de modification et de visualisation de plusieurs éléments de Kodi et de ces extensions!</description>
-		<summary lang="en">xAmAx</summary>
-		<description lang="en">xAmAx is a modification module and viewing multiple elements of Kodi and these extensions</description>
-		<platform>all</platform>
-	  </extension>
-	</addon>
+    <addon id="plugin.video.xAmAx" name="xAmAx" version="1.3.4" provider-name="xAmAx">
+        <requires>
+            <import addon="xbmc.python" version="2.24.0"/>
+        </requires>
+        <extension point="xbmc.python.pluginsource" library="default.py">
+            <provides>video</provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="fr">xAmAx</summary>
+            <description lang="fr">
+                xAmAx est un module de recherche de chaine tv
+                et de modification ou de visualisation de plusieurs éléments de Kodi et de ces extensions!
+            </description>
+            <summary lang="en">xAmAx</summary>
+            <description lang="en">xAmAx is a modification module and viewing multiple elements of Kodi and these extensions</description>
+            <platform>all</platform>
+        </extension>
+    </addon>
 
     <addon id="repository.xAmAx" name="xAmAx Repository" version="0.1.0" provider-name="xAmAx">
+        <requires>
+            <import addon="xbmc.addon" version="12.0.0"/>
+        </requires>
         <extension point="xbmc.addon.repository" name="xAmAx Repository">
             <info compressed="false">https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/addons.xml</info>
             <checksum>https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/addons.xml.md5</checksum>
@@ -27,6 +33,6 @@
             <summary>xAmAx Repository</summary>
             <description>Installer xAmAx. [CR]  -Pour Reorganiser vStream.[CR]  -Pour mettre a jour la liste des chaine LiveStream.[CR]  -Pour Changer le fond-ecran.</description>
             <platform>all</platform>
-		</extension>
-	</addon>
+        </extension>
+    </addon>
 </addons>
