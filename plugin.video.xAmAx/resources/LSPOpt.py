@@ -52,6 +52,7 @@ class cLiveSPOpt():
         return clef[2:]
 
     def ConvNom(self, Nom):
+        
         NomRet = str(Nom).upper().replace(
                         "[ FR ] ","").replace(
                         "[ FR: ] ","").replace(
@@ -99,7 +100,11 @@ class cLiveSPOpt():
                         "’"," ").replace(
                         chr(160), "").replace(
                         "¨","").replace(
-                        chr(194),"A")
+                        chr(194),"A").replace(
+                        "•","").replace(
+                        "●","").replace(
+                        "★","")
+        
         while 1:
             if NomRet.startswith(' '):
                 NomRet = NomRet[1:]
