@@ -592,11 +592,11 @@ class cLiveSPOpt():
 
         host = 'www.oneplaylist.space'
         url = '/database/export'
+        ret=[]
         try:
             SourcesListe = self.getHtml3(host,url,{'kategorija' : '3'})
 
             ListeM3u = SourcesListe.split("#EXTM3U")
-            ret=[]
             NbAdresse = 0
             NbAdresse2 = 0
             if len(ListeM3u)>1:
@@ -628,7 +628,7 @@ class cLiveSPOpt():
             else:
                 return ret, "Pas de Chaines dans la liste 3!"
         except:
-            pass
+            return ret, "Erreur: "+str(sys.exc_info()[0])
 
     def RechercheChaines3(self, Nom, Url, Essai = False):
         ListeM3u2=[]
