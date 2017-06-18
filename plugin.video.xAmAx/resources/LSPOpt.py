@@ -84,6 +84,7 @@ class cLiveSPOpt():
                         "ê",'E').replace(
                         "é",'E').replace(
                         "è",'E').replace(
+                        "Ë","E").replace(
                         "ï", "I").replace(
                         "À","A").replace(
                         "Á","A").replace(
@@ -591,40 +592,43 @@ class cLiveSPOpt():
 
         host = 'www.oneplaylist.space'
         url = '/database/export'
-        SourcesListe = self.getHtml3(host,url,{'kategorija' : '3'})
+        try:
+            SourcesListe = self.getHtml3(host,url,{'kategorija' : '3'})
 
-        ListeM3u = SourcesListe.split("#EXTM3U")
-        ret=[]
-        NbAdresse = 0
-        NbAdresse2 = 0
-        if len(ListeM3u)>1:
-            ListeM3u = ListeM3u[1].split("</div>")
-            if len(ListeM3u)>0:
-                ListeM3u = ListeM3u[0].split("#EXTINF:0, ")
-                #print str(ListeM3u)
-                for NomAdresse in ListeM3u:
-                    TabNomAdresse = NomAdresse.split("<br/>")
-                    Nom = TabNomAdresse[0]
-                    Adresse = TabNomAdresse[1]
-                    if Adresse!="" and not Adresse.startswith("rtmp:") and "type=m3u" in Adresse:
-                        #print str(Nom)+"="+str(Adresse)
-                        Retour3,Erreur3 = self.RechercheChaines3(Nom=str(Nom), Url=str(Adresse),Essai=Essai)
-                        if Erreur3 == "OK" and len(Retour3)>0:
-                            for Nom,Url in Retour3:
-                                ret.append((Nom,Url))
-                                NbAdresse += 1
-                    elif Adresse.endswith(".ts") or Adresse.endswith(".m3u8"):
-                        ret.append((self.ConvNom(Nom),Adresse.replace(".m3u8",".ts")))
-                        NbAdresse2 += 1
-                if Essai:
-                    print "Liste directe: "+str(NbAdresse2)+" Liste déporté: "+str(NbAdresse)+" Liste complette: "+str(ret)
-            if NbAdresse>0 or NbAdresse2>0:
-                return ret, "OK"
+            ListeM3u = SourcesListe.split("#EXTM3U")
+            ret=[]
+            NbAdresse = 0
+            NbAdresse2 = 0
+            if len(ListeM3u)>1:
+                ListeM3u = ListeM3u[1].split("</div>")
+                if len(ListeM3u)>0:
+                    ListeM3u = ListeM3u[0].split("#EXTINF:0, ")
+                    #print str(ListeM3u)
+                    for NomAdresse in ListeM3u:
+                        TabNomAdresse = NomAdresse.split("<br/>")
+                        Nom = TabNomAdresse[0]
+                        Adresse = TabNomAdresse[1]
+                        if Adresse!="" and not Adresse.startswith("rtmp:") and "type=m3u" in Adresse:
+                            #print str(Nom)+"="+str(Adresse)
+                            Retour3,Erreur3 = self.RechercheChaines3(Nom=str(Nom), Url=str(Adresse),Essai=Essai)
+                            if Erreur3 == "OK" and len(Retour3)>0:
+                                for Nom,Url in Retour3:
+                                    ret.append((Nom,Url))
+                                    NbAdresse += 1
+                        elif Adresse.endswith(".ts") or Adresse.endswith(".m3u8"):
+                            ret.append((self.ConvNom(Nom),Adresse.replace(".m3u8",".ts")))
+                            NbAdresse2 += 1
+                    if Essai:
+                        print "Liste directe: "+str(NbAdresse2)+" Liste déporté: "+str(NbAdresse)+" Liste complette: "+str(ret)
+                if NbAdresse>0 or NbAdresse2>0:
+                    return ret, "OK"
+                else:
+                    ret.append(("Erreur","Pas de Chaines dans la liste 3!"))
+                    return ret, "Pas de Chaines dans la liste 3!"
             else:
-                ret.append(("Erreur","Pas de Chaines dans la liste 3!"))
                 return ret, "Pas de Chaines dans la liste 3!"
-        else:
-            return ret, "Pas de Chaines dans la liste 3!"
+        except:
+            pass
 
     def RechercheChaines3(self, Nom, Url, Essai = False):
         ListeM3u2=[]
@@ -634,15 +638,18 @@ class cLiveSPOpt():
             if Nom=="Arab FR, DE, UK":
                 Ret3 = self.TelechargPage(url=Url)
                 ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,FR_')
-            elif Nom=="France IPTV":
+            elif Nom=="France IPTV" and 1==2:
                 Retour = self.TelechargPage(url=Url)
                 ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,')
-            elif Nom == "Mix World":
+            elif Nom == "Mix World" and 1==2:
                 Retour = self.TelechargPage(url=Url)
                 ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,FR:')
-            elif Nom == "France, World IPTV":
+            elif Nom == "France, World IPTV" and 1==2:
                 Retour = self.TelechargPage(url=Url)
                 ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,=====_Swiss')[0].split('#EXTINF:-1,')
+            elif (Nom == "France" and Url.startswith("http://62.210.139.14:8000")):
+                Retour = self.TelechargPage(url=Url)
+                ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,')
             else:
                 if Essai==True:
                     Ret3 = "" #self.TelechargPage(url=Url)
