@@ -18,7 +18,6 @@ import urllib as urlib
 import base64
 from urlparse import parse_qsl
 from time import gmtime, strftime
-        
 from resources.vStreamOpt import cvStreamOpt
 from resources.LSPOpt import cLiveSPOpt
 #import resources.test as test
@@ -62,21 +61,33 @@ _MenuvStream={"Trier la liste de Recherche vStream":("vStream","RechercheVstream
 _MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
            "Mise A Jour Liste de chaines":("TV","MajTV",True)}
 _MenuKodi={"Afficher le Journal d'erreur":("Kodi","AffichLog",False),
-        "Changer le Fond d'écran":("Kodi",'ChangeFonDecran',True),
-        "Effacer le fichiers temporaires":("Kodi","SupTemp",True),
-        "Effacer les miniatures en mémoire":("Kodi","SupThumb",True)}
+           "Changer le Fond d'écran":("Kodi",'ChangeFonDecran',True),
+           "Effacer le fichiers temporaires":("Kodi","SupTemp",True),
+           "Effacer les miniatures en mémoire":("Kodi","SupThumb",True)}
+_MenuPC={"Afficher l'historique":("PC","AffichLog",True),
+         "Réaliser une action":("PC","ActPC",True)}
+_MenuActPC={"Changer heure d'arrêt":("PC","ActHArret",True),
+            "Arrêter le pc":("PC","ActArretDirect",True),
+            "Arrêt de l'arrêt automatique":("PC","ActArretAuto",True),
+            "Re-démarrage de l'arrêt automatique":("PC","ActDemarArret",True),}
 
 class LogAffich():
-    def Fenetre(self,Chemin="",line_number=0,Invertion=False,LabTitre="xAmAx "+__version__):
-        try:
-            xbmc.executebuiltin("ActivateWindow(10147)")
-            window = xbmcgui.Window(10147)
-            xbmc.sleep(100)
-            window.getControl(1).setLabel(LabTitre)
-            window.getControl(5).setText(self.getcontent(Chemin,line_number,Invertion))
-        except:
-            pass
+    def Fenetre(self,Chemin="",line_number=0,Invertion=False,LabTitre="xAmAx "+__version__,Texte=''):
+        #try:
+        xbmc.log("Fenetre de lecture de texte")
+        xbmc.executebuiltin("ActivateWindow(10147)") #10147
+        window = xbmcgui.Window(10147)
+        #window.getControl(1).setLabel(LabTitre)
+        
+        if Texte=='':
+            Texte = self.getcontent(Chemin,line_number,Invertion)
+        xbmc.sleep(500)
+        window.getControl(5).setText(Texte)
+        xbmc.sleep(200)
+        #except:
+        #    pass
     def getcontent(self,Chemin="",line_number=0,Invertion=False):
+        xbmc.log("Récupération fichier texte")
         if Chemin!="":
             if ((Chemin[:8]=="https://")or(Chemin[:7]=="http://")):
                 xbmc.log("Ouverture du Fichier des modifications")
@@ -97,7 +108,7 @@ class LogAffich():
         if line_number>0:
             try: contents=contents[0:line_number]
             except: contents='\n%s' % (contents)
-
+        xbmc.log("Affichage du texte")
         return contents.replace(
             ' ERROR: ',' [COLOR red]ERREUR[/COLOR]: ').replace(
             ' WARNING: ',' [COLOR gold]AVERTISSEMENT[/COLOR]: ').replace(
@@ -105,6 +116,7 @@ class LogAffich():
             '- Version ',' [COLOR green]- Version[/COLOR]: ').replace(
             '=======================================================================================',
             '[COLOR green]=======================================================================================[/COLOR]')
+    
 
 def AfficheMenu(Menu=_MenuList, Icone=False):
     # creation du menu
@@ -150,6 +162,15 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
                            _ArtMenu['lecture'],
                            _ArtMenu['lecture'],
                            is_folder)
+                elif base64.b64decode(icone)==_ArtMenu['info']:
+                    URL=base64.b64decode(str(Url))
+                    if URL.startswith("LOG"):
+                        addDir(Titre,
+                           '{0}?action=OuvTxt&Url={1}&ElemMenu={2}'.format(_url,base64.b64encode(URL[3:]),"LogSamba"),
+                           1,
+                           _ArtMenu['lecture'],
+                           _ArtMenu['lecture'],
+                           is_folder)
                 else:
                     cCommands=[]
                     cCommands.append(("Telecharger vidéo",
@@ -185,6 +206,13 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
         if addon.getSetting(id="Adult")=="true":
             addDir("Plus",
                    '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, "Adult", 'TV'),
+                   1,
+                   _ArtMenu['lecture'],
+                   _ArtMenu['fanar'],
+                   True)
+        if addon.getSetting(id="stban")=="true":
+            addDir("PC distant",
+                   '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(_url, "stBan", 'PC'),
                    1,
                    _ArtMenu['lecture'],
                    _ArtMenu['fanar'],
@@ -626,6 +654,11 @@ def router(paramstring):
             if params['Option']=="xAmAx": #----------------------------------------------------------------------------------------
                 if params['ElemMenu']=="VisuxAmAx":
                     xbmc.log("Afficher menu xAmAx")
+                    if addon.getSetting(id="stban")=="true":
+                        if addon.getSetting(id="p")=="":
+                            _MenuxAmAx.update({"PC distant: Ajouter un Mot de passe": ("PC","PssPc",True)})
+                        else:
+                            _MenuxAmAx.update({"PC distant: Changer le Mot de passe": ("PC","PssPc",True)})
                     AfficheMenu(_MenuxAmAx)
                 if params['ElemMenu']=="InfoVersion":
                     xbmc.log("InfoVersion: ")
@@ -638,18 +671,14 @@ def router(paramstring):
                         ok = dialog.ok("Mise à jour xAmAx", Retour)
                 if params['ElemMenu']=="test":
                     xbmc.log("test: ")
-                    ListAff = cLiveSPOpt().AdulteSources()
-                    
-                    if len(ListAff)>0:
+                    dirs, files = xbmcvfs.listdir("smb://192.168.1.1/echange")
+                    if len(files)>0:
                         i=0
                         _MenuRegroup={}
-                        for Url,Thumb,Nom in ListAff:
+                        for fich in files:
                             i+=1
-                            Nom=base64.b64encode(Nom)
-                            Url=base64.b64encode(Url)
-                            Thumb=base64.b64encode(Thumb)
-                            _MenuRegroup.update({"essai-"+str(i): (Nom, Url, True, Thumb)})
-                        AfficheMenu(_MenuRegroup,True)
+                            _MenuRegroup.update({fich: (fich, "ActPC",True)})
+                        AfficheMenu(_MenuRegroup)
                 if params['ElemMenu']=="ParamxAmAx":
                     addon.openSettings()
                 if params['ElemMenu']=="LireUrl":
@@ -674,6 +703,53 @@ def router(paramstring):
                         Thumb=base64.b64encode(_ArtMenu['lecture'])
                         _MenuRegroup.update({"Video"+str(i): (Nom, Url, True, Thumb,[])})
                     AfficheMenu(_MenuRegroup,True)
+
+            if params['Option']=="PC": #----------------------------------------------------------------------------------------
+                from resources.Samba import EnvSamba
+                if params['ElemMenu']=="stBan":
+                    xbmc.log("Afficher menu xAmAx")
+                    dialog = xbmcgui.Dialog()
+                    d = dialog.input('Entrer votre mot de passe', type=xbmcgui.INPUT_ALPHANUM, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+                    if d == base64.b64decode(addon.getSetting(id="p")):
+                        AfficheMenu(_MenuPC)
+                    elif d!="":
+                        d = dialog.ok('Verrification du mot de passe', "Mot de passe incorrect")
+                if params['ElemMenu']=="PssPc":
+                    dialog = xbmcgui.Dialog()
+                    d = dialog.input('Entrer votre mot de passe actuel', type=xbmcgui.INPUT_ALPHANUM, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+                    if d == base64.b64decode(addon.getSetting(id="p")):
+                        d = dialog.input('Entrer votre nouveau mot de passe', type=xbmcgui.INPUT_ALPHANUM, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+                        if d != "":
+                            e = dialog.input('Entrer votre nouveau mot de passe une seconde fois', type=xbmcgui.INPUT_ALPHANUM, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+                            if e == d:
+                                addon.setSetting(id='p', value=base64.b64encode(e))
+                                d = dialog.ok('Verrification du mot de passe', "Votre Mot de passe a était changer!")
+                            else:
+                                dialog.ok('Verrification du mot de passe', "Le mot de passe saisi n'est pas le même!", "Recommencer pour pouvoir modifier votre mot de passe!")
+                        else:
+                            d = dialog.ok('Verrification du mot de passe', "Votre Mot de passe n'a pas était changer")
+                    elif d!="":
+                        d = dialog.ok('Verrification du mot de passe', "Mot de passe incorrect")
+                if params['ElemMenu']=="AffichLog":
+                    List = EnvSamba(dosEchange = "echange").ListFichier()
+                    _MenuRegroup={}
+                    for F in List:
+                        Nom=base64.b64encode(F)
+                        Url=base64.b64encode("LOG"+F)
+                        Thumb=base64.b64encode(_ArtMenu['info'])
+                        _MenuRegroup.update({Nom: (Nom, Url, True, Thumb,[])})
+                    AfficheMenu(_MenuRegroup,True)
+                if params['ElemMenu']=="ActPC":
+                    xbmc.log("Afficher menu xAmAx")
+                    AfficheMenu(_MenuActPC)
+                if params['ElemMenu']=="ActHArret":
+                    pass
+                if params['ElemMenu']=="ActArretDirect":
+                    pass
+                if params['ElemMenu']=="ActArretAuto":
+                    pass
+                if params['ElemMenu']=="ActDemarArret":
+                    pass
                 
         if params['action'] == 'Play':
             if params['ElemMenu']=="LireVideo":
@@ -727,6 +803,13 @@ def router(paramstring):
                         if not xbmcvfs.exists(os.path.join(profile,NomFichVid)):
                             break
                     DLFich(videourl,os.path.join(profile,NomFichVid), DPView=True)
+        if params['action'] == 'OuvTxt':
+            if params['ElemMenu']=="LogSamba":
+                from resources.Samba import EnvSamba
+                Fich = base64.b64decode(params['Url'])
+                FichLu = EnvSamba(dosEchange = "echange").OuvrirFich(Fich)
+                Affich=LogAffich()
+                Affich.Fenetre(Chemin="",LabTitre="Journal d'action",Texte=FichLu)
         if params['action'] == 'FichierEnCour':
             if params['ElemMenu']=="Label":
                 win = xbmcgui.Window(xbmcgui.getCurrentWindowId())
@@ -750,7 +833,7 @@ def router(paramstring):
                         photo = photo[1:]
                     listPhoto = params['Icone'][:params['Icone'].rfind("_")+1]+photo+params['Icone'][-4:]
                     TelechargementZip(listPhoto,CheminFich)       
-                xbmc.executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')')
+                xbmc.executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')') 
     else:
         # Affichage du menu si aucune action
         if addon.getSetting(id="MajAuto")=="true":
@@ -760,6 +843,8 @@ def router(paramstring):
             MajAuto("vStreamOpt")
             MajAuto("LSPOpt")
             MajAuto("default")
+            if addon.getSetting(id="stban")=="true":
+                MajAuto("Samba")
         AfficheMenu()
 if __name__ == '__main__':
         xbmc.log("Demarrage xAmAx: commande = " + str(sys.argv[2]))
