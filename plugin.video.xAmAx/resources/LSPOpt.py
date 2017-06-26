@@ -104,7 +104,9 @@ class cLiveSPOpt():
                         chr(194),"A").replace(
                         "•","").replace(
                         "●","").replace(
-                        "★","")
+                        "★","").replace(
+                        "▬","").replace(
+                        "▬","")
         
         while 1:
             if NomRet.startswith(' '):
