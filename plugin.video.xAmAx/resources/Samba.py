@@ -40,13 +40,13 @@ class EnvSamba():
     def EnvoiFichier(self,txtEchang,NomFich):
         if txtEchang != "" :
             try:
-                f = xbmcvfs.File (os.path.join(self.doss_dist,self.ConvDoss(NomFich)), ['w'])
+                f = xbmcvfs.File(os.path.join(self.doss_dist,self.ConvDoss(NomFich)), 'w')
                 result = f.write(txtEchang)
                 f.close()
                 return result
             except:
                 print "Erreur ecriture fichier sur le disque samba"
-                return True
+                return False
         else:
             print "Pas d'action choisis..."
 
@@ -101,9 +101,9 @@ class EnvSamba():
             return textPrint
 
     def SupprimFich(self, NomFich):
-        Fich = os.path.join(self.ConvDoss(NomFich))
+        Fich = self.ConvDoss(NomFich)
         #print("Suppression du fichier: "+Fich)
-        deleteFiles(service_name=self.dosEchange, path_file_pattern=Fich, timeout=30)
+        return xbmcvfs.delete(os.path.join(self.doss_dist, Fich))
 
 """for r in EnvSamba().ListFichier():
     if not r.isDirectory:
