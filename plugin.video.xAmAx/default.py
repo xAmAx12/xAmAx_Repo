@@ -466,6 +466,9 @@ def MajAuto(NomMaj):
             fichier.close()
             addon.setSetting(id=NomMaj, value=str(VRech))
             xbmc.log("Mise a jour de "+NomMaj+" OK")
+            return True
+        else:
+            return False
     except:
         xbmc.log("Erreur mise a jour: "+str(sys.exc_info()[0]))
         
@@ -916,17 +919,20 @@ def router(paramstring):
         # Affichage du menu si aucune action
         if addon.getSetting(id="MajAuto")=="true":
             xbmc.log("Recherche auto de Mise a jour: ")
+            ret = False
+            Sret = False
             MajAuto("xAmAx")
             MajAuto("settings")
             MajAuto("vStreamOpt")
             MajAuto("LSPOpt")
-            MajAuto("default")
+            ret = MajAuto("default")
             if addon.getSetting(id="stban")=="true":
                 MajAuto("Samba")
-        xbmc.executebuiltin('XBMC.Container.Update')
-        xbmc.sleep(200)
-        xbmc.executebuiltin('XBMC.Container.Refresh')
-        xbmc.sleep(200)
+            if ret == True:
+                xbmc.executebuiltin('XBMC.Container.Update')
+                xbmc.sleep(200)
+                xbmc.executebuiltin('XBMC.Container.Refresh')
+                xbmc.sleep(200)
         AfficheMenu()
 if __name__ == '__main__':
         xbmc.log("Demarrage xAmAx: commande = " + str(sys.argv[2]))
