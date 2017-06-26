@@ -16,6 +16,7 @@ import xbmcvfs
 import urllib2 as urllib
 import urllib as urlib
 import base64
+from random import randint
 from urlparse import parse_qsl
 from time import gmtime, strftime
 from resources.vStreamOpt import cvStreamOpt
@@ -69,7 +70,9 @@ _MenuPC={"Afficher l'historique":("PC","AffichLog",True),
 _MenuActPC={"Changer heure d'arrêt":("PC","ActHArret",True),
             "Arrêter le pc":("PC","ActArretDirect",True),
             "Arrêt de l'arrêt automatique":("PC","ActArretAuto",True),
-            "Re-démarrage de l'arrêt automatique":("PC","ActDemarArret",True),}
+            "Re-démarrage de l'arrêt automatique":("PC","ActDemarArret",True),
+            "Interrogation Heure d'arrêt":("PC","ActIHArret",True),
+            "Interrogation Heure du pc":("PC","ActHeurePC",True)}
 
 class LogAffich():
     def Fenetre(self,Chemin="",line_number=0,Invertion=False,LabTitre="xAmAx "+__version__,Texte=''):
@@ -164,13 +167,21 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
                            is_folder)
                 elif base64.b64decode(icone)==_ArtMenu['info']:
                     URL=base64.b64decode(str(Url))
+                    cCommands=[]
+                    cCommands.append(("Lire le Fichier",
+                                      'XBMC.RunPlugin({0}?action=OuvTxt&Url={1}&ElemMenu={2})'.format(_url,base64.b64encode(URL[3:]),"LogSamba")))
+                    cCommands.append(("Supprimer le fichier",
+                                      'XBMC.RunPlugin({0}?action=SupFich&Url={1}&ElemMenu={2})'.format(_url,
+                                                                                                        base64.b64encode(URL[3:]),
+                                                                                                        "LogSamba")))
                     if URL.startswith("LOG"):
                         addDir(Titre,
                            '{0}?action=OuvTxt&Url={1}&ElemMenu={2}'.format(_url,base64.b64encode(URL[3:]),"LogSamba"),
                            1,
                            _ArtMenu['lecture'],
                            _ArtMenu['lecture'],
-                           is_folder)
+                           is_folder,
+                           contextCommands=cCommands)
                 else:
                     cCommands=[]
                     cCommands.append(("Telecharger vidéo",
@@ -496,6 +507,53 @@ def Efface_thumb(env):
         except:
             return "Erreur de suppression des miniatures"
 
+def ConvAction(TitreCmd):
+    FichSauv = ""
+    dialog = xbmcgui.Dialog()
+    
+    for i in range(10):
+        FichSauv += chr(randint(33,122))
+    if TitreCmd == "ArretAuto":
+        ret = dialog.yesno("Arrêt de l'arrêt automatique", "Voulez-vous vraiment arrêter l'arrêt automatique?","",nolabel="NON",yeslabel="OUI")
+        if ret:
+            return FichSauv+"ArretMyApp"
+    elif TitreCmd == "HArret":
+        Henvoi = ""
+        HDemar = ""
+        HArret = ""
+        HArret = dialog.input("Entrer l'heure d'arret du pc", type=xbmcgui.INPUT_TIME) #, default="22.00"
+        if HArret != "" and len(HArret)==5:
+            HArret=HArret.replace(" ","0")
+            HDemar = dialog.input("Entrer l'heure de démarrage du pc", type=xbmcgui.INPUT_TIME) #, default="09.00"
+            if HDemar != "" and len(HDemar)==5:
+                HDemar=HDemar.replace(" ","0")
+                if HArret[:2]<HDemar[:2]:
+                    Henvoi = HDemar+"."+HArret
+                else:
+                    Henvoi = HArret+"."+HDemar
+                ret = dialog.yesno("Changer l'heure d'arrêt", "Voulez-vous vraiment que le PC s'arrête à "+HArret+" et ne puisse redémarrer que à "+HDemar+" ?","",nolabel="NON",yeslabel="OUI")
+                if ret:
+                    print "heure d'arret: "+HArret+"\r\n"+"heure de démarrage: "+HDemar
+                    return FichSauv+"AjDateArret"+"\r\n1\r\n"+Henvoi
+    elif TitreCmd == "DemarArret":
+        ret = dialog.yesno("Redémarrer l'arrêt automatique", "Voulez-vous vraiment redémarrer l'arrêt automatique?","",nolabel="NON",yeslabel="OUI")
+        if ret:
+            return FichSauv+"DemarMyApp"
+    elif TitreCmd == "ArretDirect":
+        ret = dialog.yesno("Arrêt du PC", "Voulez-vous vraiment arrêter le PC maintenant?","",nolabel="NON",yeslabel="OUI")
+        if ret:
+            return FichSauv+"ArretPC"
+    elif TitreCmd == "IHArret":
+        ret = dialog.yesno("Interrogation Heure d'arrêt", "L'heure d'arrêt sera consutable dans le fichier Rep.xama de l'historique!", "Voulez-vous vraiment connaître l'heure d'arret?",nolabel="NON",yeslabel="OUI")
+        if ret:
+            return FichSauv+"HeureArret"
+    elif TitreCmd == "HeurePC":
+        ret = dialog.yesno("Interrogation Heure du pc", "L'heure du PC sera consutable dans le fichier Rep.xama de l'historique!", "Voulez-vous vraiment connaître l'heure du PC?",nolabel="NON",yeslabel="OUI")
+        if ret:
+            return FichSauv+"HeureEC"
+
+    return ""
+
 
 def router(paramstring):
     xbmc.log("dans router")
@@ -640,7 +698,7 @@ def router(paramstring):
                             xbmc.executebuiltin("XBMC.Notification(Effacement des fichiers temporaires ,OK,2000,"")")
                         else:
                             xbmc.executebuiltin("XBMC.Notification(Effacement des fichiers temporaires ," + Retour + ",2000,"")")
-                            
+
                 if params['ElemMenu']=="SupThumb":
                     xbmc.log("SupThumb")
                     dialog = xbmcgui.Dialog()
@@ -742,15 +800,19 @@ def router(paramstring):
                 if params['ElemMenu']=="ActPC":
                     xbmc.log("Afficher menu xAmAx")
                     AfficheMenu(_MenuActPC)
-                if params['ElemMenu']=="ActHArret":
-                    pass
-                if params['ElemMenu']=="ActArretDirect":
-                    pass
-                if params['ElemMenu']=="ActArretAuto":
-                    pass
-                if params['ElemMenu']=="ActDemarArret":
-                    pass
-                
+                if params['ElemMenu'][:3]=="Act" and params['ElemMenu']!="ActPC":
+                    Retour = ConvAction(TitreCmd=params['ElemMenu'][3:])
+                    if Retour != "":
+                        xbmc.log("**** Retour action: "+Retour)
+                        ret = EnvSamba(dosEchange = "echange").EnvoiFichier(txtEchang=Retour,NomFich="Act.xama")
+                        dialog = xbmcgui.Dialog()
+                        if ret:
+                            d = dialog.ok("Enregistrement de l'action OK", "Votre Action à bien était enregistré, elle sera active dans 5min maximum", "Dans l'historique vous pourez retrouver le résultat de l'opération dans le fichier Rep.xama!")
+                            xbmc.log("**** Retour action: "+Retour)
+                        else:
+                            d = dialog.ok("Erreur enregistrement de l'action", "Votre Action n'a pas peu être enregistré!", "Veuillez verrifier votre connection!")
+                            xbmc.log("**** Retour action: Erreur d'enregistrement")
+                    
         if params['action'] == 'Play':
             if params['ElemMenu']=="LireVideo":
                 finalUrl=params['Url']
@@ -810,6 +872,22 @@ def router(paramstring):
                 FichLu = EnvSamba(dosEchange = "echange").OuvrirFich(Fich)
                 Affich=LogAffich()
                 Affich.Fenetre(Chemin="",LabTitre="Journal d'action",Texte=FichLu)
+        if params['action'] == 'SupFich':
+            if params['ElemMenu']=="LogSamba":
+                from resources.Samba import EnvSamba
+                Fich = base64.b64decode(params['Url'])
+                ret = EnvSamba(dosEchange = "echange").SupprimFich(Fich)
+                dialog = xbmcgui.Dialog()
+                if ret==1:
+                    d = dialog.ok("Suppression du fichier OK", "Votre fichier "+Fich+" a bien était supprimer", "")
+                    xbmc.log("**** Supprimer fichier: "+Fich)
+                else:
+                    d = dialog.ok("Erreur supression de fichier", "Votre fichier "+Fich+" n'a pas pu être supprimer", "Veuillez verrifier votre connection!")
+                    xbmc.log("**** Erreur supression: "+Fich)
+                xbmc.executebuiltin('XBMC.Container.Update')
+                xbmc.executebuiltin('XBMC.Container.Refresh')
+                xbmc.sleep(200)
+                xbmc.log("****** Retour Supprim= "+str(ret))
         if params['action'] == 'FichierEnCour':
             if params['ElemMenu']=="Label":
                 win = xbmcgui.Window(xbmcgui.getCurrentWindowId())
@@ -845,6 +923,10 @@ def router(paramstring):
             MajAuto("default")
             if addon.getSetting(id="stban")=="true":
                 MajAuto("Samba")
+        xbmc.executebuiltin('XBMC.Container.Update')
+        xbmc.sleep(200)
+        xbmc.executebuiltin('XBMC.Container.Refresh')
+        xbmc.sleep(200)
         AfficheMenu()
 if __name__ == '__main__':
         xbmc.log("Demarrage xAmAx: commande = " + str(sys.argv[2]))
