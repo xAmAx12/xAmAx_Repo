@@ -647,6 +647,12 @@ class cLiveSPOpt():
             elif (Nom == "France" and Url.startswith("http://62.210.139.14:8000")):
                 Retour = self.TelechargPage(url=Url)
                 ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,')
+            elif Nom == "VOD + IPTV": #114
+                Retour = self.TelechargPage(url=Url).replace(chr(13),"")
+                #print Nom+"="+str(Retour)
+                ListeM3u2 = Retour.split('#EXTINF:-1,FR_')
+                ListeM3u2 = ListeM3u + Retour.split('#EXTINF:-1,FR: ')
+                ListeM3u2 = ListeM3u + Retour.split('#EXTINF:-1,FR ')
             else:
                 if Essai==True:
                     Ret3 = "" #self.TelechargPage(url=Url)
