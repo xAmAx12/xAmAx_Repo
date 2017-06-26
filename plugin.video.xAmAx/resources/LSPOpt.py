@@ -269,7 +269,9 @@ class cLiveSPOpt():
             self.MajDiv = 100/NbMaj
             self.TotMaj = 0
             self.dp = xbmcgui.DialogProgress()
+            xbmc.sleep(200)
             self.dp.create("Telechargement de la liste de chaine:")
+            xbmc.sleep(200)
             NbMajEc = 0
             if Majtv1:
                 NbMajEc += 1
