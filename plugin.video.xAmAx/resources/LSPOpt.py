@@ -52,8 +52,33 @@ class cLiveSPOpt():
         return clef[2:]
 
     def ConvNom(self, Nom):
-        
-        NomRet = str(Nom).upper().replace(
+        ret = ''
+        for l in Nom:
+            if (ord(l) > 0 and ord(l)!=13 and ord(l) < 126):
+                ret += l
+            elif (ord(l) > 191  and ord(l) < 198):
+                ret += "A" #chr(65)
+            elif (ord(l) > 199  and ord(l) < 204):
+                ret += "E" #chr(69)
+            elif (ord(l) > 203  and ord(l) < 208):
+                ret += "I" #chr(73)
+            elif (ord(l) > 209  and ord(l) < 215):
+                ret += "O" #chr(79)
+            elif (ord(l) > 216  and ord(l) < 221):
+                ret += "U" #chr(85)
+            elif (ord(l) > 223  and ord(l) < 230):
+                ret += "a" #chr(97)
+            elif (ord(l) > 231  and ord(l) < 236):
+                ret += "e" #chr(101)
+            elif (ord(l) > 235  and ord(l) < 240):
+                ret += "i" #chr(105)
+            elif (ord(l) > 241  and ord(l) < 247):
+                ret += "o" #chr(111)
+            elif (ord(l) > 248  and ord(l) < 253):
+                ret += "u" #chr(117)
+            elif ord(l) > 125:
+                ret += "?"
+        NomRet = ret.upper().replace(
                         "[ FR ] ","").replace(
                         "[ FR: ] ","").replace(
                         "FR: ","").replace(
@@ -73,40 +98,8 @@ class cLiveSPOpt():
                         "_", " ").replace(
                         "FRANCE |", "").replace(
                         "\r", "").replace(
-                        "(SERVER 1)","").replace(
-                        "*","").replace(
-                        "'"," ").replace(
-                        "=","").replace(
-                        ">","").replace(
-                        "/","").replace(
-                        ":","").replace(
-                        ","," ").replace(
-                        "ê",'E').replace(
-                        "é",'E').replace(
-                        "è",'E').replace(
-                        "Ë","E").replace(
-                        "ï", "I").replace(
-                        "À","A").replace(
-                        "Á","A").replace(
-                        "Ã",'A').replace(
-                        "Â","A").replace(
-                        "Ä","A").replace(
-                        "©","").replace(
-                        "В","").replace(
-                        "і","").replace(
-                        "н","").replace(
-                        "т","").replace(
-                        "а","").replace(
-                        "ж","").replace(
-                        "’"," ").replace(
-                        chr(160), "").replace(
-                        "¨","").replace(
-                        chr(194),"A").replace(
-                        "•","").replace(
-                        "●","").replace(
-                        "★","").replace(
-                        "▬","").replace(
-                        "▬","")
+                        "(SERVER 1)","")
+                       
         
         while 1:
             if NomRet.startswith(' '):
