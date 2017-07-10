@@ -119,28 +119,25 @@ class cLiveSPOpt():
             cChaine = NewDB.cursor()
             cUrl = NewDB.cursor()
             cListCh = NewDB.cursor()
-            cBouq.execute("SELECT IDBouquet, TriDesChaines FROM Bouquet ORDER BY Ordre ASC;")
             xbmc.log("Enregistrement de tous les nouveaux Membres de la table...")
             cChaine.execute("DELETE FROM UrlBouquet;")
             IdUrlChaine = 0
-            for IDBouqu, TriDesChaines in cBouq:
-                #xbmc.log("SELECT IDChaineB, NomChaine, PasDansChaine FROM ChaineBouquet WHERE IDBouqChaine = "+str(IDBouqu)+" ORDER BY "+str(TriDesChaines)+";")
-                cChaine.execute("SELECT IDChaineB, NomChaine, PasDansChaine FROM ChaineBouquet WHERE IDBouqChaine = " + str(IDBouqu)+" ORDER BY "+str(TriDesChaines)+";")
-                for IDChaine, NomC, PasC in cChaine:
-                    #xbmc.log("SELECT * FROM ListePrincipale WHERE Nom LIKE '%"+str(NomC).upper()+"%' ORDER BY Nom ASC;")
-                    cListCh.execute("SELECT * FROM ListePrincipale WHERE Nom LIKE '%"+str(NomC).upper()+"%' ORDER BY Nom ASC;")
-                    for IdLP, Nom, Url, Entete in cListCh:
-                        EnrOk=True
-                        if len(str(PasC))>0 and str(PasC).upper()!="NONE":
-                            PasDansChaine = str(PasC).encode('utf-8').upper().split(",")
-                            for Pas in PasDansChaine:
-                                if Nom.upper().find(Pas)!=-1:
-                                    EnrOk=False
-                                    break
-                        if EnrOk==True:
-                            IdUrlChaine += 1
-                            #xbmc.log('INSERT INTO UrlBouquet (IDUrlB,IdBouquet,IDChaine,Url,NomAffichChaine) VALUES (%s,%s,%s,%s,%s)'%(str(IdUrlChaine),str(IDBouqu),str(IDChaine),Url,Nom))
-                            cUrl.execute('INSERT INTO UrlBouquet (IDUrlB,IdBouquet,IDChaine,Url,NomAffichChaine) VALUES (?,?,?,?,?)',(IdUrlChaine,IDBouqu,IDChaine,Url,Nom))
+            for numTab in range(1,5):
+                cBouq.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='List"+str(numTab)+"';")
+                Retour = cBouq.fetchall()
+                if len(Retour)==1:
+                    cBouq.execute("SELECT IDBouquet, TriDesChaines FROM Bouquet ORDER BY Ordre ASC;")
+                    for IDBouqu, TriDesChaines in cBouq:
+                        cChaine.execute("SELECT IDChaineB, NomChaine, PasDansChaine FROM ChaineBouquet WHERE IDBouqChaine = " + str(IDBouqu)+" ORDER BY "+str(TriDesChaines)+";")
+                        for IDChaine, NomC, PasNom in cChaine:
+                            if PasNom != None and PasNom != "":
+                                ANDWHERE = "AND Nom NOT LIKE '%"+PasNom+"%' "
+                            else:
+                                ANDWHERE = ""
+                            cListCh.execute("SELECT * FROM List"+str(numTab)+" WHERE Nom LIKE '%"+str(NomC).upper()+"%' "+ANDWHERE+"ORDER BY Nom ASC;")
+                            for IdLP, Nom, Url, Entete in cListCh:
+                                IdUrlChaine += 1
+                                cUrl.execute('INSERT INTO UrlBouquet (IDUrlB,IdBouquet,IDChaine,Url,NomAffichChaine) VALUES (?,?,?,?,?)',(IdUrlChaine,IDBouqu,IDChaine,Url,Nom))
         except lite.Error as e:
             if NewDB:
                 NewDB.rollback()
@@ -233,14 +230,11 @@ class cLiveSPOpt():
         if len(Post)>0:
             values = Post
             values = urlib.urlencode(values)
-
             conn.request("POST", url, values, headers)
-
         try:
             response = conn.getresponse()
             data = response.read()
-            print 'Response: ', response.status, response.reason
-            print 'Data:'
+            print 'Response: '+ response.status+" "+ response.reason
             return data
         except:
             print "Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sys.exc_info()[0])
@@ -269,18 +263,19 @@ class cLiveSPOpt():
             self.MajDiv = 100/NbMaj
             self.TotMaj = 0
             self.dp = xbmcgui.DialogProgress()
-            xbmc.sleep(200)
+            xbmc.sleep(500)
             self.dp.create("Telechargement de la liste de chaine:")
-            xbmc.sleep(200)
+            xbmc.sleep(500)
             NbMajEc = 0
             if Majtv1:
+                cUrl.execute("create table if not exists List1 (`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT)")
                 NbMajEc += 1
                 xbmc.log("Recherche Liste de chaine 1")
                 self.dp.update(self.TotMaj,"Recherche Liste de chaine 1")
                 Retour,Erreur = self.RechercheSources1()
                 if len(Retour)>0 and Erreur=="":
                     xbmc.log("Liste de chaine 1 a afficher: "+str(len(Retour)))
-                    cUrl.execute("DELETE FROM ListePrincipale;")
+                    cUrl.execute("DELETE FROM List1;")
                     ListeEffacer = True
                     for Nom,Url in Retour:
                         IdLP += 1
@@ -289,7 +284,7 @@ class cLiveSPOpt():
                                 Nom = Nom[1:]
                             else:
                                 break
-                        cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                        cUrl.execute('''INSERT INTO List1 (IDLP,Nom,Url)
                                     VALUES (?,?,?)''',(IdLP,Nom+" [COLOR gold](1)[/COLOR]",Url+"&name="+Nom))
                 else:
                     if Erreur!="":
@@ -299,6 +294,8 @@ class cLiveSPOpt():
                 self.TotMaj = self.MajDiv*NbMajEc
             xbmc.log("Telechargement de la liste de chaine:"+str(self.TotMaj)+"%")
             if Majtv2:
+                ListeEffacer = False
+                cUrl.execute("create table if not exists List2 (`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT)")
                 NbMajEc += 1
                 xbmc.log("Recherche Liste de chaine 2")
                 NbDivSrc = 7
@@ -330,9 +327,9 @@ class cLiveSPOpt():
                                         else:
                                             break
                                     if ListeEffacer == False:
-                                        cUrl.execute("DELETE FROM ListePrincipale;")
+                                        cUrl.execute("DELETE FROM List2;")
                                         ListeEffacer = True
-                                    cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                                    cUrl.execute('''INSERT INTO List2 (IDLP,Nom,Url)
                                                 VALUES (?,?,?)''',(IdLP,
                                                                    Nom+" [COLOR gold](2)[/COLOR]",
                                                                    'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),Nom)))
@@ -342,6 +339,8 @@ class cLiveSPOpt():
                 self.TotMaj = self.MajDiv*NbMajEc
                 xbmc.log("Telechargement de la liste de chaine:"+str(self.TotMaj)+"%")
             if Majtv3:
+                ListeEffacer = False
+                cUrl.execute("create table if not exists List3 (`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT)")
                 self.TotMaj = self.MajDiv*NbMajEc
                 self.dp.update(self.TotMaj,"Recherche Liste de chaine 3")
                 NbMajEc += 1
@@ -358,15 +357,15 @@ class cLiveSPOpt():
                                 else:
                                     break
                             if ListeEffacer == False:
-                                cUrl.execute("DELETE FROM ListePrincipale;")
+                                cUrl.execute("DELETE FROM List3;")
                                 ListeEffacer = True
                             if Url.endswith(".ts"):
-                                cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                                cUrl.execute('''INSERT INTO List3 (IDLP,Nom,Url)
                                         VALUES (?,?,?)''',(IdLP,
                                                            Nom+" [COLOR gold](3)[/COLOR]",
                                                            'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),Nom)))
                             else:
-                                cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                                cUrl.execute('''INSERT INTO List3 (IDLP,Nom,Url)
                                         VALUES (?,?,?)''',(IdLP,
                                                            Nom+" [COLOR gold](3)[/COLOR]",
                                                            'plugin://plugin.video.f4mTester/?url=%s'%(urlib.quote_plus(Url))))
@@ -377,6 +376,8 @@ class cLiveSPOpt():
                 xbmc.sleep(50)
                 xbmc.log("Telechargement de la liste de chaine:"+str(self.TotMaj)+"%")
             if Majtv4:
+                ListeEffacer = False
+                cUrl.execute("create table if not exists List4 (`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT)")
                 self.dp.update(self.TotMaj,"Recherche Liste de chaine 4")
                 xbmc.sleep(50)
                 NbMajEc += 1
@@ -393,10 +394,10 @@ class cLiveSPOpt():
                                 else:
                                     break
                             if ListeEffacer == False:
-                                cUrl.execute("DELETE FROM ListePrincipale;")
+                                cUrl.execute("DELETE FROM List4;")
                                 ListeEffacer = True
                                 Nom=self.ConvNom(Nom)
-                            cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                            cUrl.execute('''INSERT INTO List4 (IDLP,Nom,Url)
                                         VALUES (?,?,?)''',(IdLP,
                                                            Nom+" [COLOR gold](4)[/COLOR]",
                                                            'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),Nom)))
@@ -408,6 +409,8 @@ class cLiveSPOpt():
                 xbmc.sleep(50)
 
         if 1==2:
+            ListeEffacer = False
+            cUrl.execute("create table if not exists List5 (`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT)")
             xbmc.log("Recherche Liste de chaine 5")
             Retour5, Erreur5 = self.RechercheSources5()
             if Erreur5=="OK":
@@ -421,10 +424,10 @@ class cLiveSPOpt():
                             else:
                                 break
                         if ListeEffacer == False:
-                            cUrl.execute("DELETE FROM ListePrincipale;")
+                            cUrl.execute("DELETE FROM List5;")
                             ListeEffacer = True
                             Nom=self.ConvNom(Nom)
-                        cUrl.execute('''INSERT INTO ListePrincipale (IDLP,Nom,Url)
+                        cUrl.execute('''INSERT INTO List5 (IDLP,Nom,Url)
                                     VALUES (?,?,?)''',(IdLP,
                                                        Nom+" [COLOR gold](5)[/COLOR]",
                                                        'plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),Nom)))
@@ -588,10 +591,10 @@ class cLiveSPOpt():
 
 
         host = 'www.oneplaylist.space'
-        url = '/database/export'
+        url = 'https://www.oneplaylist.space/database/export'
         ret=[]
         try:
-            SourcesListe = self.getHtml3(host,url,{'kategorija' : '3'})
+            SourcesListe = self.TelechargPage(url,Post={'kategorija' : '3'})
 
             ListeM3u = SourcesListe.split("#EXTM3U")
             NbAdresse = 0
@@ -631,34 +634,34 @@ class cLiveSPOpt():
         ListeM3u2=[]
         Ret3=""
         try:
-            xbmc.log("Nom Source 3: "+Nom+" Url: "+Url)
             if Nom=="Arab FR, DE, UK":
                 Ret3 = self.TelechargPage(url=Url)
-                ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,FR_')
+                if not Ret3.startswith("Erreur") and not Ret3.startswith('{"error"'):
+                    ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,FR_')
             elif Nom=="France IPTV" and 1==2:
-                Retour = self.TelechargPage(url=Url)
-                ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,')
+                Ret3 = self.TelechargPage(url=Url)
+                if not Ret3.startswith("Erreur") and not Ret3.startswith('{"error"'):
+                    ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,')
             elif Nom == "Mix World" and 1==2:
-                Retour = self.TelechargPage(url=Url)
-                ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,FR:')
+                Ret3 = self.TelechargPage(url=Url)
+                if not Ret3.startswith("Erreur") and not Ret3.startswith('{"error"'):
+                    ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,FR:')
             elif Nom == "France, World IPTV" and 1==2:
-                Retour = self.TelechargPage(url=Url)
-                ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,=====_Swiss')[0].split('#EXTINF:-1,')
+                Ret3 = self.TelechargPage(url=Url)
+                if not Ret3.startswith("Erreur") and not Ret3.startswith('{"error"'):
+                    ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,=====_Swiss')[0].split('#EXTINF:-1,')
             elif (Nom == "France" and Url.startswith("http://62.210.139.14:8000")):
-                Retour = self.TelechargPage(url=Url)
-                ListeM3u2 = Retour.replace(chr(13),"").split('#EXTINF:-1,')
+                Ret3 = self.TelechargPage(url=Url)
+                if not Ret3.startswith("Erreur") and not Ret3.startswith('{"error"'):
+                    ListeM3u2 = Ret3.replace(chr(13),"").split('#EXTINF:-1,')
             elif Nom == "VOD + IPTV": #114
-                Retour = self.TelechargPage(url=Url).replace(chr(13),"")
-                #print Nom+"="+str(Retour)
-                ListeM3u2 = Retour.split('#EXTINF:-1,FR_')
-                ListeM3u2 = ListeM3u + Retour.split('#EXTINF:-1,FR: ')
-                ListeM3u2 = ListeM3u + Retour.split('#EXTINF:-1,FR ')
+                Ret3 = self.TelechargPage(url=Url).replace(chr(13),"")
+                if not Ret3.startswith("Erreur") and not Ret3.startswith('{"error"'):
+                    ListeM3u2 = Ret3.split('#EXTINF:-1,FR_')
+                    ListeM3u2 = ListeM3u2 + Ret3.split('#EXTINF:-1,FR: ')
+                    ListeM3u2 = ListeM3u2 + Ret3.split('#EXTINF:-1,FR ')
             else:
-                if Essai==True:
-                    Ret3 = "" #self.TelechargPage(url=Url)
-                else:
-                    Ret3 = ""
-                #print Nom+"="+str(Retour)
+                pass
             if len(ListeM3u2)>0:
                 ret=[]
                 NbAdresse = 0
@@ -672,7 +675,6 @@ class cLiveSPOpt():
                         Nom.startswith("+++"))and not(
                         Nom.startswith("---"))and not(
                         Nom.startswith("===")):
-                        #print str(Nom)+"="+str(Adresse)
                         ret.append((self.ConvNom(Nom), str(Adresse)))
                         NbAdresse += 1
                 if Essai: print str(NbAdresse)
