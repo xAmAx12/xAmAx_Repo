@@ -125,7 +125,6 @@ def AfficheMenu(Menu=_MenuList, Icone=False):
     # creation du menu
     xbmc.log("Menu")
     # Création de la liste d'élément.
-    #xbmc.log(str(Menu.items()))
     if not Icone:
         _vStream = cvStreamOpt().TryConnectvStream() # "vStream non installer!" TryConnectvStream()
         _ChercheBackgroud = TryChercheBackgroud()
@@ -241,25 +240,58 @@ def MajMenuRegroup():
     NewDB = lite.connect(dbxAmAx)
     cUrl = NewDB.cursor()
     cUrl2 = NewDB.cursor()
-    cUrl.execute("SELECT NomAffiche,NomRegroup FROM RegroupChaine ORDER BY NomAffiche ;")
+    AffichAutre = False
     listID=[]
-    for Affich, Nom in cUrl:
-        cUrl2.execute("SELECT IDLP FROM ListePrincipale WHERE Nom LIKE '%"+str(Nom)+"%' ORDER BY Nom ;")
+    for numTab in range(1,5):
+        cUrl.execute("SELECT NomAffiche,NomRegroup, PasDansNom FROM RegroupChaine ORDER BY NomAffiche ;")
+        cUrl2.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='List"+str(numTab)+"';")
         Retour = cUrl2.fetchall()
-        if len(Retour)> 0:
-            for IDLP in Retour:
-                listID.append(str(IDLP[0]))
-            _MenuRegroup.update({str(Affich).replace("_"," "): ("TV","ChaineRegroup"+base64.b64encode(str(Nom)),True)})
-    addon.setSetting(id="ListAutre", value=str(listID).replace("[","(").replace("]",")").replace("'",""))
-    cUrl2.close()
-    cUrl.execute("SELECT IDLP FROM ListePrincipale WHERE IDLP NOT IN "+str(listID).replace("[","(").replace("]",")").replace("'","")+" ;")
-    if len(cUrl.fetchall())>0:
+        if len(Retour)==1:
+            for Affich, Nom, PasNom in cUrl:
+                if PasNom != None and PasNom != "":
+                    ANDWHERE = "AND Nom NOT LIKE '%"+PasNom+"%' "
+                else:
+                    ANDWHERE = ""
+                cUrl2.execute("SELECT IDLP FROM List"+str(numTab)+" WHERE Nom LIKE '"+str(Nom)+"%' "+ANDWHERE+"ORDER BY Nom;") # 
+                Retour = cUrl2.fetchall()
+                if len(Retour)> 0:
+                    for IDLP in Retour:
+                        listID.append(str(IDLP[0]))
+                    _MenuRegroup.update({str(Affich).replace("_"," "): ("TV","ChaineRegroup"+base64.b64encode(str(Nom)),True)})
+            addon.setSetting(id="ListAutre", value=str(listID).replace("[","(").replace("]",")").replace("'",""))
+            cUrl2.execute("SELECT IDLP FROM List"+str(numTab)+" WHERE IDLP NOT IN "+str(listID).replace("[","(").replace("]",")").replace("'","")+" ;")
+            if len(cUrl2.fetchall())>0:
+                AffichAutre = True
+    if AffichAutre:
         _MenuRegroup.update({"ZZZ Les autres chaines": ("TV","ChaineRegroupLesAutres",True)})
     cUrl.close()
+    cUrl2.close()
     NewDB.close()
     return _MenuRegroup
     
-
+def AffichMenuTv():
+    if addon.getSetting(id="MajtvAuto")=="true":
+        xbmc.log("Recherche mise a jour si première ouverture de la journée")
+        DateDerMajTv = str(addon.getSetting(id="DateTvListe"))
+        xbmc.log("Dernière Mise a jour: "+DateDerMajTv)
+        if str(DateDerMajTv)!=strftime("%d-%m-%Y", gmtime()):
+            Retour = cLiveSPOpt().RechercheChaine(AdressePlugin)
+            if Retour=="OK":
+                if addon.getSetting(id="CreerBouq")=="true":
+                    cLiveSPOpt().CreerBouquet(AdressePlugin)
+                addon.setSetting(id="DateTvListe", value=strftime("%d-%m-%Y", gmtime())) #%H:%M:%S"
+    if addon.getSetting(id="CreerBouq")=="true":
+        dbxAmAx = os.path.join(AdressePlugin, "resources", "xAmAx.db")
+        xbmc.log("Ouverture Liste Bouquet de: "+dbxAmAx)
+        NewDB = lite.connect(dbxAmAx)
+        cUrl = NewDB.cursor()
+        cUrl.execute("SELECT NomBouq FROM Bouquet ORDER BY Ordre ;")
+        for NomBouq in cUrl:
+            _MenuTV.update({"Bouquet "+str(NomBouq[0]): ("TV","Bouq"+str(NomBouq[0]),True)})
+        cUrl.close()
+        NewDB.close()
+    AfficheMenu(_MenuTV)
+    
 def addDir(name,url,mode,iconimage,fanart,is_Folder,infos={},cat='',contextCommands=[]):
     u  =url
     ok =True
@@ -272,7 +304,7 @@ def addDir(name,url,mode,iconimage,fanart,is_Folder,infos={},cat='',contextComma
     ok =xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=is_Folder)
     return ok
 
-def AfichListeTS(ListeChaine=[], Table="ListePrincipale", Colon="Nom, Url", Where="", Ordre="Nom", Bouquet=""):
+def AfichListeTS(ListeChaine=[], Colon="Nom, Url", Where="", Ordre="Nom", Bouquet=""):
     if len(ListeChaine)>0:
         for Nom, Url, Entete in ListeChaine:
             addDir(Nom,'{0}?action=Play&Url={1}&ElemMenu={2}'.format(_url, urlib.quote_plus(Url+"|"+Entete), "LireVideo"),1,_ArtMenu['thumb'],_ArtMenu['fanar'],True)
@@ -282,28 +314,30 @@ def AfichListeTS(ListeChaine=[], Table="ListePrincipale", Colon="Nom, Url", Wher
         NewDB = lite.connect(dbxAmAx)
         i = 0
         cUrl = NewDB.cursor()
-        if Bouquet!="":
-            xbmc.log("Ouverture Bouquet: "+Bouquet)
-            cUrl.execute("SELECT IDBouquet, TriDesUrl FROM Bouquet WHERE NomBouq='"+Bouquet+"' ;")
-            IdBouq=0
-            OrdreB=""
-            for IdBouquet,OrdreBouq in cUrl:
-                IdBouq=IdBouquet
-                OrdreB=OrdreBouq
-            Where="IdBouquet="+str(IdBouq)
-            Colon="NomAffichChaine, Url"
-            Ordre=OrdreB
-            Table="UrlBouquet"
-        if Where=="":
-            cUrl.execute("SELECT "+Colon+" FROM "+Table+" ORDER BY "+Ordre+";")
-        else:
-            cUrl.execute("SELECT "+Colon+" FROM "+Table+" WHERE "+Where+" ORDER BY "+Ordre+";")
-        xbmc.log("Creation Liste de chaine a afficher...")
-        for Nom, Url in cUrl:
-            #xbmc.log(cname+"\n"+curl)
-            i += 1
-            addDir(str(i)+"-"+Nom,'{0}?action=Play&Url={1}&ElemMenu={2}'.format(_url, urlib.quote_plus(Url), "LireVideo"),1,_ArtMenu['thumb'],_ArtMenu['fanar'],True)
-            #xbmc.log("Affiche Chaine: "+str(i)+" - "+Nom)
+        for numTab in range(1,5):
+            Table="List"+str(numTab)
+            if Bouquet!="":
+                xbmc.log("Ouverture Bouquet: "+Bouquet)
+                cUrl.execute("SELECT IDBouquet, TriDesUrl FROM Bouquet WHERE NomBouq='"+Bouquet+"' ;")
+                IdBouq=0
+                OrdreB=""
+                for IdBouquet,OrdreBouq in cUrl:
+                    IdBouq=IdBouquet
+                    OrdreB=OrdreBouq
+                Where="IdBouquet="+str(IdBouq)
+                Colon="NomAffichChaine, Url"
+                Ordre=OrdreB
+                Table="UrlBouquet"
+            if Where=="":
+                cUrl.execute("SELECT "+Colon+" FROM "+Table+" ORDER BY "+Ordre+";")
+            else:
+                cUrl.execute("SELECT "+Colon+" FROM "+Table+" WHERE "+Where+" ORDER BY "+Ordre+";")
+            xbmc.log("Creation Liste de chaine a afficher...")
+            for Nom, Url in cUrl:
+                #xbmc.log(cname+"\n"+curl)
+                i += 1
+                addDir(str(i)+"-"+Nom,'{0}?action=Play&Url={1}&ElemMenu={2}'.format(_url, urlib.quote_plus(Url), "LireVideo"),1,_ArtMenu['thumb'],_ArtMenu['fanar'],True)
+                #xbmc.log("Affiche Chaine: "+str(i)+" - "+Nom)
         try:
             if cUrl:
                 cUrl.close()
@@ -557,7 +591,6 @@ def ConvAction(TitreCmd):
 
     return ""
 
-
 def router(paramstring):
     xbmc.log("dans router")
     # reception des paramètres du menu
@@ -572,27 +605,7 @@ def router(paramstring):
             
             if params['Option'] =="TV":#----------------------------------------------------------------------------------------
                 if params['ElemMenu']=="VisuLiveStream":
-                    if addon.getSetting(id="MajtvAuto")=="true":
-                        xbmc.log("Recherche mise a jour si première ouverture de la journée")
-                        DateDerMajTv = str(addon.getSetting(id="DateTvListe"))
-                        xbmc.log("Dernière Mise a jour: "+DateDerMajTv)
-                        if str(DateDerMajTv)!=strftime("%d-%m-%Y", gmtime()):
-                            Retour = cLiveSPOpt().RechercheChaine(AdressePlugin)
-                            if Retour=="OK":
-                                if addon.getSetting(id="CreerBouq")=="true":
-                                    cLiveSPOpt().CreerBouquet(AdressePlugin)
-                                addon.setSetting(id="DateTvListe", value=strftime("%d-%m-%Y", gmtime())) #%H:%M:%S"
-                    if addon.getSetting(id="CreerBouq")=="true":
-                        dbxAmAx = os.path.join(AdressePlugin, "resources", "xAmAx.db")
-                        xbmc.log("Ouverture Liste Bouquet de: "+dbxAmAx)
-                        NewDB = lite.connect(dbxAmAx)
-                        cUrl = NewDB.cursor()
-                        cUrl.execute("SELECT NomBouq FROM Bouquet ORDER BY Ordre ;")
-                        for NomBouq in cUrl:
-                            _MenuTV.update({"Bouquet "+str(NomBouq[0]): ("TV","Bouq"+str(NomBouq[0]),True)})
-                        cUrl.close()
-                        NewDB.close()
-                    AfficheMenu(_MenuTV)
+                    AffichMenuTv()
                 if params['ElemMenu']=='AffichTV':
                     AfficheMenu(MajMenuRegroup())
                 if params['ElemMenu']=='MajTV':
@@ -609,8 +622,7 @@ def router(paramstring):
                         
                     Retour2 = cLiveSPOpt().RechercheChaine(AdressePlugin)
                     if Retour2=="OK":
-                        cLiveSPOpt().CreerBouquet(AdressePlugin)
-                        AfficheMenu(MajMenuRegroup())
+                        AffichMenuTv()
                     else:
                         dialog = xbmcgui.Dialog()
                         ok = dialog.ok("Erreur chaines TV", Retour2)
@@ -620,7 +632,18 @@ def router(paramstring):
                     if params['ElemMenu'][13:]=="LesAutres":
                         AfichListeTS(Where="IDLP NOT IN "+str(addon.getSetting(id="ListAutre")))
                     else:
-                        AfichListeTS(Where="Nom LIKE '%"+base64.b64decode(str(params['ElemMenu'][13:]))+"%'")
+                        dbxAmAx = os.path.join(AdressePlugin, "resources", "xAmAx.db")
+                        NomChaine = base64.b64decode(str(params['ElemMenu'][13:]))
+                        xbmc.log("Recherche "+NomChaine+" dans le Liste Regroup de: "+dbxAmAx)
+                        NewDB = lite.connect(dbxAmAx)
+                        cUrl = NewDB.cursor()
+                        cUrl.execute("SELECT PasDansNom FROM RegroupChaine WHERE NomRegroup = '"+NomChaine+"' ;")
+                        Retour = cUrl.fetchall()
+                        ANDWHERE = ""
+                        if len(Retour)==1:
+                            if Retour[0][0] != None and Retour[0][0] != "":
+                                ANDWHERE = " AND Nom NOT LIKE '%"+Retour[0][0]+"%' "
+                        AfichListeTS(Where="Nom LIKE '"+NomChaine+"%'"+ANDWHERE)
                 if params['ElemMenu']=="Adult":
                     try:
                         Url = params['Url']
