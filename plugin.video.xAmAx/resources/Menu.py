@@ -12,7 +12,6 @@ import xbmcgui
 import xbmcplugin
 from xbmcaddon import Addon
 import xbmcvfs
-import urllib2 as urllib
 import urllib as urlib
 import base64
 from urlparse import parse_qsl
@@ -21,6 +20,7 @@ from resources.vStreamOpt import cvStreamOpt
 from resources.LSPOpt import cLiveSPOpt
 from resources.DB import db
 from resources.TxtAff import TxtAffich
+from resources.Telecharg import cDL
 
 class menu():
 
@@ -86,7 +86,7 @@ class menu():
         self.MajPresente=False
         if self.adn.getSetting(id="MajAuto")=="true":
             print "Recherche auto de Mise a jour"
-            if self.RechMajAuto("MajV") != "":
+            if cDL().RechMajAuto("MajV") != "":
                 self.MajPresente = True
 
     def AfficheMenu(self,Menu="", Icone=False, ):
@@ -319,137 +319,6 @@ class menu():
         except:
             return "Fond d'écran indisponible!"
 
-    def TelechargementZip(self,url,dest,DPAff=True):
-        if DPAff:
-            dp = xbmcgui.DialogProgress()
-            dp.create("Telechargement Mise a jour:","Fichier en téléchargement",url)
-        try:
-            urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
-        except:
-            print "Téléchargement de: " + url
-            print "Téléchargement dans le dossier: " + dest
-            req = urllib.Request(url)
-            req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
-            essai = urllib.urlopen(req)
-            fichier = open(dest, "wb")
-            fichier.write(essai.read())
-            fichier.close()
-
-    def DLFich(self,url,dest, DPView=True):
-        if DPView:
-            dp = xbmcgui.DialogProgressBG()
-            dp.create("Telechargement du fichier...",url)
-        try:
-            urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
-        except:
-            req = urllib.Request(url)
-            req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')
-            essai = urllib.urlopen(req)
-            fichier = open(dest, "wb")
-            fichier.write(essai.read())
-            fichier.close()
-
-    def RechercheMAJ(self):
-        from resources.ziptools import ziptools
-        print 'xAmAx Recherche mise a jour...'
-        try:
-            data = urllib.urlopen(self.Url_Plugin_Version).read()
-            print 'Lecture de la version du plugin distant: ' + data
-        except:
-            data = ""
-            print 'Erreur de la lecture de la version du plugin: ' + self.Url_Plugin_Version
-            
-        version_publique=data
-        try:
-            numVersionPub = version_publique.split(".")
-            print 'xAmAx version publique:' + version_publique
-            numVersionLoc = self.__version__.split(".")
-            print 'xAmAx version locale:' + self.__version__
-        except:
-            version_publique = ""
-            print 'xAmAx version locale:' + self.__version__
-        print 'xAmAx version Publique: ' + str(numVersionPub) +  ' version locale: ' + str(numVersionLoc)
-        if version_publique!="" and self.__version__!="" and len(numVersionPub)==3 and len(numVersionLoc)==3:
-            if ((int(numVersionPub[0]) > int(numVersionLoc[0]))or
-                ((int(numVersionPub[0]) == int(numVersionLoc[0]))and((int(numVersionPub[1]) > int(numVersionLoc[1]))or
-                                                                    ((int(numVersionPub[2]) > int(numVersionLoc[2])))))):
-                try:
-                    xbmcvfs.mkdir(self.addon_data_dir)
-                except: pass
-                dest = os.path.join(self.addon_data_dir, 'DerMaj.zip')
-                MAJ_URL = 'https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/'+self.nomPlugin+'/'+self.nomPlugin+'-' +str(int(numVersionPub[0]))+"."+str(int(numVersionPub[1]))+"."+str(int(numVersionPub[2])) + '.zip'
-                print 'Démarrage du téléchargement de:' + MAJ_URL
-                    
-                TelechargementZip(MAJ_URL,dest)
-
-                unzipper = ziptools()
-                unzipper.extract(dest,self.extpath)
-                    
-                lign1 = 'Nouvelle version installer .....'
-                lign2 = 'Version: ' + version_publique 
-                xbmcgui.Dialog().ok('xAmAx', lign1, lign2)
-                    
-                if os.remove( dest ):
-                    print 'Suppression du fichier télécharger'
-                executebuiltin("UpdateLocalAddons")
-                executebuiltin("UpdateAddonRepos")
-                sleep(1.5)
-                return "OK"
-            else:
-                return "Pas de mise à jour disponible! \nVersion Internet: " + version_publique + "Version Actuelle: " + self.__version__
-        else:
-            return "Pas de mise à jour disponible!"
-        
-    def RechMajAuto(self,NomMaj,resources=""):
-        try:
-            AdresseVersion = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/"+resources+NomMaj
-            VRech = urllib.urlopen(AdresseVersion).read()
-            VLspopt = self.adn.getSetting(id=NomMaj)
-            print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech
-            if VLspopt!=str(VRech):
-                return str(VRech)
-            else:
-                return ""
-        except:
-            print "Erreur mise a jour: "+str(sys.exc_info()[0])
-            return ""
-
-    def MajAuto(self): #,NomMaj,Ext,resources=""
-        """self.MajAuto("xAmAx",".db","resources/")
-        self.MajAuto("settings",".xml","resources/")
-        self.MajAuto("vStreamOpt",".py","resources/")
-        self.MajAuto("LSPOpt",".py","resources/")
-        ret = self.MajAuto("default",".py")
-        if self.adn.getSetting(id="stban")=="true":
-            self.MajAuto("Samba",".py","resources/")
-        
-        if ret == True:
-            executebuiltin('XBMC.Container.Update')
-            sleep(0.2)
-            executebuiltin('XBMC.Container.Refresh')
-            sleep(0.2)"""
-
-        for NomMaj,Ext,resources in self.Maj:
-            if resources=="":
-                AdresseFich = os.path.join(self.AdressePlugin, NomMaj+Ext)
-            else:
-                AdresseFich = os.path.join(self.AdressePlugin, "resources", NomMaj+Ext)
-            try:
-                """AdresseVersion = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/"+resources+NomMaj
-                VRech = urllib.urlopen(AdresseVersion).read()
-                VLspopt = self.adn.getSetting(id=NomMaj)
-                print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech"""
-                ret = self.RechMajAuto(NomMaj,resources)
-                if ret != "":
-                    DL = urllib.urlopen("https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/plugin.video.xAmAx/"+resources+NomMaj+Ext).read()
-                    fichier = open(AdresseFich, "w")
-                    fichier.write(DL)
-                    fichier.close()
-                    adn.setSetting(id=NomMaj, value=ret)
-                    print "Mise a jour de "+NomMaj+" OK"
-            except:
-                print "Erreur mise a jour: "+str(sys.exc_info()[0])
-
     def Efface_thumb(self,env):
         if (env == 'fi'):
             try:
@@ -480,6 +349,58 @@ class menu():
                 return "OK"
             except:
                 return "Erreur de suppression des miniatures"
+            
+    def RechercheMAJ(self):
+        from resources.ziptools import ziptools
+        print 'xAmAx Recherche mise a jour...'
+        try:
+            data = cDL().TelechargPage(self.Url_Plugin_Version)
+            print 'Lecture de la version du plugin distant: ' + data
+        except:
+            data = ""
+            print 'Erreur de la lecture de la version du plugin: ' + self.Url_Plugin_Version
+            
+        version_publique=data
+        
+        try:
+            numVersionPub = version_publique.split(".")
+            print 'xAmAx version publique:' + version_publique
+            numVersionLoc = self.__version__.split(".")
+            print 'xAmAx version locale:' + self.__version__
+        except:
+            version_publique = ""
+            print 'xAmAx version locale:' + self.__version__
+        print 'xAmAx version Publique: ' + str(numVersionPub) +  ' version locale: ' + str(numVersionLoc)
+        if version_publique!="" and self.__version__!="" and len(numVersionPub)==3 and len(numVersionLoc)==3:
+            if ((int(numVersionPub[0]) > int(numVersionLoc[0]))or
+                ((int(numVersionPub[0]) == int(numVersionLoc[0]))and((int(numVersionPub[1]) > int(numVersionLoc[1]))or
+                                                                    ((int(numVersionPub[2]) > int(numVersionLoc[2])))))):
+                try:
+                    xbmcvfs.mkdir(self.addon_data_dir)
+                except: pass
+                dest = os.path.join(self.addon_data_dir, 'DerMaj.zip')
+                MAJ_URL = self.UrlRepo+self.nomPlugin+'/'+self.nomPlugin+'-' +str(int(numVersionPub[0]))+"."+str(int(numVersionPub[1]))+"."+str(int(numVersionPub[2])) + '.zip'
+                print 'Démarrage du téléchargement de:' + MAJ_URL
+                    
+                cDL().TelechargementZip(MAJ_URL,dest)
+
+                unzipper = ziptools()
+                unzipper.extract(dest,self.extpath)
+                    
+                lign1 = 'Nouvelle version installer .....'
+                lign2 = 'Version: ' + version_publique 
+                xbmcgui.Dialog().ok('xAmAx', lign1, lign2)
+                    
+                if os.remove( dest ):
+                    print 'Suppression du fichier télécharger'
+                executebuiltin("UpdateLocalAddons")
+                executebuiltin("UpdateAddonRepos")
+                sleep(1.5)
+                return "OK"
+            else:
+                return "Pas de mise à jour disponible! \nVersion Internet: " + version_publique + "Version Actuelle: " + self.__version__
+        else:
+            return "Pas de mise à jour disponible!"
 
     def router(self,paramstring):
         print "dans router"
@@ -735,15 +656,15 @@ class menu():
                     executebuiltin('XBMC.RunPlugin('+finalUrl+')')
                 if params['ElemMenu']=="LireVideo2":
                     if params['Adult']=="1":
-                        html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
+                        html = cDL().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
                         videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
                         print "--videourl = "+str(videourl[0])
-                        html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
+                        html = cDL().TelechargPage('http://www.mrsexe.com/' + videourl[0])
                         #print "--html = "+html
                         videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
                         videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
                         print "--videourl.. = "+(str(videourl[0]))
-                        videourl = "http:"+str(videourls[0][0])
+                        videourl = str(videourls[0][0])
                     else:
                         videourl = base64.b64decode(params['Url'])
                     print "Adresse video: "+str(videourl)
@@ -757,15 +678,15 @@ class menu():
                     dialog = xbmcgui.Dialog()
                     if dialog.yesno('Telechargement du fichier...', 'Voulez-vous télécharger le fichier?','','','Non', 'Oui'):
                         if params['Adult']=="1":
-                            html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
+                            html = cDL().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
                             videourl = re.compile(r"src='(/inc/clic\.php\?video=.+?&cat=mrsex.+?)'").findall(html)
                             print "--videourl_DL = "+str(videourl[0])
-                            html = cLiveSPOpt().TelechargPage('http://www.mrsexe.com/' + videourl[0])
+                            html = cDL().TelechargPage('http://www.mrsexe.com/' + videourl[0])
                             #print "--html = "+html
                             videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
                             videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
                             print "--videourl_DL.. = "+(str(videourl[0]))
-                            videourl = "http:"+str(videourls[0][0])
+                            videourl = str(videourls[0][0])
                         else:
                             videourl = base64.b64decode(params['Url'])
                         
@@ -779,7 +700,7 @@ class menu():
                                 NomFichVid = "vid"+str(i)+".mp4"
                             if not xbmcvfs.exists(os.path.join(self.profile,NomFichVid)):
                                 break
-                        self.DLFich(videourl,os.path.join(self.profile,NomFichVid), DPView=True)
+                        cDL().DLFich(videourl,os.path.join(self.profile,NomFichVid), DPView=True)
             if params['action'] == 'OuvTxt':
                 if params['ElemMenu']=="LogSamba":
                     from resources.Samba import EnvSamba
@@ -825,7 +746,7 @@ class menu():
                         if photo.startswith(" "):
                             photo = photo[1:]
                         listPhoto = params['Icone'][:params['Icone'].rfind("_")+1]+photo+params['Icone'][-4:]
-                        self.TelechargementZip(listPhoto,CheminFich)       
+                        cDL().TelechargementZip(listPhoto,CheminFich)       
                     executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')') 
         else:
             self.AfficheMenu()
