@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="Mise à jour">
+        <setting id="MajAuto" type="bool" label="Mise à jour automatique de xAmAx" default="true" />
+        <setting id="MajV" type="text" label="Mise A Jour auto version" default="0" enable="false" />
+        <setting id="default" type="text" label="Démarrage Version" default="0" enable="false" />
+        <setting id="Menu" type="text" label="Menu" default="0" enable="false" />
+        <setting id="xAmAx" type="text" label="Base de donnée Version" default="0" enable="false" />
+        <setting id="Samba" type="text" label="Samba Version" default="0" enable="false" />
+        <setting id="LSPOpt" type="text" label="Video Version" default="0" enable="false" />
+        <setting id="settings" type="text" label="Parametres Version" default="0" enable="false" />
+        <setting id="vStreamOpt" type="text" label="Options vStream Version" default="0" enable="false" />
+        <setting id="Adult" type="bool" label="Afficher le menu Plus" default="false"  visible="false" />
+        <setting id="stban" type="bool" label="Afficher le menu PC distant" default="false"  visible="false" />
+    </category>
+</settings>
