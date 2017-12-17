@@ -184,51 +184,32 @@ class cvStreamOpt():
  Fin de la sauvegarde des Marques-Pages classés par nom! 
 ********************************************************'''
             
-    def EcritureDownload(self):
+    def EcritureDownload(self, Vitesse="300"):
         FichDown = os.path.join(self.adresseResources,"download.py")
+        FichNouv = os.path.join(self.adresseResources,"download2.py")
         ok = False
         MenuRegroup={}
-        FichFinal = ""
         try:
-            with open(FichDown) as f :
-                for line in f :
+            with open(FichDown,'r') as f:
+                lines = f.readlines()
+             
+            with open(FichDown,'w') as f:
+                for line in lines:
                     if "if not (self.__bFastMode):" in line:
                         print "_____OK"
-                        ok = True
+                        ok = True 
                     elif ok:
                         Tab1=line.split("xbmc.sleep(")
                         if len(Tab1)>1:
-                            Tab1=Tab1[1].split(")")
-                            print "____Vitesse de téléchargement = "+str(Tab1[0])
-                            if Tab1[0] == "300":
-                                Def=" - [COLOR yellow] Vitesse Actuelle [/COLOR]"
-                            else:
-                                Def=""
-                            MenuRegroup.update({"[COLOR orange]Vitesse de téléchargement: [/COLOR]": ("vStream","VstreamDl300",True)})
-                            MenuRegroup.update({"-1 Par défaut"+Def: ("vStream","VstreamDl300",False)})
-                            if Tab1[0] == "200":
-                                Def=" - [COLOR yellow] Vitesse Actuelle [/COLOR]"
-                            else:
-                                Def=""
-                            MenuRegroup.update({"-2 légère amélioration"+Def: ("vStream","VstreamDl200",False)})
-                            if Tab1[0] == "100":
-                                Def=" - [COLOR yellow] Vitesse Actuelle [/COLOR]"
-                            else:
-                                Def=""
-                            MenuRegroup.update({"-3 Amélioration Moyenne"+Def: ("vStream","VstreamDl100",False)})
-                            if Tab1[0] == "0":
-                                Def=" - [COLOR yellow] Vitesse Actuelle [/COLOR]"
-                            else:
-                                Def=""
-                            MenuRegroup.update({"-4 Téléchargement sans ralentissement"+Def: ("vStream","VstreamDl0",False)})
-                            return MenuRegroup
-            return "Erreur de recherche de la rapiditée du téléchargement!"
+                            line = Tab1[0] + "xbmc.sleep(" + Vitesse + ")\n"
+                            ok = False
+                    f.write(line)
+            return "La modification de la rapiditée de téléchargement est terminée!\nBon téléchargement!"
         except lite.Error as e:
             if conn:
                 conn.rollback()
             print "Error %s:" % e.args[0]
-            return "Erreur de recherche de la rapiditée du téléchargement!"
-            print "Erreur de recherche de la rapiditée du téléchargement!"
+            return "Erreur de modification de la rapiditée du téléchargement!"
             # raise e
             
     def LectureDownload(self):

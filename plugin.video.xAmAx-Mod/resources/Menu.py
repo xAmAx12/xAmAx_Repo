@@ -447,7 +447,13 @@ class menu():
                             self.AfficheMenu(Retour)
                         else:
                             dialog = xbmcgui.Dialog()
-                            ok = dialog.ok("Trier la liste de Recherche vStream", Retour)
+                            ok = dialog.ok("Recherche de la vitesse de téléchargement de vStream", Retour)
+                    if params['ElemMenu'].startswith("VstreamDl"):
+                        Retour = cvStreamOpt().EcritureDownload(params['ElemMenu'][9:])
+                        dialog = xbmcgui.Dialog()
+                        ok = dialog.ok("Modification vitesse de téléchargement de vStream", Retour)
+                        executebuiltin('XBMC.Container.Update')
+                        executebuiltin('XBMC.Container.Refresh')
                     
                 if params['Option']=="Kodi": #----------------------------------------------------------------------------------------
                     if params['ElemMenu']=="VisuKodi":
