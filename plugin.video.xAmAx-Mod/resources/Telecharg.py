@@ -37,7 +37,7 @@ class cDL():
                   ("settings",".xml","resources/"),
                   ("vStreamOpt",".py","resources/"),
                   ("LSPOpt",".py","resources/"),
-                  ("default",".py"),
+                  ("default",".py",""),
                   ("Samba",".py","resources/"),
                   ("Menu",".py","resources/")]
 
