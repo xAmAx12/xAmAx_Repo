@@ -80,12 +80,7 @@ class menu():
                   ("default",".py",""),
                   ("Samba",".py","resources/"),
                   ("Menu",".py","resources/")]
-        self.MajPresente=False
-        if self.adn.getSetting(id="MajAuto")=="true":
-            print "Recherche auto de Mise a jour"
-            self.vertionMaj = cDL().RechMajAuto("MajV")
-            if self.vertionMaj != "":
-                self.MajPresente = False
+        self.MajPresente=True
 
     def AfficheMenu(self,Menu="", Icone=False):
         if Menu=="":
@@ -400,7 +395,7 @@ class menu():
         else:
             return "Pas de mise à jour disponible!"
         
-    def MajAuto(self, vertionMaj): #,NomMaj,Ext,resources=""
+    def MajAuto(self): #,NomMaj,Ext,resources=""
         """self.MajAuto("xAmAx",".db","resources/")
         self.MajAuto("settings",".xml","resources/")
         self.MajAuto("vStreamOpt",".py","resources/")
@@ -437,7 +432,7 @@ class menu():
                 except:
                     print "Erreur mise a jour: "+str(sys.exc_info()[0])
                     return "Erreur mise a jour: "+str(sys.exc_info()[0])
-        self.adn.setSetting(id="MajV", value=vertionMaj)
+        self.adn.setSetting(id="MajV", value=self.vertionMaj)
         return "OK"
     
     def RechMajAuto(self,NomMaj,resources):
@@ -782,11 +777,15 @@ class menu():
                     executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')') 
         else:
             self.AfficheMenu()
-            if self.MajPresente:
-                Retour = self.MajAuto(self.vertionMaj)
-                if Retour != "OK":
-                    dialog = xbmcgui.Dialog()
-                    dialog.ok("Mise à jour automatique", Retour, "")
+            if self.adn.getSetting(id="MajAuto")=="true" and self.MajPresente:
+                self.MajPresente = False
+                print "Recherche auto de Mise a jour"
+                self.vertionMaj = self.RechMajAuto("MajV")
+                if self.vertionMaj != "":
+                    Retour = self.MajAuto(self.vertionMaj)
+                    if Retour != "OK":
+                        dialog = xbmcgui.Dialog()
+                        dialog.ok("Mise à jour automatique", Retour, "")
                     
             
 
