@@ -144,22 +144,22 @@ class cDL():
                 AdresseFich = os.path.join(self.AdressePlugin, NomMaj+Ext)
             else:
                 AdresseFich = os.path.join(self.AdressePlugin, "resources", NomMaj+Ext)
-            #try:
-                """AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
-                VRech = urllib.urlopen(AdresseVersion).read()
-                VLspopt = self.adn.getSetting(id=NomMaj)
-                print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech"""
-            ret = self.RechMajAuto(NomMaj,resources)
-            if ret != "":
-                DL = urllib.urlopen(self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext).read()
-                fichier = open(AdresseFich, "w")
-                fichier.write(DL)
-                fichier.close()
-                self.adn.setSetting(id=NomMaj, value=ret)
-                print "Mise a jour de "+NomMaj+" OK"
-            #except:
-            #    print "Erreur mise a jour: "+str(sys.exc_info()[0])
-            #    return "Erreur mise a jour: "+str(sys.exc_info()[0])
-        #self.adn.setSetting(id="MajV", value=vertionMaj)
+            try:
+                    """AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
+                    VRech = urllib.urlopen(AdresseVersion).read()
+                    VLspopt = self.adn.getSetting(id=NomMaj)
+                    print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech"""
+                ret = self.RechMajAuto(NomMaj,resources)
+                if ret != "":
+                    DL = urllib.urlopen(self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext).read()
+                    fichier = open(AdresseFich, "w")
+                    fichier.write(DL)
+                    fichier.close()
+                    self.adn.setSetting(id=NomMaj, value=ret)
+                    print "Mise a jour de "+NomMaj+" OK"
+                except:
+                    print "Erreur mise a jour: "+str(sys.exc_info()[0])
+                    return "Erreur mise a jour: "+str(sys.exc_info()[0])
+        self.adn.setSetting(id="MajV", value=vertionMaj)
         return "OK"
 

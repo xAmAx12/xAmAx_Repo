@@ -719,6 +719,7 @@ class menu():
                         cDL().TelechargementZip(listPhoto,CheminFich)       
                     executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')') 
         else:
+            self.AfficheMenu()
             if self.MajPresente:
                 Retour = cDL().MajAuto(self.vertionMaj)
                 if Retour == "OK":
@@ -728,5 +729,5 @@ class menu():
                     dialog = xbmcgui.Dialog()
                     dialog.ok("Mise à jour automatique", Retour, "")
                     
-            self.AfficheMenu()
+            
 
