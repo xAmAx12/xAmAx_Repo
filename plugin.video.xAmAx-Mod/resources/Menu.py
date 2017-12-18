@@ -85,7 +85,7 @@ class menu():
             print "Recherche auto de Mise a jour"
             self.vertionMaj = cDL().RechMajAuto("MajV")
             if self.vertionMaj != "":
-                self.MajPresente = True
+                self.MajPresente = False
 
     def AfficheMenu(self,Menu="", Icone=False):
         if Menu=="":
@@ -427,17 +427,33 @@ class menu():
                     print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech"""
                 ret = self.RechMajAuto(NomMaj,resources)
                 if ret != "":
-                    DL = cDL().TelechargPage(self, url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
-                    fichier = open(AdresseFich, "w")
-                    fichier.write(DL)
-                    fichier.close()
-                    self.adn.setSetting(id=NomMaj, value=ret)
-                    print "Mise a jour de "+NomMaj+" OK"
+                    DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
+                    if not DL.startswith("Erreur"):
+                        fichier = open(AdresseFich, "w")
+                        fichier.write(DL)
+                        fichier.close()
+                        self.adn.setSetting(id=NomMaj, value=ret)
+                        print "Mise a jour de "+NomMaj+" OK"
                 except:
                     print "Erreur mise a jour: "+str(sys.exc_info()[0])
                     return "Erreur mise a jour: "+str(sys.exc_info()[0])
         self.adn.setSetting(id="MajV", value=vertionMaj)
         return "OK"
+    
+    def RechMajAuto(self,NomMaj,resources):
+        try:
+            AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
+            VRech = cDL().TelechargPage(AdresseVersion)
+            if not VRech.startswith("Erreur"):
+                VLspopt = self.adn.getSetting(id=NomMaj)
+                print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech
+                if VLspopt!=str(VRech):
+                    return str(VRech)
+                else:
+                    return ""
+        except:
+            print "Erreur mise a jour: "+str(sys.exc_info()[0])
+            return ""
 
     def router(self,paramstring):
         print "dans router"
