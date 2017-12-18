@@ -78,7 +78,11 @@ class menu():
             print "Recherche auto de Mise a jour"
             self.vertionMaj = cDL().RechMajAuto("MajV")
             if self.vertionMaj != "":
-                self.MajPresente = True
+                Retour = cDL().MajAuto(self.vertionMaj)
+                if Retour != "OK":
+                    dialog = xbmcgui.Dialog()
+                    dialog.ok("Mise à jour automatique", Retour, "")
+                #self.MajPresente = True
 
     def AfficheMenu(self,Menu="", Icone=False):
         if Menu=="":
@@ -720,14 +724,7 @@ class menu():
                     executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')') 
         else:
             self.AfficheMenu()
-            if self.MajPresente:
-                Retour = cDL().MajAuto(self.vertionMaj)
-                if Retour == "OK":
-                    executebuiltin('XBMC.Container.Update')
-                    executebuiltin('XBMC.Container.Refresh')
-                else:
-                    dialog = xbmcgui.Dialog()
-                    dialog.ok("Mise à jour automatique", Retour, "")
+                
                     
             
 
