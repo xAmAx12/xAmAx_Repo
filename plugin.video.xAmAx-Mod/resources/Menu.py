@@ -73,16 +73,19 @@ class menu():
                 "Re-démarrage de l'arrêt automatique":("PC","ActDemarArret",True),
                 "Interrogation Heure d'arrêt":("PC","ActIHArret",True),
                 "Interrogation Heure du pc":("PC","ActHeurePC",True)}
+        self.Maj=[("xAmAx",".db","resources/"),
+                  ("settings",".xml","resources/"),
+                  ("vStreamOpt",".py","resources/"),
+                  ("LSPOpt",".py","resources/"),
+                  ("default",".py",""),
+                  ("Samba",".py","resources/"),
+                  ("Menu",".py","resources/")]
         self.MajPresente=False
         if self.adn.getSetting(id="MajAuto")=="true":
             print "Recherche auto de Mise a jour"
             self.vertionMaj = cDL().RechMajAuto("MajV")
             if self.vertionMaj != "":
-                Retour = cDL().MajAuto(self.vertionMaj)
-                if Retour != "OK":
-                    dialog = xbmcgui.Dialog()
-                    dialog.ok("Mise à jour automatique", Retour, "")
-                #self.MajPresente = True
+                self.MajPresente = True
 
     def AfficheMenu(self,Menu="", Icone=False):
         if Menu=="":
@@ -396,6 +399,45 @@ class menu():
                 return "Pas de mise à jour disponible! \nVersion Internet: " + version_publique + "Version Actuelle: " + self.__version__
         else:
             return "Pas de mise à jour disponible!"
+        
+    def MajAuto(self, vertionMaj): #,NomMaj,Ext,resources=""
+        """self.MajAuto("xAmAx",".db","resources/")
+        self.MajAuto("settings",".xml","resources/")
+        self.MajAuto("vStreamOpt",".py","resources/")
+        self.MajAuto("LSPOpt",".py","resources/")
+        ret = self.MajAuto("default",".py")
+        if self.adn.getSetting(id="stban")=="true":
+            self.MajAuto("Samba",".py","resources/")
+        
+        if ret == True:
+            executebuiltin('XBMC.Container.Update')
+            sleep(0.2)
+            executebuiltin('XBMC.Container.Refresh')
+            sleep(0.2)"""
+
+        for NomMaj,Ext,resources in self.Maj:
+            if resources=="":
+                AdresseFich = os.path.join(self.AdressePlugin, NomMaj+Ext)
+            else:
+                AdresseFich = os.path.join(self.AdressePlugin, "resources", NomMaj+Ext)
+            try:
+                    """AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
+                    VRech = urllib.urlopen(AdresseVersion).read()
+                    VLspopt = self.adn.getSetting(id=NomMaj)
+                    print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech"""
+                ret = self.RechMajAuto(NomMaj,resources)
+                if ret != "":
+                    DL = cDL().TelechargPage(self, url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
+                    fichier = open(AdresseFich, "w")
+                    fichier.write(DL)
+                    fichier.close()
+                    self.adn.setSetting(id=NomMaj, value=ret)
+                    print "Mise a jour de "+NomMaj+" OK"
+                except:
+                    print "Erreur mise a jour: "+str(sys.exc_info()[0])
+                    return "Erreur mise a jour: "+str(sys.exc_info()[0])
+        self.adn.setSetting(id="MajV", value=vertionMaj)
+        return "OK"
 
     def router(self,paramstring):
         print "dans router"
@@ -724,7 +766,11 @@ class menu():
                     executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')') 
         else:
             self.AfficheMenu()
-                
+            if self.MajPresente:
+                Retour = self.MajAuto(self.vertionMaj)
+                if Retour != "OK":
+                    dialog = xbmcgui.Dialog()
+                    dialog.ok("Mise à jour automatique", Retour, "")
                     
             
 
