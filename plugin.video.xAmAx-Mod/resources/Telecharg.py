@@ -4,16 +4,20 @@
 # Created on: 05.08.2017
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
 
+import os
 import sys
 import urllib2 as urllib
 import urllib as urlib
 from httplib import HTTPSConnection
 import xbmcgui
+from xbmcaddon import Addon
 
 class cDL():
 
     def __init__(self):
         self.nomPlugin = 'plugin.video.xAmAx-Mod'
+        self.adn = Addon(self.nomPlugin)
+        self.AdressePlugin = self.adn.getAddonInfo('path')
         self.UrlRepo = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/"
         
         self.USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3'
@@ -28,6 +32,14 @@ class cDL():
                    'Accept-Encoding': 'none',
                    'Accept-Language': 'en-US,en;q=0.8',
                    'Connection': 'keep-alive'}
+
+        self.Maj=[("xAmAx",".db","resources/"),
+                  ("settings",".xml","resources/"),
+                  ("vStreamOpt",".py","resources/"),
+                  ("LSPOpt",".py","resources/"),
+                  ("default",".py"),
+                  ("Samba",".py","resources/"),
+                  ("Menu",".py","resources/")]
 
     def TelechargPage(self, url="", Entete=None, Post={}):
 
@@ -112,7 +124,7 @@ class cDL():
             print "Erreur mise a jour: "+str(sys.exc_info()[0])
             return ""
 
-    def MajAuto(self): #,NomMaj,Ext,resources=""
+    def MajAuto(self, vertionMaj): #,NomMaj,Ext,resources=""
         """self.MajAuto("xAmAx",".db","resources/")
         self.MajAuto("settings",".xml","resources/")
         self.MajAuto("vStreamOpt",".py","resources/")
@@ -132,19 +144,22 @@ class cDL():
                 AdresseFich = os.path.join(self.AdressePlugin, NomMaj+Ext)
             else:
                 AdresseFich = os.path.join(self.AdressePlugin, "resources", NomMaj+Ext)
-            try:
+            #try:
                 """AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
                 VRech = urllib.urlopen(AdresseVersion).read()
                 VLspopt = self.adn.getSetting(id=NomMaj)
                 print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech"""
-                ret = self.RechMajAuto(NomMaj,resources)
-                if ret != "":
-                    DL = urllib.urlopen(self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext).read()
-                    fichier = open(AdresseFich, "w")
-                    fichier.write(DL)
-                    fichier.close()
-                    adn.setSetting(id=NomMaj, value=ret)
-                    print "Mise a jour de "+NomMaj+" OK"
-            except:
-                print "Erreur mise a jour: "+str(sys.exc_info()[0])
+            ret = self.RechMajAuto(NomMaj,resources)
+            if ret != "":
+                DL = urllib.urlopen(self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext).read()
+                fichier = open(AdresseFich, "w")
+                fichier.write(DL)
+                fichier.close()
+                self.adn.setSetting(id=NomMaj, value=ret)
+                print "Mise a jour de "+NomMaj+" OK"
+            #except:
+            #    print "Erreur mise a jour: "+str(sys.exc_info()[0])
+            #    return "Erreur mise a jour: "+str(sys.exc_info()[0])
+        #self.adn.setSetting(id="MajV", value=vertionMaj)
+        return "OK"
 

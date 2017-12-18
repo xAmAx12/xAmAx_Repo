@@ -58,7 +58,7 @@ class menu():
                "Options de xAmAx":("xAmAx",'VisuxAmAx',True)}
         self._MenuxAmAx={"Version "+self.__version__:("xAmAx","InfoVersion",False),
                "Mise a jour de xAmAx":("xAmAx",'MiseAJourxAmAx',True),
-                "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False),"test":("xAmAx",'test',True)}
+                "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)} #,"test":("xAmAx",'test',True)}
         self._MenuvStream={"Trier la liste de Recherche vStream":("vStream","RechercheVstream",True),
                "Trier les Marques-Pages vStream":("vStream","MPVstream",True),
                "Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
@@ -73,17 +73,11 @@ class menu():
                 "Re-démarrage de l'arrêt automatique":("PC","ActDemarArret",True),
                 "Interrogation Heure d'arrêt":("PC","ActIHArret",True),
                 "Interrogation Heure du pc":("PC","ActHeurePC",True)}
-        self.Maj=[("xAmAx",".db","resources/"),
-                  ("settings",".xml","resources/"),
-                  ("vStreamOpt",".py","resources/"),
-                  ("LSPOpt",".py","resources/"),
-                  ("default",".py"),
-                  ("Samba",".py","resources/"),
-                  ("Menu",".py","resources/")]
         self.MajPresente=False
         if self.adn.getSetting(id="MajAuto")=="true":
             print "Recherche auto de Mise a jour"
-            if cDL().RechMajAuto("MajV") != "":
+            self.vertionMaj = cDL().RechMajAuto("MajV")
+            if self.vertionMaj != "":
                 self.MajPresente = True
 
     def AfficheMenu(self,Menu="", Icone=False):
@@ -725,5 +719,14 @@ class menu():
                         cDL().TelechargementZip(listPhoto,CheminFich)       
                     executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')') 
         else:
+            if self.MajPresente:
+                Retour = cDL().MajAuto(self.vertionMaj)
+                if Retour == "OK":
+                    executebuiltin('XBMC.Container.Update')
+                    executebuiltin('XBMC.Container.Refresh')
+                else:
+                    dialog = xbmcgui.Dialog()
+                    dialog.ok("Mise à jour automatique", Retour, "")
+                    
             self.AfficheMenu()
 
