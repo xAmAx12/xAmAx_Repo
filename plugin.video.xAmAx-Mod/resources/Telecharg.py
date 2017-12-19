@@ -17,7 +17,6 @@ class cDL():
         self.nomPlugin = 'plugin.video.xAmAx-Mod'
         self.adn = Addon(self.nomPlugin)
         self.AdressePlugin = self.adn.getAddonInfo('path')
-        self.UrlRepo = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/"
         
         self.USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3'
 
