@@ -416,10 +416,10 @@ class menu():
             else:
                 AdresseFich = os.path.join(self.AdressePlugin, "resources", NomMaj+Ext)
             try:
-                    """AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
-                    VRech = urllib.urlopen(AdresseVersion).read()
-                    VLspopt = self.adn.getSetting(id=NomMaj)
-                    print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech"""
+                """AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
+                VRech = urllib.urlopen(AdresseVersion).read()
+                VLspopt = self.adn.getSetting(id=NomMaj)
+                print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech"""
                 ret = self.RechMajAuto(NomMaj,resources)
                 if ret != "":
                     DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
