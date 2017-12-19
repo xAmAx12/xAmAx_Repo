@@ -401,36 +401,36 @@ class menu():
                 AdresseFich = os.path.join(self.AdressePlugin, NomMaj+Ext)
             else:
                 AdresseFich = os.path.join(self.AdressePlugin, "resources", NomMaj+Ext)
-            #try:
-            ret = self.RechMajAuto(NomMaj,resources)
-            if ret != "":
-                DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
-                if not DL.startswith("Erreur"):
-                    fichier = open(AdresseFich, "w")
-                    fichier.write(DL)
-                    fichier.close()
-                    self.adn.setSetting(id=NomMaj, value=ret)
-                    print "Mise a jour de "+NomMaj+" OK"
-            #except:
-            #    print "Erreur mise a jour: "+str(sys.exc_info()[0])
-            #    return "Erreur mise a jour: "+str(sys.exc_info()[0])
+            try:
+                ret = self.RechMajAuto(NomMaj,resources)
+                if ret != "":
+                    DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
+                    if not DL.startswith("Erreur"):
+                        fichier = open(AdresseFich, "w")
+                        fichier.write(DL)
+                        fichier.close()
+                        self.adn.setSetting(id=NomMaj, value=ret)
+                        print "Mise a jour de "+NomMaj+" OK"
+            except:
+                print "Erreur mise a jour: "+str(sys.exc_info()[0])
+                return "Erreur mise a jour: "+str(sys.exc_info()[0])
         self.adn.setSetting(id="MajV", value=self.vertionMaj)
         return "OK"
     
     def RechMajAuto(self,NomMaj,resources=""):
-        try:
-            AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
-            VRech = cDL().TelechargPage(AdresseVersion)
-            if not VRech.startswith("Erreur"):
-                VLspopt = self.adn.getSetting(id=NomMaj)
-                print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech
-                if VLspopt!=str(VRech):
-                    return str(VRech)
-                else:
-                    return ""
-        except:
-            print "Erreur mise a jour: "+str(sys.exc_info()[0])
-            return ""
+        #try:
+        AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
+        VRech = cDL().TelechargPage(AdresseVersion)
+        if not VRech.startswith("Erreur"):
+            VLspopt = self.adn.getSetting(id=NomMaj)
+            print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech
+            if VLspopt!=str(VRech):
+                return str(VRech)
+            else:
+                return ""
+        #except:
+        #    print "Erreur mise a jour: "+str(sys.exc_info()[0])
+        #    return ""
 
     def router(self,paramstring):
         print "dans router"
