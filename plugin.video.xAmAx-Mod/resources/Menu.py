@@ -37,8 +37,9 @@ class menu():
         # Récupération des info du plugin
         self._url = sys.argv[0]
         self.AdressePlugin = self.adn.getAddonInfo('path')
-
-        self.Url_Plugin_Version = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo/"+self.nomPlugin+"/README.md"
+        
+        self.UrlRepo = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/"
+        self.Url_Plugin_Version = self.UrlRepo+"repo/"+self.nomPlugin+"/README.md"
         self._handle = int(sys.argv[1])
         self.profile = translatePath(self.adn.getAddonInfo('profile').decode('utf-8'))
         
@@ -764,7 +765,7 @@ class menu():
                 print "Recherche auto de Mise a jour"
                 self.vertionMaj = self.RechMajAuto("MajV")
                 if self.vertionMaj != "":
-                    Retour = self.MajAuto(self.vertionMaj)
+                    Retour = self.MajAuto()
                     if Retour != "OK":
                         dialog = xbmcgui.Dialog()
                         dialog.ok("Mise à jour automatique", Retour, "")
