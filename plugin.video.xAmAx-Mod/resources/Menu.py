@@ -74,8 +74,7 @@ class menu():
                 "Re-démarrage de l'arrêt automatique":("PC","ActDemarArret",True),
                 "Interrogation Heure d'arrêt":("PC","ActIHArret",True),
                 "Interrogation Heure du pc":("PC","ActHeurePC",True)}
-        self.Maj=[("xAmAx",".db","resources/"),
-                  ("settings",".xml","resources/"),
+        self.Maj=[("settings",".xml","resources/"),
                   ("vStreamOpt",".py","resources/"),
                   ("LSPOpt",".py","resources/"),
                   ("default",".py",""),
@@ -158,63 +157,6 @@ class menu():
         xbmcplugin.setPluginCategory( handle=int(sys.argv[1]), category="xAmAx" )
         xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
-            
-
-    def MajMenuRegroup(self):
-        MenuRegroup={}
-        print "Ouverture Liste Regroup:"
-        DBxAmAx = db(self.dbxAmAx)
-        AffichAutre = False
-        listID=[]
-        for numTab in range(1,5):
-            if DBxAmAx.TableExist("List"+str(numTab)):
-                cRegroup = DBxAmAx.Select(Table="RegroupChaine",
-                                          Colonnes="NomAffiche,NomRegroup, PasDansNom",
-                                          Where="",
-                                          Order="NomAffiche ASC")
-                for Affich, Nom, PasNom in cRegroup:
-                    if PasNom != None and PasNom != "":
-                        ANDWHERE = "AND Nom NOT LIKE '%"+PasNom+"%' "
-                    else:
-                        ANDWHERE = ""
-                    cChaine = DBxAmAx.Select(Table="List"+str(numTab),
-                                             Colonnes="IDLP",
-                                             Where="Nom LIKE '"+str(Nom)+"%' "+ANDWHERE,
-                                             Order="Nom ASC")
-                    if len(cChaine)> 0:
-                        for IDLP in cChaine:
-                            listID.append(str(IDLP[0]))
-                        MenuRegroup.update({str(Affich).replace("_"," "): ("TV","ChaineRegroup"+base64.b64encode(str(Nom)),True)})
-                self.adn.setSetting(id="ListAutre", value=str(listID).replace("[","(").replace("]",")").replace("'",""))
-                cChaine = DBxAmAx.Select(Table="List"+str(numTab),
-                                         Colonnes="IDLP",
-                                         Where="IDLP NOT IN "+str(listID).replace("[","(").replace("]",")").replace("'",""),
-                                         Order="")
-                if len(cChaine)>0:
-                    AffichAutre = True
-        if AffichAutre:
-            MenuRegroup.update({"ZZZ Les autres chaines": ("TV","ChaineRegroupLesAutres",True)})
-        return MenuRegroup
-        
-    def AffichMenuTv(self,MiseAJourOK=False):
-        Retour=""
-        MenuTV = self._MenuTV
-        if self.adn.getSetting(id="MajtvAuto")=="true":
-            print "Recherche mise a jour si première ouverture de la journée"
-            DateDerMajTv = str(self.adn.getSetting(id="DateTvListe"))
-            print "Dernière Mise a jour: "+DateDerMajTv
-            if str(DateDerMajTv)!=strftime("%d-%m-%Y", gmtime()):
-                Retour = cLiveSPOpt().RechercheChaine(self.AdressePlugin)
-                if Retour=="OK":
-                    self.adn.setSetting(id="DateTvListe", value=strftime("%d-%m-%Y", gmtime())) #%H:%M:%S"
-        if self.adn.getSetting(id="CreerBouq")=="true":
-            if Retour=="OK" or MiseAJourOK==True:
-                cLiveSPOpt().CreerBouquet(self.AdressePlugin)
-            print "Ouverture Liste Bouquet de: "+self.dbxAmAx
-            cBouq = db(self.dbxAmAx).Select(Table="Bouquet", Colonnes="NomBouq", Where="", Order="Ordre ASC")
-            for NomBouq in cBouq:
-                MenuTV.update({"Bouquet "+str(NomBouq[0]): ("TV","Bouq"+str(NomBouq[0]),True)})
-        self.AfficheMenu(MenuTV)
         
     def addDir(self,name,url,mode,iconimage,fanart,is_Folder,infos={},cat='',contextCommands=[]):
         u  =url
@@ -225,53 +167,6 @@ class menu():
             liz.addContextMenuItems ( contextCommands, replaceItems=False)
             
         ok =xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=is_Folder)
-
-    def AfichListeTS(self,ListeChaine=[], Colon="Nom, Url", Where="", Ordre="Nom", Bouquet=""):
-        if len(ListeChaine)>0:
-            for Nom, Url, Entete in ListeChaine:
-                self.addDir(Nom,
-                       '{0}?action=Play&Url={1}&ElemMenu={2}'.format(self._url, urlib.quote_plus(Url+"|"+Entete), "LireVideo"),
-                       1,
-                       self._ArtMenu['thumb'],
-                       self._ArtMenu['fanar'],
-                       True)
-        else:
-            DBxAmAx = db(self.dbxAmAx)
-            i = 0
-            Table=""
-            Rfin = 5
-            if Bouquet!="":
-                print "Ouverture Bouquet: "+Bouquet
-                cBouq = DBxAmAx.Select(Table="Bouquet",
-                                       Colonnes="IDBouquet, TriDesUrl",
-                                       Where="NomBouq='"+Bouquet+"'",
-                                       Order="")
-                IdBouq=0
-                OrdreB=""
-                for IdBouquet,OrdreBouq in cBouq:
-                    IdBouq=IdBouquet
-                    OrdreB=OrdreBouq
-                Where="IdBouquet="+str(IdBouq)
-                Colon="NomAffichChaine, Url"
-                Ordre=OrdreB
-                Table="UrlBouquet"
-                Rfin = 2
-            for numTab in range(1,Rfin):
-                if Table=="" or Table.startswith("List"):
-                    Table="List"+str(numTab)
-                print "Ouverture Liste TV de: "+self.dbxAmAx+ " Table: "+Table+" Colon: "+Colon+" Where: "+Where+" Ordre: "+Ordre
-                cAffich = DBxAmAx.Select(Table, Colon, Where, Ordre)
-                print "Creation Liste de chaine a afficher..."
-                for Nom, Url in cAffich:
-                    i += 1
-                    self.addDir(str(i)+"-"+Nom,
-                           '{0}?action=Play&Url={1}&ElemMenu={2}'.format(self._url, urlib.quote_plus(Url), "LireVideo"),
-                           1,
-                           self._ArtMenu['thumb'],
-                           self._ArtMenu['fanar'],
-                           True)
-        xbmcplugin.setPluginCategory(handle=int(sys.argv[1]), category="lecture" )
-        xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
     def TryChercheBackgroud(self):
         try:
@@ -773,5 +668,3 @@ class menu():
                         executebuiltin('XBMC.Container.Update')
                         executebuiltin('XBMC.Container.Refresh')
                     
-            
-
