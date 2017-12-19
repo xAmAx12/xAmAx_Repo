@@ -429,9 +429,9 @@ class menu():
                         fichier.close()
                         self.adn.setSetting(id=NomMaj, value=ret)
                         print "Mise a jour de "+NomMaj+" OK"
-                except:
-                    print "Erreur mise a jour: "+str(sys.exc_info()[0])
-                    return "Erreur mise a jour: "+str(sys.exc_info()[0])
+            except:
+                print "Erreur mise a jour: "+str(sys.exc_info()[0])
+                return "Erreur mise a jour: "+str(sys.exc_info()[0])
         self.adn.setSetting(id="MajV", value=self.vertionMaj)
         return "OK"
     
