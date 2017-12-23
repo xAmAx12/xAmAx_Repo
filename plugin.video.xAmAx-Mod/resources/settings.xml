@@ -5,7 +5,7 @@
         <setting id="MajV" type="text" label="Mise A Jour auto version" default="0" enable="false" />
         <setting id="default" type="text" label="Démarrage Version" default="0" enable="false" />
         <setting id="Menu" type="text" label="Menu" default="0" enable="false" />
-        <setting id="xAmAx" type="text" label="Base de donnée Version" default="0" enable="false" />
+        <setting id="DB" type="text" label="Base de donnée Version" default="0" enable="false" />
         <setting id="Samba" type="text" label="Samba Version" default="0" enable="false" />
         <setting id="LSPOpt" type="text" label="Video Version" default="0" enable="false" />
         <setting id="settings" type="text" label="Parametres Version" default="0" enable="false" />

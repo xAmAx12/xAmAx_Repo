@@ -75,6 +75,7 @@ class menu():
                 "Interrogation Heure d'arrêt":("PC","ActIHArret",True),
                 "Interrogation Heure du pc":("PC","ActHeurePC",True)}
         self.Maj=[("settings",".xml","resources/"),
+                  ("DB",".py","resources/"),
                   ("vStreamOpt",".py","resources/"),
                   ("LSPOpt",".py","resources/"),
                   ("default",".py",""),
