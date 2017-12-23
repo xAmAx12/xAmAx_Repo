@@ -305,7 +305,7 @@ class menu():
                 AdresseFich = os.path.join(self.AdressePlugin, "resources", NomMaj+Ext)
             try:
                 ret = self.RechMajAuto(NomMaj,resources)
-                if ((ret != "" and not ret.startwith("Erreur"))or (ForceMaj==True and not ret.startwith("Erreur")):
+                if (not ret.startswith("Erreur") and (ForceMaj or ret != "")):
                     DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
                     if not DL.startswith("Erreur"):
                         fichier = open(AdresseFich, "w")
