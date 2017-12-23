@@ -19,5 +19,6 @@
     </category>
     <category label="Option de vStream">
     	<setting id="AjoutNomSite" type="bool" label="Ajouter le nom du site dans le trie des Marques pages" default="false" />
+    	<setting id="SuprimNomSite" type="bool" label="Supprimer le nom du site dans le trie des Marques pages" default="false" />
     </category>
 </settings>

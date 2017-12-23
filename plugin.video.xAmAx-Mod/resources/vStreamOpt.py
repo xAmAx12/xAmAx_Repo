@@ -54,6 +54,8 @@ class cvStreamOpt():
 
             if self.adn.getSetting(id="AjoutNomSite")=="true": AjNomSite = True
             else: AjNomSite = False
+            if self.adn.getSetting(id="SuprimNomSite")=="true": SupNomSite = True
+            else: SupNomSite = False
             
             for row in c:
                 tittre=str(row[1]).split("[")
@@ -81,11 +83,16 @@ class cvStreamOpt():
                                 Nom2=Nom2 + site
                         else:
                             Nom2=Nom2 + site
+                    if SupNomSite:
+                        site = " - [COLOR yellow]" + row[3] + "[/COLOR]"
+                        if len(Nom2)>len(site):
+                            if site in Nom2:
+                                Nom2=Nom2[:len(Nom2)-len(site)]
                     while Nom2[:1]==" ":
                         Nom2=Nom2[1:]
-                    Curs.execute(self.InserTbl2,(row[0],Nom2,Nom,row[2],row[3],row[4],row[5],row[6],row[7]))
+                    Curs.execute(self.InserTbl2,(row[0],Nom2.decode('utf-8').lower(),Nom,row[2],row[3],row[4],row[5],row[6],row[7]))
                 else:
-                    Curs.execute(self.InserTbl2,(row[0],row[1],Nom,row[2],row[3],row[4],row[5],row[6]))
+                    Curs.execute(self.InserTbl2,(row[0],row[1],Nom.decode('utf-8').lower(),row[2],row[3],row[4],row[5],row[6]))
         except lite.Error as e:
             if conn:
                 conn.rollback()
