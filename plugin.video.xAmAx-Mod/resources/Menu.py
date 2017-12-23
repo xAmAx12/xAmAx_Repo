@@ -473,7 +473,7 @@ class menu():
                         self.MajPresente = False
                         print "Recherche auto de Mise a jour"
                         ret = self.RechMajAuto("MajV")
-                        if ret != "" and not ret.startswith("Erreur"):
+                        if not ret.startswith("Erreur"):
                             self.vertionMaj = ret
                             Retour = self.MajAuto(True)
                             dialog = xbmcgui.Dialog()
