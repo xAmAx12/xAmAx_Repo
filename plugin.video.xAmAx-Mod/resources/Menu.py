@@ -58,7 +58,8 @@ class menu():
                "Options de Kodi":("Kodi","VisuKodi",True),
                "Options de xAmAx":("xAmAx",'VisuxAmAx',True)}
         self._MenuxAmAx={"Version "+self.__version__:("xAmAx","InfoVersion",False),
-               "Mise a jour de xAmAx":("xAmAx",'MiseAJourxAmAx',True),
+               "Mise a jour de la version de xAmAx-Mod":("xAmAx",'MiseAJourxAmAx',True),
+                "Mise à jour Manuelle de l'application":("xAmAx", 'MajAplixAmAx', True),
                 "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)} #,"test":("xAmAx",'test',True)}
         self._MenuvStream={"Trier la liste de Recherche vStream":("vStream","RechercheVstream",True),
                "Trier les Marques-Pages vStream":("vStream","MPVstream",True),
@@ -79,6 +80,10 @@ class menu():
                   ("vStreamOpt",".py","resources/"),
                   ("LSPOpt",".py","resources/"),
                   ("default",".py",""),
+                  ("Telecharg",".py","resources/"),
+                  ("TxtAff",".py","resources/"),
+                  ("utils",".py","resources/"),
+                  ("ziptools",".py","resources/"),
                   ("Samba",".py","resources/"),
                   ("Menu",".py","resources/")]
         self.MajPresente=True
@@ -292,7 +297,7 @@ class menu():
         else:
             return "Pas de mise à jour disponible!"
         
-    def MajAuto(self): #,NomMaj,Ext,resources=""
+    def MajAuto(self,ForceMaj=False): #,NomMaj,Ext,resources=""
         for NomMaj,Ext,resources in self.Maj:
             if resources=="":
                 AdresseFich = os.path.join(self.AdressePlugin, NomMaj+Ext)
@@ -300,7 +305,7 @@ class menu():
                 AdresseFich = os.path.join(self.AdressePlugin, "resources", NomMaj+Ext)
             try:
                 ret = self.RechMajAuto(NomMaj,resources)
-                if ret != "":
+                if ((ret != "" and not ret.startwith("Erreur"))or ForceMaj):
                     DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
                     if not DL.startswith("Erreur"):
                         fichier = open(AdresseFich, "w")
@@ -327,7 +332,7 @@ class menu():
                     return ""
         except:
             print "Erreur mise a jour: "+str(sys.exc_info()[0])
-            return ""
+            return "Erreur mise a jour: "+str(sys.exc_info()[0])
 
     def router(self,paramstring):
         print "dans router"
@@ -464,6 +469,20 @@ class menu():
                         if Retour != "OK":
                             dialog = xbmcgui.Dialog()
                             ok = dialog.ok("Mise à jour xAmAx", Retour)
+                    if params['ElemMenu']=="MajAplixAmAx":
+                        self.MajPresente = False
+                        print "Recherche auto de Mise a jour"
+                        ret = self.RechMajAuto("MajV")
+                        if ret != "" and not ret.startswith("Erreur"):
+                            self.vertionMaj = ret
+                            Retour = self.MajAuto(True)
+                            dialog = xbmcgui.Dialog()
+                            if Retour != "OK":
+                                dialog.ok("Mise à jour automatique", Retour, "")
+                            else:
+                                dialog.ok("Mise à jour automatique", "Mise à jour réalisée avec succès!", "")
+                                executebuiltin('XBMC.Container.Update')
+                                executebuiltin('XBMC.Container.Refresh')
                     if params['ElemMenu']=="test":
                         print "test: "
                         Retour = cvStreamOpt().LectureDownload()
@@ -659,8 +678,9 @@ class menu():
             if self.adn.getSetting(id="MajAuto")=="true" and self.MajPresente:
                 self.MajPresente = False
                 print "Recherche auto de Mise a jour"
-                self.vertionMaj = self.RechMajAuto("MajV")
-                if self.vertionMaj != "":
+                ret = self.RechMajAuto("MajV")
+                if ret != "" and not ret.startswith("Erreur"):
+                    self.vertionMaj = ret
                     Retour = self.MajAuto()
                     if Retour != "OK":
                         dialog = xbmcgui.Dialog()
