@@ -9,35 +9,32 @@ import xbmcaddon
 import xbmc
 import sqlite3 as lite
 
-class cvStreamOpt():
-
-    vStream = None
-    adresseVstream = ""
-    TableV = ""
-    CreerTbl = ""
-    InserTbl = ""
-    InserTbl2 = ""
-    FinAffich = ""
+class cvStreamOpt():    
 
     def __init__(self):
-        try:
-            self.vStream  = xbmcaddon.Addon('plugin.video.vstream')
-            self.adresseVstream=str(xbmc.translatePath(self.vStream.getAddonInfo('profile').decode('utf-8')))
-            self.adresseResources = os.path.join(str(xbmc.translatePath(self.vStream.getAddonInfo('path').decode('utf-8'))),"resources","lib")
-        except:
-            pass
+
+        self.vStream  = xbmcaddon.Addon('plugin.video.vstream')
+        self.nomPlugin = 'plugin.video.xAmAx-Mod'
+        self.adn = xbmcaddon.Addon(self.nomPlugin)
+        self.adresseVstream=str(xbmc.translatePath(self.vStream.getAddonInfo('profile').decode('utf-8')))
+        self.adresseResources = os.path.join(str(xbmc.translatePath(self.vStream.getAddonInfo('path').decode('utf-8'))),"resources","lib")
+        self.TableV = ""
+        self.CreerTbl = ""
+        self.InserTbl = ""
+        self.InserTbl2 = ""
+        self.FinAffich = ""
 
     def TryConnectvStream(self):
         try:
-            xbmc.log("TryConnectvStream")
-            self.vStream  = xbmcaddon.Addon('plugin.video.vstream')
-            self.adresseVstream=str(xbmc.translatePath(self.vStream.getAddonInfo('profile').decode('utf-8')))
             xbmc.log("TryConnectvStream adresse: " + self.adresseVstream)
             if xbmcvfs.exists(os.path.join(self.adresseVstream,'Vstream2.db')):
                 os.remove(os.path.join(self.adresseVstream,'Vstream2.db'))
-            return "OK"
+            if xbmcvfs.exists(os.path.join(self.adresseVstream,'vstream.db')):
+                return "OK"
         except:
             return "vStream non installer!"
+
+        return "vStream non présent!"
     
     def MiseAJourVstream(self, Tables):
         try:
@@ -54,6 +51,10 @@ class cvStreamOpt():
             xbmc.log('SELECT * FROM '+self.TableV)
             c.execute('SELECT * FROM '+self.TableV)
             xbmc.log("Enregistrement de tous les nouveaux Membres de la table...")
+
+            if self.adn.getSetting(id="AjoutNomSite")=="true": AjNomSite = True
+            else: AjNomSite = False
+            
             for row in c:
                 tittre=str(row[1]).split("[")
                 Nom = str(tittre[0])
@@ -72,12 +73,14 @@ class cvStreamOpt():
                     Nom=Nom[1:]
                 if self.TableV=="favorite":
                     Nom2 = row[1]
-                    site = " - [COLOR yellow]" + row[3] + "[/COLOR]"
-                    if len(Nom2)>len(site):
-                        if Nom2[len(Nom2)-len(site):]!=site:
+                    
+                    if AjNomSite:
+                        site = " - [COLOR yellow]" + row[3] + "[/COLOR]"
+                        if len(Nom2)>len(site):
+                            if Nom2[len(Nom2)-len(site):]!=site:
+                                Nom2=Nom2 + site
+                        else:
                             Nom2=Nom2 + site
-                    else:
-                        Nom2=Nom2 + site
                     while Nom2[:1]==" ":
                         Nom2=Nom2[1:]
                     Curs.execute(self.InserTbl2,(row[0],Nom2,Nom,row[2],row[3],row[4],row[5],row[6],row[7]))

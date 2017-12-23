@@ -13,4 +13,7 @@
         <setting id="Adult" type="bool" label="Afficher le menu Plus" default="false"  visible="false" />
         <setting id="stban" type="bool" label="Afficher le menu PC distant" default="false"  visible="false" />
     </category>
+    <category label="Option de vStream">
+    	<setting id="AjoutNomSite" type="bool" label="Ajouter le nom du site dans le trie des Marques pages" default="false" />
+    </category>
 </settings>
