@@ -83,7 +83,6 @@ class menu():
                   ("default",".py",""),
                   ("Telecharg",".py","resources/"),
                   ("TxtAff",".py","resources/"),
-                  ("utils",".py","resources/"),
                   ("ziptools",".py","resources/"),
                   ("Samba",".py","resources/"),
                   ("Menu",".py","resources/")]
