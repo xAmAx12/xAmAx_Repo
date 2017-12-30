@@ -61,8 +61,8 @@ class menu():
                "Mise a jour de la version de xAmAx-Mod":("xAmAx",'MiseAJourxAmAx',True),
                 "Mise à jour Manuelle de l'application":("xAmAx", 'MajAplixAmAx', True),
                 "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)} #,"test":("xAmAx",'test',True)}
-        self._MenuvStream={"Trier la liste de Recherche vStream":("vStream","RechercheVstream",True),
-               "Trier les Marques-Pages vStream":("vStream","MPVstream",True),
+        self._MenuvStream={"Trier Alphabétique de la liste de Recherche vStream":("vStream","RechercheVstream",True),
+               "Trier Alphabétique des Marques-Pages vStream":("vStream","MPVstream",True),
                "Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
         self._MenuKodi={"Afficher le Journal d'erreur":("Kodi","AffichLog",False),
                "Effacer le fichiers temporaires":("Kodi","SupTemp",True),

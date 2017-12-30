@@ -75,16 +75,15 @@ class cvStreamOpt():
                     Nom=Nom[1:]
                 if self.TableV=="favorite":
                     Nom2 = row[1]
-                    
                     if AjNomSite:
-                        site = " - [COLOR yellow]" + row[3] + "[/COLOR]"
+                        site = " - [COLOR yellow] " + row[3] + " [/COLOR]"
                         if len(Nom2)>len(site):
                             if Nom2[len(Nom2)-len(site):]!=site:
                                 Nom2=Nom2 + site
                         else:
                             Nom2=Nom2 + site
                     if SupNomSite:
-                        site = " - [COLOR yellow]" + row[3] + "[/COLOR]"
+                        site = " - [COLOR yellow] " + row[3] + " [/COLOR]"
                         if len(Nom2)>len(site):
                             if site in Nom2:
                                 Nom2=Nom2[:len(Nom2)-len(site)]
