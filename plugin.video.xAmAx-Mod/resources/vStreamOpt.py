@@ -76,20 +76,20 @@ class cvStreamOpt():
                 if self.TableV=="favorite":
                     Nom2 = row[1]
                     if AjNomSite:
-                        site = " - [COLOR yellow] " + row[3] + " [/COLOR]"
+                        site = " - [COLOR yellow]" + row[3] + "[/COLOR]"
                         if len(Nom2)>len(site):
                             if Nom2[len(Nom2)-len(site):]!=site:
                                 Nom2=Nom2 + site
                         else:
                             Nom2=Nom2 + site
                     if SupNomSite:
-                        site = " - [COLOR yellow] " + row[3] + " [/COLOR]"
+                        site = " - [COLOR yellow]" + row[3] + "[/COLOR]"
                         if len(Nom2)>len(site):
                             if site in Nom2:
                                 Nom2=Nom2[:len(Nom2)-len(site)]
                     while Nom2[:1]==" ":
                         Nom2=Nom2[1:]
-                    Curs.execute(self.InserTbl2,(row[0],Nom2.decode('utf-8').lower(),Nom,row[2],row[3],row[4],row[5],row[6],row[7]))
+                    Curs.execute(self.InserTbl2,(row[0],Nom2,Nom.decode('utf-8').lower(),row[2],row[3],row[4],row[5],row[6],row[7]))
                 else:
                     Curs.execute(self.InserTbl2,(row[0],row[1],Nom.decode('utf-8').lower(),row[2],row[3],row[4],row[5],row[6]))
         except lite.Error as e:
