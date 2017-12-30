@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-    <addon id="repository.xAmAx" name="xAmAx Repository" version="0.1.0" provider-name="xAmAx">
-        <requires>
-            <import addon="xbmc.addon" version="12.0.0"/>
-        </requires>
-        <extension point="xbmc.addon.repository" name="xAmAx Repository">
-            <info compressed="false">https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/addons.xml</info>
-            <checksum>https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/addons.xml.md5</checksum>
-            <datadir zip="true">https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo</datadir>
-            <hashes>false</hashes>
-        </extension>
-        <extension point="xbmc.addon.metadata">
-            <summary>xAmAx Repository</summary>
-            <description>Installer xAmAx. [CR]  -Pour Reorganiser vStream.[CR]  -Pour mettre a jour la liste des chaine LiveStream.[CR]  -Pour Changer le fond-ecran.</description>
-            <platform>all</platform>
+<addon id="repository.xAmAx" name="xAmAx Repository" version="0.1.0" provider-name="xAmAx">
+    <requires>
+        <import addon="xbmc.addon" version="12.0.0"/>
+    </requires>
+    <extension point="xbmc.addon.repository" name="xAmAx Repository">
+        <info compressed="false">https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/addons.xml</info>
+        <checksum>https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/addons.xml.md5</checksum>
+        <datadir zip="true">https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/repo</datadir>
+        <hashes>false</hashes>
     </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>xAmAx Repository</summary>
+        <description>Installer xAmAx-Mod. [CR]  -Pour Reorganiser vStream.[CR]  -Utiliser des options de kodi.</description>
+        <platform>all</platform>
+	</extension>
 </addon>
