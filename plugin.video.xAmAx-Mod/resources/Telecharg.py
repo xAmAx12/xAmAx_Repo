@@ -99,7 +99,28 @@ class cDL():
             fichier = open(dest, "wb")
             fichier.write(essai.read())
             fichier.close()
-        
+
+    def EnvoiLogKodi(self, CheminLog, ListeFichier ):
+        headers = { 'User-Agent' : self.USER_AGENT }
+        for i in ListeFichier:
+            if 'kodi.log' in i:
+                post_data = {}
+                cUrl = 'http://slexy.org/index.php/submit'
+                logop = open(CheminLog + i,'rb')
+                result = logop.read()
+                logop.close()
+                post_data['raw_paste'] = result
+                post_data['author'] = 'kodi.log'
+                post_data['language'] = 'text'
+                post_data['permissions'] = 1 #private
+                post_data['expire'] = 259200 #3j
+                post_data['submit'] = 'Submit+Paste'
+                request = urllib.Request(cUrl,urlib.urlencode(post_data),headers)
+                reponse = urllib.urlopen(request)
+                code = reponse.geturl().replace('http://slexy.org/view/','')
+                reponse.close()
+                return code
+        return "Erreur d'envoi du ficher Log! \n Le fichier est introuvable... \n Désolé!"
     
 
     

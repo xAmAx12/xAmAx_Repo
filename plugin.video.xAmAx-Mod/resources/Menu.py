@@ -66,7 +66,8 @@ class menu():
                "Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
         self._MenuKodi={"Afficher le Journal d'erreur":("Kodi","AffichLog",False),
                "Effacer le fichiers temporaires":("Kodi","SupTemp",True),
-               "Effacer les miniatures en mémoire":("Kodi","SupThumb",True)} #"Changer le Fond d'écran":("Kodi",'ChangeFonDecran',True),"
+               "Effacer les miniatures en mémoire":("Kodi","SupThumb",True),
+               "Envoyer le journal d'erreur sur le site slexy.org":("Kodi","EnvoiLog",False)} #"Changer le Fond d'écran":("Kodi",'ChangeFonDecran',True),"
         self._MenuPC={"Afficher l'historique":("PC","AffichLog",True),
              "Réaliser une action":("PC","ActPC",True)}
         self._MenuActPC={"Changer heure d'arrêt":("PC","ActHArret",True),
@@ -449,6 +450,16 @@ class menu():
                                 executebuiltin("XBMC.Notification(Effacement Miniatures ,OK,2000,"")")
                             else:
                                 executebuiltin("XBMC.Notification(Effacement Miniatures ,"+Retour+",2000,"")")
+
+                    if params['ElemMenu']=="EnvoiLog":
+                        dialog = xbmcgui.Dialog()
+                        if dialog.yesno("Envoi du journal d'erreur...", "Voulez vous envoyer votre journal d'erreur sur le site slexy.org ?",'','','Non', 'Oui'):
+                            cheminLog = translatePath('special://logpath/')
+                            retour = cDL().EnvoiLogKodi(cheminLog,next(os.walk(cheminLog))[2])
+                            if retour.startswith("Erreur"):
+                                dialog.ok("Envoi du journal d'erreur...",retour)
+                            else:
+                                dialog.ok("Envoi du journal d'erreur...","Voici le lien de votre journal d'erreur, veuillez le noter:" + '  ' + retour)
                 
                 if params['Option']=="xAmAx": #----------------------------------------------------------------------------------------
                     if params['ElemMenu']=="VisuxAmAx":
