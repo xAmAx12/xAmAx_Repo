@@ -52,24 +52,24 @@ class menu():
                 'param': os.path.join(self.AdressePlugin,'param.png'),
                 'fanar': os.path.join(self.AdressePlugin,'fanart.jpg'),
                 'info': os.path.join(self.AdressePlugin,'info.png')}
-        self._MenuList={"Ouvrir fichier m3u avec le lecteur de kodi":("xAmAx","LireUrl",True),
-               "Ouvrir fichier m3u avec le lecteur F4m":("xAmAx","LireF4m",True),
-               "Options de vStream (Film et séries)":("vStream","VisuVstream",True),
-               "Options de Kodi":("Kodi","VisuKodi",True),
-               "Options de xAmAx":("xAmAx",'VisuxAmAx',True)}
-        self._MenuxAmAx={"Version "+self.__version__:("xAmAx","InfoVersion",False),
-               "Mise a jour de la version de xAmAx-Mod":("xAmAx",'MiseAJourxAmAx',True),
-                "Mise à jour Manuelle de l'application":("xAmAx", 'MajAplixAmAx', True),
-                "Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)} #,"test":("xAmAx",'test',True)}
-        self._MenuvStream={"Trier Alphabétique de la liste de Recherche vStream":("vStream","RechercheVstream",True),
-               "Trier Alphabétique des Marques-Pages vStream":("vStream","MPVstream",True),
-               "Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
-        self._MenuKodi={"Afficher le Journal d'erreur":("Kodi","AffichLog",False),
-               "Effacer le fichiers temporaires":("Kodi","SupTemp",True),
-               "Effacer les miniatures en mémoire":("Kodi","SupThumb",True),
-               "Envoyer le journal d'erreur sur le site slexy.org":("Kodi","EnvoiLog",False)} #"Changer le Fond d'écran":("Kodi",'ChangeFonDecran',True),"
-        self._MenuPC={"Afficher l'historique":("PC","AffichLog",True),
-             "Réaliser une action":("PC","ActPC",True)}
+        self._MenuList={"4 - Ouvrir fichier m3u avec le lecteur de kodi":("xAmAx","LireUrl",False),
+               "5 - Ouvrir fichier m3u avec le lecteur F4m":("xAmAx","LireF4m",False),
+               "2 - Options de vStream (Film et séries)":("vStream","VisuVstream",True),
+               "1 - Options de Kodi":("Kodi","VisuKodi",True),
+               "3 - Options de xAmAx-Mod":("xAmAx",'VisuxAmAx',True)}
+        self._MenuxAmAx={"4 - Version "+self.__version__:("xAmAx","InfoVersion",False),
+               "1 - Mise a jour de la version de xAmAx-Mod":("xAmAx",'MiseAJourxAmAx',False),
+                "2 - Mise à jour Manuelle de l'application":("xAmAx", 'MajAplixAmAx', False),
+                "3 - Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)} #,"test":("xAmAx",'test',True)}
+        self._MenuvStream={"3 - Tri Alphabétique de la liste de Recherche vStream":("vStream","RechercheVstream",False),
+               "2 - Tri Alphabétique des Marques-Pages vStream":("vStream","MPVstream",False),
+               "1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
+        self._MenuKodi={"1 - Afficher le Journal d'erreur":("Kodi","AffichLog",False),
+               "3 - Effacer le fichiers temporaires":("Kodi","SupTemp",False),
+               "4 - Effacer les miniatures en mémoire":("Kodi","SupThumb",False),
+               "2 - Envoyer le journal d'erreur sur le site slexy.org":("Kodi","EnvoiLog",False)} #"Changer le Fond d'écran":("Kodi",'ChangeFonDecran',True),"
+        self._MenuPC={"1 - Afficher l'historique":("PC","AffichLog",True),
+             "2 - Réaliser une action":("PC","ActPC",True)}
         self._MenuActPC={"Changer heure d'arrêt":("PC","ActHArret",True),
                 "Arrêter le pc":("PC","ActArretDirect",True),
                 "Arrêt de l'arrêt automatique":("PC","ActArretAuto",True),
@@ -88,7 +88,7 @@ class menu():
                   ("Menu",".py","resources/")]
         self.MajPresente=True
 
-    def AfficheMenu(self,Menu="", Icone=False):
+    def AfficheMenu(self,Menu="", Icone=False, TriAuto=True):
         if Menu=="":
             Menu=self._MenuList
         # creation du menu
@@ -161,7 +161,7 @@ class menu():
                             True)
                 
         xbmcplugin.setPluginCategory( handle=int(sys.argv[1]), category="xAmAx" )
-        xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
+        if TriAuto: xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
         
     def addDir(self,name,url,mode,iconimage,fanart,is_Folder,infos={},cat='',contextCommands=[]):
