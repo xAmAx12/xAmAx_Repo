@@ -52,8 +52,8 @@ class menu():
                 'param': os.path.join(self.AdressePlugin,'param.png'),
                 'fanar': os.path.join(self.AdressePlugin,'fanart.jpg'),
                 'info': os.path.join(self.AdressePlugin,'info.png')}
-        self._MenuList={"4 - Ouvrir fichier m3u avec le lecteur de kodi":("xAmAx","LireUrl",False),
-               "5 - Ouvrir fichier m3u avec le lecteur F4m":("xAmAx","LireF4m",False),
+        self._MenuList={"4 - Ouvrir fichier m3u avec le lecteur de kodi":("xAmAx","LireUrl",True),
+               "5 - Ouvrir fichier m3u avec le lecteur F4m":("xAmAx","LireF4m",True),
                "2 - Options de vStream (Film et séries)":("vStream","VisuVstream",True),
                "1 - Options de Kodi":("Kodi","VisuKodi",True),
                "3 - Options de xAmAx-Mod":("xAmAx",'VisuxAmAx',True)}
@@ -518,7 +518,7 @@ class menu():
                             Nom=base64.b64encode(Nom)
                             Url=base64.b64encode(Url)
                             Thumb=base64.b64encode(self._ArtMenu['lecture'])
-                            MenuRegroup.update({"Video"+str(i): (Nom, Url, True, Thumb,[])})
+                            MenuRegroup.update({"M3u"+str(i): (Nom, Url, True, Thumb,[])})
                         self.AfficheMenu(MenuRegroup,True)
                     if params['ElemMenu']=="LireF4m":
                         ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=self.AdressePlugin, F4m=True)
