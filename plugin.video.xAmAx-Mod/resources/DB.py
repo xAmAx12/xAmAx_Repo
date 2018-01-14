@@ -70,6 +70,14 @@ class db():
             return True
         else:
             return False
+        
+    def ExecutFichSQL(self,dirSQL):
+        curs = self.dbx.cursor()
+        f = open(dirSQL, "r")
+        sql = f.read()
+        f.close()
+        curs.executescript(sql)
+        self.dbx.commit()
 
     def text_factory(self,Type):
         self.dbx.text_factory = Type

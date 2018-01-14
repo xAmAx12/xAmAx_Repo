@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
 # Module: LSPOpt
 # Author: xamax
 # Created on: 29.11.2016
@@ -29,47 +29,20 @@ class cLiveSPOpt():
                 un =code[n] + un
         clef = zero + un
         print "clef ADFLY: "+str(clef)
-        clef = base64.b64decode(clef.encode("utf-8"))
+        clef = base64.b64decode(clef.encode("latin1"))
         return clef[2:]
 
     def ConvNom(self, Nom):
-        ret = ''
-        for l in Nom:
-            if (ord(l) > 0 and ord(l)!=13 and ord(l) < 126):
-                ret += l
-            elif (ord(l) > 191  and ord(l) < 198):
-                ret += "A" #chr(65)
-            elif (ord(l) > 199  and ord(l) < 204):
-                ret += "E" #chr(69)
-            elif (ord(l) > 203  and ord(l) < 208):
-                ret += "I" #chr(73)
-            elif (ord(l) > 209  and ord(l) < 215):
-                ret += "O" #chr(79)
-            elif (ord(l) > 216  and ord(l) < 221):
-                ret += "U" #chr(85)
-            elif (ord(l) > 223  and ord(l) < 230):
-                ret += "a" #chr(97)
-            elif (ord(l) > 231  and ord(l) < 236):
-                ret += "e" #chr(101)
-            elif (ord(l) > 235  and ord(l) < 240):
-                ret += "i" #chr(105)
-            elif (ord(l) > 241  and ord(l) < 247):
-                ret += "o" #chr(111)
-            elif (ord(l) > 248  and ord(l) < 253):
-                ret += "u" #chr(117)
-            elif ord(l) > 125:
-                ret += "?"
-                print "+++++++++ chr= "+str(ord(l))
-        NomRet = ret.upper().replace(
-                        "[ FR ] ","").replace(
-                        "[ FR: ] ","").replace(
-                        "| FR | ","").replace(
+        NomRet=str(Nom) #.decode("latin1").encode("latin1","replace")
+        NomRet=NomRet.replace(
                         "FR: ","").replace(
                         "FR : ","").replace(
                         "FR:", "").replace(
                         "FR|", "").replace(
                         "FR-", "").replace(
-                        "FR ", "").replace(
+                        " FR ", "").replace(
+                        " FR_", "").replace(
+                        " (FR)", "").replace(
                         "ENF-", "").replace(
                         "FRENCH", "FRANCE").replace(
                         "FRANCE", "FRANCE ").replace(
@@ -80,10 +53,14 @@ class cLiveSPOpt():
                         ".", " ").replace(
                         "_", " ").replace(
                         "FRANCE |", "").replace(
-                        "\r", "").replace(
-                        "(SERVER 1)","")
-                       
+                        "\R", "").replace(
+                        "(SERVER 1)","").replace(
+                        "\xc3\xa9","e").replace(
+                        "\xc3\x89","E").replace(
+                        "\xc3\xa8","e").replace(
+                        "&amp;","&")
         
+        if NomRet.startswith("FR "): NomRet = NomRet[3:]
         while 1:
             if NomRet.startswith(' '):
                 NomRet = NomRet[1:]
@@ -129,7 +106,69 @@ class cLiveSPOpt():
         except:
             print "Erreur de connection à la base xAmAx!"
             return "Erreur de connection à la base xAmAx!"
+        return "OK"
+    
+    def RechercheChaine(self, CheminxAmAx):
+        i=0
+        j=0
+        ListeEffacer = False
+        dbxAmAx = os.path.join(CheminxAmAx, "resources", "xAmAx.db")
+        print "Ouverture de la Base de donnée xAmAx: "+dbxAmAx
+        DBxAmAx = db(dbxAmAx)
+        IdLP = 0
+        NbMaj=1
+        
+        if NbMaj>0:
+            self.MajDiv = 100/NbMaj
+            self.TotMaj = 0
+            self.dp = DialogProgress()
+            sleep(0.5)
+            self.dp.create("Telechargement de la liste de chaine:")
+            sleep(0.5)
+            NbMajEc = 1
             
+
+            Retour, Erreur = self.MenuTV()
+            NbRecherche = len(Retour)+1
+            if len(Retour)>0 and Erreur == "OK":
+                print "Liste de chaine 1 a afficher: "+str(len(Retour))
+                self.TotMaj = self.MajDiv/25
+                self.dp.update(self.TotMaj)
+                sleep(0.5)
+                ListeEffacer = True
+                DivisionRech = ((self.MajDiv-self.TotMaj)/len(Retour))
+                
+                for Nom,Url in Retour:
+                    NbRecherche -= 1
+                    print "Recherche Liste de chaine "+str(Nom)
+                    self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
+                    sleep(0.5)
+                    if not "SERVIDOR 1" in Nom:
+                        Retour2,Erreur2 = self.ListTv(Url)
+                        print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
+                        if len(Retour2)>0 and Erreur2 == "OK":
+                            DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                            DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
+                            for NomTv,UrlTV,IconTV in Retour2:
+                                IdLP += 1
+                                DBxAmAx.Insert(Table="List"+str(NbRecherche),
+                                               Colonnes="IDLP,Nom,Url",
+                                               Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
+                        elif Erreur2!="OK":
+                            executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,"")")
+                    else:
+                        DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                    self.TotMaj += DivisionRech
+                    self.dp.update(self.TotMaj)
+                    sleep(0.3)
+                DBxAmAx.FinEnregistrement()
+            else:
+                if Erreur!="OK":
+                    executebuiltin("XBMC.Notification(Mise à jour Liste TV Impossible!!! ,"+Erreur+",5000,"")")
+            self.TotMaj = self.MajDiv*NbMajEc
+            print "Telechargement de la liste de chaine:"+str(self.TotMaj)+"%"
+            sleep(0.5)
+        self.dp.close()
         return "OK"
 
     def LireM3u(self, CheminxAmAx, F4m=False, cvNom=True):
@@ -154,9 +193,42 @@ class cLiveSPOpt():
                         ret.append(DicM3u)
         return ret
 
-    def AdulteSources(self,Url='https://www.mrsexe.com/cat/62/sodomie/'):
+    def MenuTV(self):
+        urlBase = 'aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2xvZ2FuMTk4My9BRERPTlMtTUVOVVMvbWFzdGVyL0ZSQU5DQSUyME1FTlUueG1s'
+        ListeRet = []
+        try:
+            ret = cDL().TelechargPage(url=b64decode(urlBase))
+            if ret.startswith("Erreur"):
+                print ret
+            else:
+                TabXml = re.compile("<name?[^>]*>(.*?)</name>.*?<externallink?[^>]*>(.*?)</externallink>", re.I+re.M+re.S).findall(ret)
+                for NomLien,ExtUrl in TabXml:
+                    print "   Adresse Ext: "+ExtUrl
+                    FichList = (NomLien,ExtUrl)
+                    ListeRet.append(FichList)
+        except:
+            return ListeRet,"Erreur de Recherche des listes de chaines!"
+                
+        return ListeRet,"OK"
+
+    def ListTv(self,Adress):
+        Cmp=0
+        ListeRet = []
+        try:
+            ret2 = cDL().TelechargPage(url=Adress)
+            TabLien = re.compile("<title?[^>]*>(.*?)</title>.*?<link?[^>]*>(.*?)</link>", re.I+re.M+re.S).findall(ret2)
+            for Nom,Url in TabLien:
+                NomAff=self.ConvNom(Nom)
+                if Url!="http://Ignoreme":
+                    FichList = (NomAff,Url,"")
+                    ListeRet.append(FichList)
+        except:
+            return ListeRet,"Erreur de Recherche des chaines de la liste!"
+        return ListeRet,"OK"
+
+    def AdulteSources(self,Url='aHR0cHM6Ly93d3cubXJzZXhlLmNvbS9jYXQvNjIvc29kb21pZS8='):
         print "Recherche de la liste de chaine..."
-        Page = str(cDL().TelechargPage(url=Url))
+        Page = str(cDL().TelechargPage(url=b64decode(Url)))
         ret = []
         if not Page.startswith("Erreur"):
             match = re.compile('thumb-list(.*?)<ul class="right pagination">', re.DOTALL | re.IGNORECASE).findall(Page)

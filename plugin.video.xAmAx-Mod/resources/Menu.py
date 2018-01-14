@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
 # Module: menu
 # Author: xamax
 # Created on: 23.07.2017
@@ -32,7 +32,6 @@ class menu():
 
         self.__version__ = self.adn.getAddonInfo('version')
         self._vStream = cvStreamOpt().TryConnectvStream() # "vStream non installer!" TryConnectvStream()
-        self._ChercheBackgroud = self.TryChercheBackgroud()
 
         # Récupération des info du plugin
         self._url = sys.argv[0]
@@ -43,27 +42,26 @@ class menu():
         self._handle = int(sys.argv[1])
         self.profile = translatePath(self.adn.getAddonInfo('profile').decode('utf-8'))
         
-        self.dbxAmAx = os.path.join(self.AdressePlugin, "resources", "xAmAx.db")
         self.addon_data_dir = os.path.join(translatePath("special://userdata/addon_data" ), self.nomPlugin)
+        self.dbxAmAx = os.path.join(self.addon_data_dir, "xAmAx.db")
         self.extpath = os.path.join(translatePath("special://home/addons/"))
 
         self._ArtMenu = {'thumb': os.path.join(self.AdressePlugin,'play.png'),
                 'lecture': os.path.join(self.AdressePlugin,'menu.png'),
                 'param': os.path.join(self.AdressePlugin,'param.png'),
-                'fanar': os.path.join(self.AdressePlugin,'fanart.jpg'),
+                'fanar': os.path.join(self.AdressePlugin,'fanart.png'),
                 'info': os.path.join(self.AdressePlugin,'info.png')}
-        self._MenuList={"4 - Ouvrir fichier m3u avec le lecteur de kodi":("xAmAx","LireUrl",True),
-               "5 - Ouvrir fichier m3u avec le lecteur F4m":("xAmAx","LireF4m",True),
-               "2 - Options de vStream (Film et séries)":("vStream","VisuVstream",True),
-               "1 - Options de Kodi":("Kodi","VisuKodi",True),
-               "3 - Options de xAmAx-Mod":("xAmAx",'VisuxAmAx',True)}
-        self._MenuxAmAx={"4 - Version "+self.__version__:("xAmAx","InfoVersion",False),
+        self._MenuList={"1 - Options de Kodi":("Kodi","VisuKodi",True),
+                        "2 - Options de xAmAx-Mod":("xAmAx",'VisuxAmAx',True)}
+        self._MenuxAmAx={"Version "+self.__version__:("xAmAx","InfoVersion",False),
                "1 - Mise a jour de la version de xAmAx-Mod":("xAmAx",'MiseAJourxAmAx',False),
                 "2 - Mise à jour Manuelle de l'application":("xAmAx", 'MajAplixAmAx', False),
                 "3 - Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)} #,"test":("xAmAx",'test',True)}
         self._MenuvStream={"3 - Tri Alphabétique de la liste de Recherche vStream":("vStream","RechercheVstream",False),
                "2 - Tri Alphabétique des Marques-Pages vStream":("vStream","MPVstream",False),
                "1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
+        self._MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
+                      "Mise A Jour Liste de chaines":("TV","MajTV",True)}
         self._MenuKodi={"1 - Afficher le Journal d'erreur":("Kodi","AffichLog",False),
                "3 - Effacer le fichiers temporaires":("Kodi","SupTemp",False),
                "4 - Effacer les miniatures en mémoire":("Kodi","SupThumb",False),
@@ -76,7 +74,8 @@ class menu():
                 "Re-démarrage de l'arrêt automatique":("PC","ActDemarArret",True),
                 "Interrogation Heure d'arrêt":("PC","ActIHArret",True),
                 "Interrogation Heure du pc":("PC","ActHeurePC",True)}
-        self.Maj=[("settings",".xml","resources/"),
+        self.Maj=[("xAmAxDB",".sql","resources/"),
+                  ("settings",".xml","resources/"),
                   ("DB",".py","resources/"),
                   ("vStreamOpt",".py","resources/"),
                   ("LSPOpt",".py","resources/"),
@@ -88,22 +87,29 @@ class menu():
                   ("Menu",".py","resources/")]
         self.MajPresente=True
 
+    def RechercheF4M(self):
+        try:
+            AdnF4m = Addon('plugin.video.f4mTester')
+            print "f4m version = "+AdnF4m.getAddonInfo('version').decode('utf-8')
+            return True
+        except:
+            return False
+
     def AfficheMenu(self,Menu="", Icone=False, TriAuto=True):
         if Menu=="":
             Menu=self._MenuList
         # creation du menu
         print "Menu"
+        IdMenu = 0
         # Création de la liste d'élément.
         if not Icone:
             for tag, (Titre, Act, is_folder) in Menu.items():
-                if ((self._vStream == "OK" and Titre == "vStream")or
-                (self._ChercheBackgroud == "OK" and Titre == "ChangeFonDecran")or
-                (Titre != "vStream" and Titre != "ChangeFonDecran")):
-                    if Titre == "TV":
-                        icone = self._ArtMenu['lecture']
-                    else:
-                        icone = self._ArtMenu['param']
-                    self.addDir(tag,'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, Act, Titre),1,icone,icone,is_folder)
+                IdMenu += 1
+                if Titre == "TV":
+                    icone = self._ArtMenu['lecture']
+                else:
+                    icone = self._ArtMenu['param']
+                self.addDir(tag,'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, Act, Titre),1,icone,self._ArtMenu['fanar'],is_folder)
         else:
             for tag, (Titre, Url, is_folder, icone, Tmage) in Menu.items():
                 if icone != "":
@@ -121,39 +127,74 @@ class menu():
                     Titre = cLiveSPOpt().ConvNom(base64.b64decode(str(Titre)))
                     #print "list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}&Tmage={3}'.format(self._url,Url,"LireVideo2",Tmage)+" Icone= "+base64.b64decode(icone)
                     if base64.b64decode(icone)==self._ArtMenu['lecture']:
-                        self.addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(self._url,Url,"LireVideo2"),1,self._ArtMenu['lecture'],self._ArtMenu['lecture'],is_folder)
+                        self.addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(self._url,Url,"LireVideo2"),1,self._ArtMenu['lecture'],self._ArtMenu['fanar'],is_folder)
                     elif base64.b64decode(icone)==self._ArtMenu['info']:
                         URL=base64.b64decode(str(Url))
                         cCommands=[]
                         cCommands.append(("Lire le Fichier",'XBMC.RunPlugin({0}?action=OuvTxt&Url={1}&ElemMenu={2})'.format(self._url,base64.b64encode(URL[3:]),"LogSamba")))
                         cCommands.append(("Supprimer le fichier",'XBMC.RunPlugin({0}?action=SupFich&Url={1}&ElemMenu={2})'.format(self._url,base64.b64encode(URL[3:]),"LogSamba")))
                         if URL.startswith("LOG"):
-                            self.addDir(Titre,'{0}?action=OuvTxt&Url={1}&ElemMenu={2}'.format(self._url,base64.b64encode(URL[3:]),"LogSamba"),1,self._ArtMenu['lecture'],self._ArtMenu['lecture'],is_folder,contextCommands=cCommands)
+                            self.addDir(Titre,'{0}?action=OuvTxt&Url={1}&ElemMenu={2}'.format(self._url,base64.b64encode(URL[3:]),"LogSamba"),1,self._ArtMenu['lecture'],self._ArtMenu['fanar'],is_folder,contextCommands=cCommands)
                     else:
                         cCommands=[]
                         cCommands.append(("Telecharger vidéo",'XBMC.RunPlugin({0}?action=Play&Url={1}&ElemMenu={2}&Adult=1)'.format(self._url,Url,"DL")))
                         cCommands.append(("Afficher les photos",'XBMC.RunPlugin({0}?action=FichierEnCour&ElemMenu={1}&Adult=1&Icone={2}&timage={3})'.format(self._url,"Photo",base64.b64decode(icone),Tmage)))
-                        self.addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(self._url,Url,"LireVideo2"),1,base64.b64decode(icone),self._ArtMenu['lecture'],is_folder,contextCommands=cCommands)
+                        self.addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(self._url,Url,"LireVideo2"),1,base64.b64decode(icone),self._ArtMenu['fanar'],is_folder,contextCommands=cCommands)
                 else:
-                    self.addDir(base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(self._url,"Adult","TV",Url),1,self._ArtMenu['lecture'],self._ArtMenu['lecture'],True)
+                    self.addDir(base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(self._url,"Adult","TV",Url),1,self._ArtMenu['lecture'],self._ArtMenu['fanar'],True)
         if Menu==self._MenuList:
             # Création de chaque élément
             if self._vStream != "OK":
-                self.addDir(self._vStream,
+                IdMenu += 1
+                self.addDir(str(IdMenu)+" - "+self._vStream,
                             '{0}?action=Menu&ElemMenu={1}'.format(self._url, 'InstallvStream'),
                             1,
                             self._ArtMenu['info'],
                             self._ArtMenu['fanar'],
                             True)
+            else:
+                IdMenu += 1
+                self.addDir(str(IdMenu)+" - Options de vStream",
+                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "VisuVstream", "vStream"),
+                            1,
+                            self._ArtMenu['param'],
+                            self._ArtMenu['fanar'],
+                            True)
+            if self.RechercheF4M():
+                IdMenu += 1
+                self.addDir(str(IdMenu)+" - "+"Chaines TV et bouquet",
+                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "VisuLiveStream", 'TV'),
+                            1,
+                            self._ArtMenu['lecture'],
+                            self._ArtMenu['fanar'],
+                            True)
+                IdMenu += 1
+                self.addDir(str(IdMenu)+" - "+"Ouvrir fichier m3u avec le lecteur F4m",
+                                '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "LireF4m", 'xAmAx'),
+                                1,
+                                self._ArtMenu['lecture'],
+                                self._ArtMenu['fanar'],
+                                True)
+            
+            IdMenu += 1
+            self.addDir(str(IdMenu)+" - "+"Ouvrir fichier m3u avec le lecteur de kodi",
+                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "LireUrl", 'xAmAx'),
+                            1,
+                            self._ArtMenu['lecture'],
+                            self._ArtMenu['fanar'],
+                            True)
+
             if self.adn.getSetting(id="Adult")=="true":
-                self.addDir("Plus",
+                IdMenu += 1
+                self.addDir(str(IdMenu)+" - "+"Plus",
                             '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "Adult", 'TV'),
                             1,
                             self._ArtMenu['lecture'],
                             self._ArtMenu['fanar'],
                             True)
             if self.adn.getSetting(id="stban")=="true":
-                self.addDir("PC distant",
+                IdMenu += 1
+                self.addDir(str(IdMenu)+" - "+"PC distant",
                             '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "stBan", 'PC'),
                             1,
                             self._ArtMenu['lecture'],
@@ -163,7 +204,118 @@ class menu():
         xbmcplugin.setPluginCategory( handle=int(sys.argv[1]), category="xAmAx" )
         if TriAuto: xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
-        
+
+    def MajMenuRegroup(self):
+        MenuRegroup={}
+        print "Ouverture Liste Regroup:"
+        DBxAmAx = db(self.dbxAmAx)
+        AffichAutre = False
+        listID=[]
+        for numTab in range(1,5):
+            if DBxAmAx.TableExist("List"+str(numTab)):
+                cRegroup = DBxAmAx.Select(Table="RegroupChaine",
+                                          Colonnes="NomAffiche,NomRegroup, PasDansNom",
+                                          Where="",
+                                          Order="NomAffiche ASC")
+                for Affich, Nom, PasNom in cRegroup:
+                    if PasNom != None and PasNom != "":
+                        ANDWHERE = "AND Nom NOT LIKE '%"+PasNom+"%' "
+                    else:
+                        ANDWHERE = ""
+                    cChaine = DBxAmAx.Select(Table="List"+str(numTab),
+                                             Colonnes="IDLP",
+                                             Where="Nom LIKE '"+str(Nom)+"%' "+ANDWHERE,
+                                             Order="Nom ASC")
+                    if len(cChaine)> 0:
+                        for IDLP in cChaine:
+                            listID.append(str(IDLP[0]))
+                        MenuRegroup.update({str(Affich).replace("_"," "): ("TV","ChaineRegroup"+base64.b64encode(str(Nom)),True)})
+                self.adn.setSetting(id="ListAutre", value=str(listID).replace("[","(").replace("]",")").replace("'",""))
+                cChaine = DBxAmAx.Select(Table="List"+str(numTab),
+                                         Colonnes="IDLP",
+                                         Where="IDLP NOT IN "+str(listID).replace("[","(").replace("]",")").replace("'",""),
+                                         Order="")
+                if len(cChaine)>0:
+                    AffichAutre = True
+        if AffichAutre:
+            MenuRegroup.update({"ZZZ Les autres chaines": ("TV","ChaineRegroupLesAutres",True)})
+        return MenuRegroup
+    
+    def AffichMenuTv(self,MiseAJourOK=False):
+        Retour=""
+        MenuTV = self._MenuTV
+        if self.adn.getSetting(id="MajtvAuto")=="true":
+            print "Recherche mise a jour si première ouverture de la journée"
+            DateDerMajTv = str(self.adn.getSetting(id="DateTvListe"))
+            print "Dernière Mise a jour: "+DateDerMajTv
+            if str(DateDerMajTv)!=strftime("%d-%m-%Y", gmtime()):
+                Retour = cLiveSPOpt().RechercheChaine(self.AdressePlugin)
+                if Retour=="OK":
+                    self.adn.setSetting(id="DateTvListe", value=strftime("%d-%m-%Y", gmtime())) #%H:%M:%S"
+        if self.adn.getSetting(id="CreerBouq")=="true":
+            if Retour=="OK" or MiseAJourOK==True:
+                cLiveSPOpt().CreerBouquet(self.AdressePlugin)
+            print "Ouverture Liste Bouquet de: "+self.dbxAmAx
+            cBouq = db(self.dbxAmAx).Select(Table="Bouquet", Colonnes="NomBouq", Where="", Order="Ordre ASC")
+            for NomBouq in cBouq:
+                MenuTV.update({"Bouquet "+str(NomBouq[0]): ("TV","Bouq"+str(NomBouq[0]),True)})
+        self.AfficheMenu(MenuTV)
+
+    def AfichListeTS(self,ListeChaine=[], Colon="Nom, Url", Where="", Ordre="Nom", Bouquet=""):
+        if len(ListeChaine)>0:
+            for Nom, Url, Entete in ListeChaine:
+                self.addDir(Nom,
+                       '{0}?action=Play&Url={1}&ElemMenu={2}&NomLu={3}'.format(self._url, base64.b64encode(urlib.quote_plus(Url+"|"+Entete)), "LireVideo", base64.b64encode(Nom)),
+                       1,
+                       self._ArtMenu['thumb'],
+                       self._ArtMenu['fanar'],
+                       True)
+        else:
+            DBxAmAx = db(self.dbxAmAx)
+            i = 0
+            Table=""
+            Rfin = 5
+            if Bouquet!="":
+                print "Ouverture Bouquet: "+Bouquet
+                cBouq = DBxAmAx.Select(Table="Bouquet",
+                                       Colonnes="IDBouquet, TriDesUrl",
+                                       Where="NomBouq='"+Bouquet+"'",
+                                       Order="")
+                IdBouq=0
+                OrdreB=""
+                for IdBouquet,OrdreBouq in cBouq:
+                    IdBouq=IdBouquet
+                    OrdreB=OrdreBouq
+                Where="IdBouquet="+str(IdBouq)
+                Colon="NomAffichChaine, Url"
+                Ordre=OrdreB
+                Table="UrlBouquet"
+                Rfin = 2
+            for numTab in range(1,Rfin):
+                if Table=="" or Table.startswith("List"):
+                    Table="List"+str(numTab)
+                print "Ouverture Liste TV de: "+self.dbxAmAx+ " Table: "+Table+" Colon: "+Colon+" Where: "+Where+" Ordre: "+Ordre
+                cAffich = DBxAmAx.Select(Table, Colon, Where, Ordre)
+                print "Creation Liste de chaine a afficher..."
+                for Nom, Url in cAffich:
+                    i += 1
+                    if Url.startswith("plugin://"): 
+                        self.addDir(str(i)+"-"+Nom,
+                           '{0}?action=Play&Url={1}&ElemMenu={2}&NomLu={3}'.format(self._url, base64.b64encode(urlib.quote_plus(Url)), "LireVideo",base64.b64encode(Nom)),
+                           1,
+                           self._ArtMenu['thumb'],
+                           self._ArtMenu['fanar'],
+                           True)
+                    else:
+                        self.addDir(str(i)+"-"+Nom,
+                           '{0}?action=Play&Url={1}&ElemMenu={2}&NomLu={3}'.format(self._url, base64.b64encode(urlib.quote_plus(Url)), "LireVideo",base64.b64encode(Nom)),
+                           1,
+                           self._ArtMenu['thumb'],
+                           self._ArtMenu['fanar'],
+                           False)
+        xbmcplugin.setPluginCategory(handle=int(sys.argv[1]), category="lecture" )
+        xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    
     def addDir(self,name,url,mode,iconimage,fanart,is_Folder,infos={},cat='',contextCommands=[]):
         u  =url
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
@@ -174,45 +326,6 @@ class menu():
             
         ok =xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=is_Folder)
 
-    def TryChercheBackgroud(self):
-        try:
-            NomSkin = getSkinDir()
-            print "skindir: "+NomSkin
-            Defaut = os.path.join(translatePath('special://home/addons/'),NomSkin,"backgrounds")
-            if ((NomSkin == "skin.confluence")or(NomSkin == "skin.qonfluence")):
-                try:
-                    with open(os.path.join(translatePath('special://home/'),"userdata","addon_data",NomSkin,"settings.xml")) as f:
-                        Ret = f.read()
-                    f.closed
-                    ModifSkin = Ret.split('<setting id="UseCustomBackground" type="bool">')[1].split("</setting>")[0]
-                except:
-                    ModifSkin = 'false'
-                if ModifSkin == 'true':
-                    ModifSkin = Retour.split('<setting id="CustomBackgroundPath" type="string">')[1].split("</setting>")[0]
-                    if xbmcvfs.exists(ModifSkin):
-                        self.Param["Chemin"]=ModifSkin
-                        return "OK"
-                    elif xbmcvfs.exists(os.path.join(Defaut,"SKINDEFAULT.jpg")):
-                        self.Param["Chemin"]=os.path.join(Defaut,"SKINDEFAULT.jpg")
-                        return "OK"
-                    else:
-                        return "Fond d'écran indisponible!"
-                else:
-                    if xbmcvfs.exists(os.path.join(Defaut,"SKINDEFAULT.jpg")):
-                        self.Param["Chemin"]=os.path.join(Defaut,"SKINDEFAULT.jpg")
-                        return "OK"
-                    else:
-                        return "Fond d'écran indisponible!"
-            elif(NomSkin == "skin.aeon.nox.5"):
-                if xbmcvfs.exists(os.path.join(Defaut,"default_bg.jpg")):
-                    self.Param["Chemin"]=os.path.join(Defaut,"default_bg.jpg")
-                    return "OK"
-                else:
-                    return "Fond d'écran indisponible!"
-            else:
-                return "Fond d'écran indisponible!"
-        except:
-            return "Fond d'écran indisponible!"
 
     def Efface_thumb(self,env):
         if (env == 'fi'):
@@ -346,10 +459,38 @@ class menu():
             print str(params)
             if params['action'] == 'Menu':
                 if params['Option'] =="TV":#----------------------------------------------------------------------------------------
+                    if params['ElemMenu']=="VisuLiveStream":
+                        self.AffichMenuTv()
+                    if params['ElemMenu']=='AffichTV':
+                        self.AfficheMenu(self.MajMenuRegroup())
+                    if params['ElemMenu'][:4]=="Bouq":
+                        self.AfichListeTS(Bouquet=params['ElemMenu'][4:])
+                    if params['ElemMenu'][:13]=="ChaineRegroup":
+                        if params['ElemMenu'][13:]=="LesAutres":
+                            self.AfichListeTS(Where="IDLP NOT IN "+str(self.adn.getSetting(id="ListAutre")))
+                        else:
+                            NomChaine = base64.b64decode(str(params['ElemMenu'][13:]))
+                            print "Recherche "+NomChaine+" dans le Liste Regroup de: "+self.dbxAmAx
+                            Retour = db(self.dbxAmAx).Select(Table="RegroupChaine",
+                                                             Colonnes="PasDansNom",
+                                                             Where="NomRegroup = '"+NomChaine+"'",
+                                                             Order="")
+                            ANDWHERE = ""
+                            if len(Retour)==1:
+                                if Retour[0][0] != None and Retour[0][0] != "":
+                                    ANDWHERE = " AND Nom NOT LIKE '%"+Retour[0][0]+"%' "
+                            self.AfichListeTS(Where="Nom LIKE '"+NomChaine+"%'"+ANDWHERE)
+                    if params['ElemMenu']=='MajTV':
+                        Retour2 = cLiveSPOpt().RechercheChaine(self.AdressePlugin)
+                        if Retour2=="OK":
+                            self.AffichMenuTv(MiseAJourOK=True)
+                        else:
+                            dialog = xbmcgui.Dialog()
+                            ok = dialog.ok("Erreur chaines TV", Retour2)
                     if params['ElemMenu']=="Adult":
                         try:
                             Url = params['Url']
-                            ListAff = cLiveSPOpt().AdulteSources(base64.b64decode(Url))
+                            ListAff = cLiveSPOpt().AdulteSources(Url)
                         except:
                             ListAff = cLiveSPOpt().AdulteSources()
                         if len(ListAff)>0:
@@ -398,38 +539,6 @@ class menu():
                         Affich=TxtAffich()
                         Affich.Fenetre(Chemin=translatePath('special://logpath')+"kodi.log",
                                         line_number=0,Invertion=True,LabTitre="Journal d'erreur")
-                    if params['ElemMenu']=='ChangeFonDecran':
-                        print "ChangeFonDecran"
-                        _ChercheBackgroud = self.TryChercheBackgroud()
-                        if _ChercheBackgroud == "OK":
-                            CheminSplit = self.Param["Chemin"][:self.Param["Chemin"].rfind("/")+1]
-                            NomFichier = self.Param["Chemin"][self.Param["Chemin"].rfind("/")+1:]
-                            Extension = NomFichier[-4:]
-                            NomFichier = NomFichier[:-4]
-                            print CheminSplit+" "+NomFichier+" "+Extension
-                            Efface_thumb('thumb')
-                            dialog = xbmcgui.Dialog()
-                            Defaut = CheminSplit
-                            fn = dialog.browse(2, "Choisir l'image de fond d'écran", 'files', '.jpg,.png',
-                                               True, False, Defaut)
-                            if fn != Defaut and fn != "":
-                                if xbmcvfs.exists(fn):
-                                    if not xbmcvfs.exists(Defaut+NomFichier+"_Sauve"+Extension):
-                                        xbmcvfs.rename(Defaut+NomFichier+Extension,
-                                                       Defaut+NomFichier+"_Sauve"+Extension)
-                                    success = xbmcvfs.copy(fn, Defaut+NomFichier+Extension)
-                                    dialog = xbmcgui.Dialog()
-                                    if success:
-                                        ok = dialog.ok("Le fond d'écran a était modifier!!!",
-                                                       "Le fond d'écran a bien était modifier!!!",
-                                                       "Si le fond ne s'affiche pas veuillez redémarrer Kodi")
-                                    else:
-                                        ok = dialog.ok("Erreur de recherche du fond d'ecran",
-                                                       "Le font d'écran n'a pas pu être modifier!!!",
-                                                       "       DESOLE!!!")
-                        else:
-                            dialog = xbmcgui.Dialog()
-                            ok = dialog.ok("Erreur de copy du fichier",self._ChercheBackgroud)
                     if params['ElemMenu']=="SupTemp":
                         print "SupTemp"
                         dialog = xbmcgui.Dialog()
@@ -586,9 +695,15 @@ class menu():
                         
             if params['action'] == 'Play':
                 if params['ElemMenu']=="LireVideo":
-                    finalUrl=params['Url']
+                    finalUrl=base64.b64decode(params['Url'])
+                    NomVideo=base64.b64decode(params["NomLu"])
                     print "Lecture de: "+finalUrl
-                    executebuiltin('XBMC.RunPlugin('+finalUrl+')')
+                    if finalUrl.startswith("plugin://"):
+                        executebuiltin('XBMC.RunPlugin('+urlib.unquote(finalUrl)+')')
+                    else:
+                        listitem = xbmcgui.ListItem(NomVideo)
+                        listitem.setInfo('video', {'Title': NomVideo, 'Genre': 'TV'})
+                        Player().play(urlib.unquote(finalUrl), listitem)
                 if params['ElemMenu']=="LireVideo2":
                     if params['Adult']=="1":
                         html = cDL().TelechargPage('http://www.mrsexe.com/' + base64.b64decode(params['Url']))
@@ -698,4 +813,10 @@ class menu():
                     else:
                         executebuiltin('XBMC.Container.Update')
                         executebuiltin('XBMC.Container.Refresh')
+            if not os.path.exists(self.dbxAmAx):
+                if self.MajAuto(True)=="OK":
+                    fichsql = os.path.join(self.profile, self.nomPlugin,"xAmAxDB.sql")
+                    db(self.dbxAmAx).ExecutFichSQL(fichsql)
+                    dialog = xbmcgui.Dialog()
+                    dialog.ok("Mise à jour Base OK", "", "")
                     
