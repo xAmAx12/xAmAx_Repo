@@ -816,7 +816,7 @@ class menu():
             if not os.path.exists(self.dbxAmAx):
                 fichsql = os.path.join(self.AdressePlugin,"resources","xAmAxDB.sql")
                 print "---recherche de "+fichsql
-                if not os.path.exist(fichsql):
+                if not os.path.exists(fichsql):
                     print "---recherche Mise à jour avec xAmAxdb"
                     self.MajAuto(True)
                     print "---Mise à jour avec xAmAxdb"
