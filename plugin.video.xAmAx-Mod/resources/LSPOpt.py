@@ -71,7 +71,7 @@ class cLiveSPOpt():
     def CreerBouquet(self, CheminxAmAx):
         Bouquet=[]
         print "CreerBouquet: CheminxAmAx= "+CheminxAmAx
-        dbxAmAx = os.path.join(CheminxAmAx, "resources", "xAmAx.db")
+        dbxAmAx = os.path.join(CheminxAmAx, "xAmAx.db")
         try:
             DBxAmAx = db(dbxAmAx)
             DBxAmAx.Delete("UrlBouquet")
@@ -112,7 +112,7 @@ class cLiveSPOpt():
         i=0
         j=0
         ListeEffacer = False
-        dbxAmAx = os.path.join(CheminxAmAx, "resources", "xAmAx.db")
+        dbxAmAx = os.path.join(CheminxAmAx, "xAmAx.db")
         print "Ouverture de la Base de donnée xAmAx: "+dbxAmAx
         DBxAmAx = db(dbxAmAx)
         IdLP = 0

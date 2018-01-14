@@ -249,12 +249,12 @@ class menu():
             DateDerMajTv = str(self.adn.getSetting(id="DateTvListe"))
             print "Dernière Mise a jour: "+DateDerMajTv
             if str(DateDerMajTv)!=strftime("%d-%m-%Y", gmtime()):
-                Retour = cLiveSPOpt().RechercheChaine(self.AdressePlugin)
+                Retour = cLiveSPOpt().RechercheChaine(self.addon_data_dir)
                 if Retour=="OK":
                     self.adn.setSetting(id="DateTvListe", value=strftime("%d-%m-%Y", gmtime())) #%H:%M:%S"
         if self.adn.getSetting(id="CreerBouq")=="true":
             if Retour=="OK" or MiseAJourOK==True:
-                cLiveSPOpt().CreerBouquet(self.AdressePlugin)
+                cLiveSPOpt().CreerBouquet(self.addon_data_dir)
             print "Ouverture Liste Bouquet de: "+self.dbxAmAx
             cBouq = db(self.dbxAmAx).Select(Table="Bouquet", Colonnes="NomBouq", Where="", Order="Ordre ASC")
             for NomBouq in cBouq:
@@ -481,7 +481,7 @@ class menu():
                                     ANDWHERE = " AND Nom NOT LIKE '%"+Retour[0][0]+"%' "
                             self.AfichListeTS(Where="Nom LIKE '"+NomChaine+"%'"+ANDWHERE)
                     if params['ElemMenu']=='MajTV':
-                        Retour2 = cLiveSPOpt().RechercheChaine(self.AdressePlugin)
+                        Retour2 = cLiveSPOpt().RechercheChaine(self.addon_data_dir)
                         if Retour2=="OK":
                             self.AffichMenuTv(MiseAJourOK=True)
                         else:
@@ -619,7 +619,7 @@ class menu():
                     if params['ElemMenu']=="ParamxAmAx":
                         self.adn.openSettings()
                     if params['ElemMenu']=="LireUrl":
-                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=self.AdressePlugin)
+                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=self.addon_data_dir)
                         i=0
                         MenuRegroup={}
                         for Nom,Url in ListAff:
@@ -630,7 +630,7 @@ class menu():
                             MenuRegroup.update({"M3u"+str(i): (Nom, Url, True, Thumb,[])})
                         self.AfficheMenu(MenuRegroup,True)
                     if params['ElemMenu']=="LireF4m":
-                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=self.AdressePlugin, F4m=True)
+                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=self.addon_data_dir, F4m=True)
                         i=0
                         MenuRegroup={}
                         for Nom,Url in ListAff:
