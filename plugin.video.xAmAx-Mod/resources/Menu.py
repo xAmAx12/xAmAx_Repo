@@ -822,6 +822,4 @@ class menu():
                     self.MajAuto(True)
                     print "---Mise à jour avec xAmAxdb"
                     db(self.dbxAmAx).ExecutFichSQL(fichsql)
-                    dialog = xbmcgui.Dialog()
-                    dialog.ok("Mise à jour Base OK", "", "")
                     
