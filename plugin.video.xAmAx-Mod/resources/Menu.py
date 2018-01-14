@@ -813,6 +813,7 @@ class menu():
                     else:
                         executebuiltin('XBMC.Container.Update')
                         executebuiltin('XBMC.Container.Refresh')
+            print "---recherche de "+self.dbxAmAx+" = "+str(os.path.exists(self.dbxAmAx))
             if not os.path.exists(self.dbxAmAx):
                 fichsql = os.path.join(self.AdressePlugin,"resources","xAmAxDB.sql")
                 print "---recherche de "+fichsql
