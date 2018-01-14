@@ -815,7 +815,7 @@ class menu():
                         executebuiltin('XBMC.Container.Refresh')
             if not os.path.exists(self.dbxAmAx):
                 if self.MajAuto(True)=="OK":
-                    fichsql = os.path.join(self.profile, self.nomPlugin,"xAmAxDB.sql")
+                    fichsql = os.path.join(self.AdressePlugin,"resources","xAmAxDB.sql")
                     db(self.dbxAmAx).ExecutFichSQL(fichsql)
                     dialog = xbmcgui.Dialog()
                     dialog.ok("Mise à jour Base OK", "", "")
