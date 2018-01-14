@@ -429,7 +429,7 @@ class menu():
             except:
                 print "Erreur mise a jour: "+str(sys.exc_info()[0])
                 return "Erreur mise a jour: "+str(sys.exc_info()[0])
-        self.adn.setSetting(id="MajV", value=self.vertionMaj)
+        if not ForceMaj: self.adn.setSetting(id="MajV", value=self.vertionMaj)
         return "OK"
     
     def RechMajAuto(self,NomMaj,resources=""):
