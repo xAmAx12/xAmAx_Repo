@@ -2,7 +2,7 @@
 <addons>
     <addon id="plugin.video.xAmAx-Mod"
 		   name="xAmAx-Mod"
-		   version="1.1.0" 
+		   version="2.1.0" 
 		   provider-name="xAmAx">
 	  <requires>
 	  	<import addon="xbmc.python" version="2.14.0"/>
@@ -19,7 +19,7 @@
 	  </extension>
 	</addon>
 
-    <addon id="repository.xAmAx" name="xAmAx Repository" version="0.1.0" provider-name="xAmAx">
+    <addon id="repository.xAmAx" name="xAmAx Repository" version="0.2.0" provider-name="xAmAx">
 		<requires>
 		    <import addon="xbmc.addon" version="12.0.0"/>
 		</requires>
@@ -31,7 +31,7 @@
 		</extension>
 		<extension point="xbmc.addon.metadata">
 		    <summary>xAmAx Repository</summary>
-		    <description>Installer xAmAx-Mod. [CR]  -Pour Reorganiser vStream.[CR]  -Utiliser des options de kodi.</description>
+		    <description>Installer xAmAx-Mod. [CR]  -Pour Reorganiser vStream.[CR]  -Utiliser des options de kodi.[CR]  -Regager la TV si F4m est installer.</description>
 		    <platform>all</platform>
 		</extension>
 	</addon>
