@@ -147,7 +147,10 @@ class cLiveSPOpt():
                         Retour2,Erreur2 = self.ListTv(Url)
                         print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
                         if len(Retour2)>0 and Erreur2 == "OK":
-                            DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                            try:
+                                DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                            except:
+                                pass
                             DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
                             for NomTv,UrlTV,IconTV in Retour2:
                                 IdLP += 1
