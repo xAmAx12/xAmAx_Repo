@@ -20,4 +20,8 @@
         <setting id="AjoutNomSite" type="bool" label="Ajouter le nom du site dans le trie des Marques pages" default="false" />
         <setting id="SuprimNomSite" type="bool" label="Supprimer le nom du site dans le trie des Marques pages" default="false" />
     </category>
+    <category label="Option chaine TV">
+        <setting id="MajtvAuto" type="bool" label="Mise à jour auto de la liste de TV" default="true"/>
+        <setting id="CreerBouq" type="bool" label="Création d'une liste de bouquet TV" default="true"/>
+    </category>
 </settings>
