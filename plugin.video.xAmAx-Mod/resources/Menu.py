@@ -814,12 +814,15 @@ class menu():
                         executebuiltin('XBMC.Container.Update')
                         executebuiltin('XBMC.Container.Refresh')
             print "---recherche de "+self.dbxAmAx+" = "+str(os.path.exists(self.dbxAmAx))
-            if not os.path.exists(self.dbxAmAx):
+            if not os.path.exists(self.dbxAmAx) or not db(self.dbxAmAx).TableExist("Bouquet"):
                 fichsql = os.path.join(self.AdressePlugin,"resources","xAmAxDB.sql")
                 print "---recherche de "+fichsql
                 if not os.path.exists(fichsql):
                     print "---recherche Mise à jour avec xAmAxdb"
                     self.MajAuto(True)
                     print "---Mise à jour avec xAmAxdb"
+                if os.path.exists(fichsql):
+                    xbmcvfs.delete(self.dbxAmAx)
+                    print "création de la base de donné"
                     db(self.dbxAmAx).ExecutFichSQL(fichsql)
                     

@@ -61,14 +61,17 @@ class db():
             pass
 
     def TableExist(self,Table):
-        ret = self.Select(Table="sqlite_master",
-                          Colonnes="name",
-                          Where="type='table' AND name='"+Table+"'",
-                          Order="")
-        #print "TableExist "+Table+": "+str(ret)
-        if len(ret)==1:
-            return True
-        else:
+        try:
+            ret = self.Select(Table="sqlite_master",
+                              Colonnes="name",
+                              Where="type='table' AND name='"+Table+"'",
+                              Order="")
+            #print "TableExist "+Table+": "+str(ret)
+            if len(ret)==1:
+                return True
+            else:
+                return False
+        except:
             return False
         
     def ExecutFichSQL(self,dirSQL):
