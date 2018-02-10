@@ -46,8 +46,8 @@ class db():
     def Insert(self,Table,Colonnes,Valeurs=()):
         curs = self.dbx.cursor()
         #print "----INSERT INTO "+Table+" ("+Colonnes+") VALUES "+str(Valeurs)+" ;"
-        curs.execute("INSERT INTO "+Table+" ("+Colonnes+") VALUES "+str(Valeurs)+" ;")
         try:
+            curs.execute("INSERT INTO "+Table+" ("+Colonnes+") VALUES "+str(Valeurs)+" ;")
             curs.close()
         except:
             pass
