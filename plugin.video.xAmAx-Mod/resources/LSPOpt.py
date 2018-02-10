@@ -35,6 +35,7 @@ class cLiveSPOpt():
     def ConvNom(self, Nom):
         NomRet=str(Nom) #.decode("latin1").encode("latin1","replace")
         NomRet=NomRet.replace(
+                        "L-FR: ","").replace(
                         "FR: ","").replace(
                         "FR : ","").replace(
                         "FR:", "").replace(
@@ -58,6 +59,7 @@ class cLiveSPOpt():
                         "\xc3\xa9","e").replace(
                         "\xc3\x89","E").replace(
                         "\xc3\xa8","e").replace(
+                        "\xc3\x94","O").replace(
                         "&amp;","&")
         
         if NomRet.startswith("FR "): NomRet = NomRet[3:]
@@ -221,9 +223,15 @@ class cLiveSPOpt():
             ret2 = cDL().TelechargPage(url=Adress)
             TabLien = re.compile("<title?[^>]*>(.*?)</title>.*?<link?[^>]*>(.*?)</link>", re.I+re.M+re.S).findall(ret2)
             for Nom,Url in TabLien:
+                Icon = ""
+                if "tvg-name=" in Nom:
+                    ConvTitre = Nom.split(chr(34))
+                    if len(ConvTitre) > 5:
+                        Nom = ConvTitre[3]
+                        Icon = ConvTitre[5]
                 NomAff=self.ConvNom(Nom)
                 if Url!="http://Ignoreme":
-                    FichList = (NomAff,Url,"")
+                    FichList = (NomAff,Url,Icon)
                     ListeRet.append(FichList)
         except:
             return ListeRet,"Erreur de Recherche des chaines de la liste!"
