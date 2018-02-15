@@ -60,7 +60,8 @@ class cLiveSPOpt():
                         "\xc3\x89","E").replace(
                         "\xc3\xa8","e").replace(
                         "\xc3\x94","O").replace(
-                        "&amp;","&")
+                        "&amp;","&").replace(
+                        b64decode("W0NPTE9SIHJlZF0gTE9HQU4gVFZbL0NPTE9SXQ=="),"")
         
         if NomRet.startswith("FR "): NomRet = NomRet[3:]
         while 1:
