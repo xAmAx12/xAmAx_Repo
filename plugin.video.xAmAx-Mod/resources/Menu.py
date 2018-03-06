@@ -21,6 +21,10 @@ from resources.LSPOpt import cLiveSPOpt
 from resources.DB import db
 from resources.TxtAff import TxtAffich
 from resources.Telecharg import cDL
+try:
+    import resources.Config as Conf
+except:
+    Conf = None
 
 class menu():
 
@@ -62,10 +66,17 @@ class menu():
                "1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
         self._MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
                       "Mise A Jour Liste de chaines":("TV","MajTV",True)}
-        self._MenuKodi={"1 - Afficher le Journal d'erreur":("Kodi","AffichLog",False),
-               "3 - Effacer le fichiers temporaires":("Kodi","SupTemp",False),
-               "4 - Effacer les miniatures en mémoire":("Kodi","SupThumb",False),
-               "2 - Envoyer le journal d'erreur sur le site slexy.org":("Kodi","EnvoiLog",False)} #"Changer le Fond d'écran":("Kodi",'ChangeFonDecran',True),"
+        if Conf:
+            self._MenuKodi={"2 - Afficher le Journal d'erreur":("Kodi","AffichLog",False),
+                   "4 - Effacer le fichiers temporaires":("Kodi","SupTemp",False),
+                   "5 - Effacer les miniatures en mémoire":("Kodi","SupThumb",False),
+                   "1 - Congiguration Connexion Kodi":("Kodi","Config",True),
+                   "3 - Envoyer le journal d'erreur sur le site slexy.org":("Kodi","EnvoiLog",False)}
+        else:
+            self._MenuKodi={"1 - Afficher le Journal d'erreur":("Kodi","AffichLog",False),
+                   "3 - Effacer le fichiers temporaires":("Kodi","SupTemp",False),
+                   "4 - Effacer les miniatures en mémoire":("Kodi","SupThumb",False),
+                   "2 - Envoyer le journal d'erreur sur le site slexy.org":("Kodi","EnvoiLog",False)} #"Changer le Fond d'écran":("Kodi",'ChangeFonDecran',True),"
         self._MenuPC={"1 - Afficher l'historique":("PC","AffichLog",True),
              "2 - Réaliser une action":("PC","ActPC",True)}
         self._MenuActPC={"Changer heure d'arrêt":("PC","ActHArret",True),
@@ -84,6 +95,16 @@ class menu():
                   ("TxtAff",".py","resources/"),
                   ("ziptools",".py","resources/"),
                   ("Samba",".py","resources/"),
+                  ("Config",".py","resources/"),
+                  ("Fenetre",".png","resources/skins/DefaultSkin/media/Background/"),
+                  ("button-focus_grey",".png","resources/skins/DefaultSkin/media/Button/"),
+                  ("button-focus_lightxAm",".png","resources/skins/DefaultSkin/media/Button/"),
+                  ("MenuItemFOxAm",".png","resources/skins/DefaultSkin/media/RadioButton/"),
+                  ("MenuItemNF",".png","resources/skins/DefaultSkin/media/RadioButton/"),
+                  ("radiobutton-focus",".png","resources/skins/DefaultSkin/media/RadioButton/"),
+                  ("radiobutton-nofocus",".png","resources/skins/DefaultSkin/media/RadioButton/"),
+                  ("osd_slider_nibNFxAm",".png","resources/skins/DefaultSkin/media/Slider/"),
+                  ("osd_slider_nibxAm",".png","resources/skins/DefaultSkin/media/Slider/"),
                   ("Menu",".py","resources/")]
         self.MajPresente=True
 
@@ -415,7 +436,12 @@ class menu():
             if resources=="":
                 AdresseFich = os.path.join(self.AdressePlugin, NomMaj+Ext)
             else:
-                AdresseFich = os.path.join(self.AdressePlugin, "resources", NomMaj+Ext)
+                TabResources = resources.split("/")
+                cheminRes = os.path.join(self.AdressePlugin,TabResources[0])
+                for x in range(1,len(TabResources)-1):
+                    if TabResources[x]!="": cheminRes = os.path.join(cheminRes,TabResources[x])
+                xbmcvfs.mkdirs(cheminRes)
+                AdresseFich = os.path.join(cheminRes, NomMaj+Ext)
             try:
                 ret = self.RechMajAuto(NomMaj,resources)
                 if (not ret.startswith("Erreur") and (ForceMaj or ret != "")):
@@ -568,6 +594,9 @@ class menu():
                                 dialog.ok("Envoi du journal d'erreur...",retour)
                             else:
                                 dialog.ok("Envoi du journal d'erreur...","Voici le lien de votre journal d'erreur, veuillez le noter:" + '  ' + retour)
+
+                    if params['ElemMenu']=="Config":
+                        if Conf!= None: Conf.autoConfig()
                 
                 if params['Option']=="xAmAx": #----------------------------------------------------------------------------------------
                     if params['ElemMenu']=="VisuxAmAx":
