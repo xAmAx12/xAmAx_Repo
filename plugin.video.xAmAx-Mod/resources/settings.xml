@@ -13,7 +13,7 @@
         <setting id="settings" type="number" label="Parametres Version" default="0" />
         <setting id="vStreamOpt" type="number" label="Options vStream Version" default="0" />
         <setting id="ziptools" type="number" label="Gestion zip Version" default="0" />
-        <setting id="Config" type="number" label="Gestion zip Version" default="0" />
+        <setting id="Config" type="number" label="Gestion Config Avancée" default="0" />
         <setting id="Adult" type="bool" label="Afficher le menu Plus" default="false"  visible="false" />
         <setting id="stban" type="bool" label="Afficher le menu PC distant" default="false"  visible="false" />
     </category>
