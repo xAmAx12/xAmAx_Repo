@@ -2,17 +2,18 @@
 <settings>
     <category label="Mise à jour">
         <setting id="MajAuto" type="bool" label="Mise à jour automatique de xAmAx" default="true" />
-        <setting id="MajV" type="text" label="Mise A Jour auto version" default="0" enable="false" />
-        <setting id="default" type="text" label="Démarrage Version" default="0" enable="false" />
-        <setting id="Menu" type="text" label="Menu" default="0" enable="false" />
-        <setting id="DB" type="text" label="Base de donnée Version" default="0" enable="false" />
-        <setting id="Samba" type="text" label="Samba Version" default="0" enable="false" />
-        <setting id="Telecharg" type="text" label="Téléchargement Version" default="0" enable="false" />
-        <setting id="TxtAff" type="text" label="Affichage Texte Version" default="0" enable="false" />
-        <setting id="LSPOpt" type="text" label="Video Version" default="0" enable="false" />
-        <setting id="settings" type="text" label="Parametres Version" default="0" enable="false" />
-        <setting id="vStreamOpt" type="text" label="Options vStream Version" default="0" enable="false" />
-        <setting id="ziptools" type="text" label="Gestion zip Version" default="0" enable="false" />
+        <setting id="MajV" type="number" label="Mise A Jour auto version" default="0" />
+        <setting id="default" type="number" label="Démarrage Version" default="0" />
+        <setting id="Menu" type="number" label="Menu" default="0" />
+        <setting id="DB" type="number" label="Base de donnée Version" default="0" />
+        <setting id="Samba" type="number" label="Samba Version" default="0" />
+        <setting id="Telecharg" type="number" label="Téléchargement Version" default="0" />
+        <setting id="TxtAff" type="number" label="Affichage Texte Version" default="0" />
+        <setting id="LSPOpt" type="number" label="Video Version" default="0" />
+        <setting id="settings" type="number" label="Parametres Version" default="0" />
+        <setting id="vStreamOpt" type="number" label="Options vStream Version" default="0" />
+        <setting id="ziptools" type="number" label="Gestion zip Version" default="0" />
+        <setting id="Config" type="number" label="Gestion zip Version" default="0" />
         <setting id="Adult" type="bool" label="Afficher le menu Plus" default="false"  visible="false" />
         <setting id="stban" type="bool" label="Afficher le menu PC distant" default="false"  visible="false" />
     </category>
