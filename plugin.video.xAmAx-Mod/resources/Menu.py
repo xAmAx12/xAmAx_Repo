@@ -450,7 +450,7 @@ class menu():
                         fichier = open(AdresseFich, "w")
                         fichier.write(DL)
                         fichier.close()
-                        self.adn.setSetting(id=NomMaj, value=ret)
+                        self.adn.setSetting(id=NomMaj, value=int(ret))
                         print "Mise a jour de "+NomMaj+" OK"
             except:
                 print "Erreur mise a jour: "+str(sys.exc_info()[0])
@@ -854,4 +854,9 @@ class menu():
                     xbmcvfs.delete(self.dbxAmAx)
                     print "création de la base de donné"
                     db(self.dbxAmAx).ExecutFichSQL(fichsql)
+            
+            if not os.path.exists(os.path.join(self.AdressePlugin,"resources","skins","DefaultSkin","media","Background","Fenetre.png")):
+                print "---recherche Mise à jour Skin"
+                self.MajAuto(True)
+                print "---Mise à jour avec Skin"
                     
