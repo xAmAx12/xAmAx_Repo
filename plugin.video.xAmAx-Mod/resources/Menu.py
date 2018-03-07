@@ -442,30 +442,31 @@ class menu():
                     if TabResources[x]!="": cheminRes = os.path.join(cheminRes,TabResources[x])
                 xbmcvfs.mkdirs(cheminRes)
                 AdresseFich = os.path.join(cheminRes, NomMaj+Ext)
-            try:
-                ret = self.RechMajAuto(NomMaj,resources)
+            #try:
+                ret = self.RechMajAuto(NomMaj,resources,ForceMaj)
                 if (not ret.startswith("Erreur") and (ForceMaj or ret != "")):
                     DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
                     if not DL.startswith("Erreur"):
                         fichier = open(AdresseFich, "w")
                         fichier.write(DL)
                         fichier.close()
+                        print "Maj= "+NomMaj+" : "+ret 
                         self.adn.setSetting(id=NomMaj, value=str(int(ret)))
                         print "Mise a jour de "+NomMaj+" OK"
-            except:
-                print "Erreur mise a jour: "+str(sys.exc_info()[0])
-                return "Erreur mise a jour: "+str(sys.exc_info()[0])
+            #except:
+            #    print "Erreur mise a jour: "+str(sys.exc_info()[0])
+            #    return "Erreur mise a jour: "+str(sys.exc_info()[0])
         if not ForceMaj: self.adn.setSetting(id="MajV", value=self.vertionMaj)
         return "OK"
     
-    def RechMajAuto(self,NomMaj,resources=""):
+    def RechMajAuto(self,NomMaj,resources="",ForceMaj=False):
         try:
             AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
             VRech = cDL().TelechargPage(AdresseVersion)
             if not VRech.startswith("Erreur"):
                 VLspopt = self.adn.getSetting(id=NomMaj)
                 print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech
-                if VLspopt!=str(VRech):
+                if VLspopt!=str(VRech) or ForceMaj:
                     return str(VRech)
                 else:
                     return ""
