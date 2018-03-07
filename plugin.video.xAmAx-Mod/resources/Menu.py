@@ -450,7 +450,7 @@ class menu():
                         fichier = open(AdresseFich, "w")
                         fichier.write(DL)
                         fichier.close()
-                        self.adn.setSetting(id=NomMaj, value=int(ret))
+                        self.adn.setSetting(id=NomMaj, value=str(int(ret)))
                         print "Mise a jour de "+NomMaj+" OK"
             except:
                 print "Erreur mise a jour: "+str(sys.exc_info()[0])
