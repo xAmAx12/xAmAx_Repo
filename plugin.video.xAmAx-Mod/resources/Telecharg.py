@@ -4,7 +4,7 @@
 # Created on: 05.08.2017
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
 
-import sys
+import sys,os
 import urllib2 as urllib
 import urllib as urlib
 from httplib import HTTPSConnection
@@ -70,10 +70,10 @@ class cDL():
             print err
             return err
 
-    def TelechargementZip(self,url,dest,DPAff=True):
+    def TelechargementZip(self,url,dest,DPAff=True,Nom="Mise a jour"):
         if DPAff:
             dp = xbmcgui.DialogProgress()
-            dp.create("Telechargement Mise a jour:","Fichier en téléchargement",url)
+            dp.create("Telechargement "+Nom+":","Fichier en téléchargement",url)
         try:
             urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
         except:
@@ -85,6 +85,11 @@ class cDL():
             fichier = open(dest, "wb")
             fichier.write(essai.read())
             fichier.close()
+        if os.path.exists(dest):
+            statinfo = os.stat(dest)
+            if statinfo.st_size > 0:
+                return True
+        return False
 
     def DLFich(self,url,dest, DPView=True):
         if DPView:

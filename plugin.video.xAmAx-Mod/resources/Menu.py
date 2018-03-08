@@ -112,6 +112,12 @@ class menu():
         try:
             AdnF4m = Addon('plugin.video.f4mTester')
             print "f4m version = "+AdnF4m.getAddonInfo('version').decode('utf-8')
+            if not os.path.exists(os.path.join(self.extpath,'plugin.video.f4mTester')):
+                print "f4m tester dossier inexistant = "+os.path.join(self.extpath,'plugin.video.f4mTester')
+                return False
+            elif not os.path.exists(os.path.join(self.extpath,'script.video.F4mProxy')):
+                print "f4m Proxy dossier inexistant = "+os.path.join(self.extpath,'script.video.F4mProxy')
+                return False
             return True
         except:
             return False
@@ -196,7 +202,14 @@ class menu():
                                 self._ArtMenu['lecture'],
                                 self._ArtMenu['fanar'],
                                 True)
-            
+            else:
+                IdMenu += 1
+                self.addDir(str(IdMenu)+" - "+"Installation de F4mProxy et Tester",
+                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "InstalF4m", 'TV'),
+                            1,
+                            self._ArtMenu['param'],
+                            self._ArtMenu['fanar'],
+                            True)
             IdMenu += 1
             self.addDir(str(IdMenu)+" - "+"Ouvrir fichier m3u avec le lecteur de kodi",
                             '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "LireUrl", 'xAmAx'),
@@ -474,6 +487,40 @@ class menu():
             print "Erreur mise a jour: "+str(sys.exc_info()[0])
             return "Erreur mise a jour: "+str(sys.exc_info()[0])
 
+    def InstallExt(self,NomExt, DialogOK=False):
+        from resources.ziptools import ziptools
+        try:
+            xbmcvfs.mkdir(self.addon_data_dir)
+        except: pass
+        #try:
+        dest = os.path.join(self.addon_data_dir, 'ExtDl.zip')
+        MAJ_URL = self.UrlRepo+"repo/"+NomExt+'/'+NomExt+'.zip'
+        print 'Démarrage du téléchargement de:' + MAJ_URL
+            
+        if cDL().TelechargementZip(MAJ_URL,dest):
+        
+            unzipper = ziptools()
+            unzipper.extract(dest,self.extpath)
+
+            if DialogOK:  
+                lign1 = 'Installation de '+NomExt+':'
+                lign2 = "L'installation est terminé avec succés!"
+                xbmcgui.Dialog().ok('xAmAx', lign1, lign2)
+                
+            if os.remove( dest ):
+                print 'Suppression du fichier télécharger'
+            executebuiltin("UpdateLocalAddons")
+            executebuiltin("UpdateAddonRepos")
+            sleep(1.5)
+            return True
+        #except:
+        #    pass
+        if os.path.exists(dest):
+            os.remove( dest )
+        if os.path.exists(os.path.join(self.extpath, NomExt)):
+            xbmcvfs.rmdir(os.path.join(self.extpath, NomExt))
+        return False
+
     def router(self,paramstring):
         print "dans router"
         # reception des paramètres du menu
@@ -532,6 +579,21 @@ class menu():
                                 Tima=base64.b64encode(str(Timag))
                                 MenuRegroup.update({Nom: (Nom2, Url, False, Thumb, Tima)})
                             self.AfficheMenu(MenuRegroup,True)
+                    if params['ElemMenu']=="InstalF4m":
+                        dialog = xbmcgui.Dialog()
+                        if self.InstallExt("script.video.F4mProxy"):
+                            if self.InstallExt("plugin.video.f4mTester"):
+                                ok = dialog.ok("Installation de F4m",
+                                               "F4mProxy et F4mTester ont était installer avec succés!",
+                                               "Vous pourez profiter maintenant de mon menu Chaines TV et bouquet!")
+                            else:
+                                ok = dialog.ok("Installation de F4mTester",
+                                               "Erreur d'installation de F4mTester!",
+                                               "Désolé pour ce problème!")
+                        else:
+                            ok = dialog.ok("Installation de F4mProxy",
+                                               "Erreur d'installation de F4mProxy!",
+                                               "Désolé pour ce problème!")
 
                 if params['Option']=='vStream':#----------------------------------------------------------------------------------------
                     if params['ElemMenu']=="VisuVstream":
