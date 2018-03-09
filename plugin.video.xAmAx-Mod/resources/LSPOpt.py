@@ -129,10 +129,9 @@ class cLiveSPOpt():
             self.dp.create("Telechargement de la liste de chaine:")
             sleep(0.5)
             NbMajEc = 1
-            
 
             Retour, Erreur = self.MenuTV()
-            NbRecherche = len(Retour)+1
+            NbRecherche = 0
             if len(Retour)>0 and Erreur == "OK":
                 print "Liste de chaine 1 a afficher: "+str(len(Retour))
                 self.TotMaj = self.MajDiv/25
@@ -142,7 +141,7 @@ class cLiveSPOpt():
                 DivisionRech = ((self.MajDiv-self.TotMaj)/len(Retour))
                 
                 for Nom,Url in Retour:
-                    NbRecherche -= 1
+                    NbRecherche += 1
                     print "Recherche Liste de chaine "+str(Nom)
                     self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
                     sleep(0.5)
@@ -163,7 +162,27 @@ class cLiveSPOpt():
                         elif Erreur2!="OK":
                             executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,"")")
                     else:
-                        DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                        urlBase = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3hBbUF4MTIveEFtQXhfUmVwby9tYXN0ZXIvcGx1Z2luLnZpZGVvLnhBbUF4LU1vZC9yZXNvdXJjZXMvaXB0di9saXN0ZS5tM3U="
+                        Url=b64decode(urlBase)
+                        ret = cDL().TelechargPage(url=b64decode(urlBase))
+                        if ret.startswith("Erreur"):
+                            print ret
+                        else:
+                            Retour3 = self.TabM3u(ret, True, True)
+                            print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
+                            if len(Retour3)>0:
+                                try:
+                                    DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                                except:
+                                    pass
+                                DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
+                                for NomTv,UrlTV in Retour3:
+                                    IdLP += 1
+                                    DBxAmAx.Insert(Table="List"+str(NbRecherche),
+                                                   Colonnes="IDLP,Nom,Url",
+                                                   Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
+                            else:
+                                executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")
                     self.TotMaj += DivisionRech
                     self.dp.update(self.TotMaj)
                     sleep(0.3)
@@ -177,6 +196,19 @@ class cLiveSPOpt():
         self.dp.close()
         return "OK"
 
+    def TabM3u(self,FichierTxt, F4m=False, cvNom=True):
+        ret = []
+        TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(FichierTxt)
+        for Par, Nom , Url in TabM3u :
+            if cvNom==True:
+                Nom = self.ConvNom(Nom)
+            Url=Url.split("|")[0].replace(".m3u8",".ts").replace("\r", "")
+            if F4m==True:
+                Url='plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))
+            DicM3u = (Nom,Url)
+            ret.append(DicM3u)
+        return ret
+
     def LireM3u(self, CheminxAmAx, F4m=False, cvNom=True):
         print "Liste de chaine M3u"
         dialog = Dialog()
@@ -188,15 +220,7 @@ class cLiveSPOpt():
                 M3u = f.read()
                 f.close()
                 if M3u!="":
-                    TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(M3u)
-                    for Par, Nom , Url in TabM3u :
-                        if cvNom==True:
-                            Nom = self.ConvNom(Nom)
-                        Url=Url.split("|")[0].replace(".m3u8",".ts").replace("\r", "")
-                        if F4m==True:
-                            Url='plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))
-                        DicM3u = (Nom,Url)
-                        ret.append(DicM3u)
+                    ret = self.TabM3u(M3u, F4m, cvNom)
         return ret
 
     def MenuTV(self):
