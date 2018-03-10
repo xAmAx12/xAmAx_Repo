@@ -14,12 +14,14 @@ class cvStreamOpt():
     def __init__(self):
         try:
             self.vStream  = xbmcaddon.Addon('plugin.video.vstream')
+            self.adresseVstream=str(xbmc.translatePath(self.vStream.getAddonInfo('profile').decode('utf-8')))
+            self.adresseResources = os.path.join(str(xbmc.translatePath(self.vStream.getAddonInfo('path').decode('utf-8'))),"resources","lib")
         except:
             self.vStream  = None
+            self.adresseVstream = ""
+            self.adresseResources = ""
         self.nomPlugin = 'plugin.video.xAmAx-Mod'
         self.adn = xbmcaddon.Addon(self.nomPlugin)
-        self.adresseVstream=str(xbmc.translatePath(self.vStream.getAddonInfo('profile').decode('utf-8')))
-        self.adresseResources = os.path.join(str(xbmc.translatePath(self.vStream.getAddonInfo('path').decode('utf-8'))),"resources","lib")
         self.TableV = ""
         self.CreerTbl = ""
         self.InserTbl = ""
