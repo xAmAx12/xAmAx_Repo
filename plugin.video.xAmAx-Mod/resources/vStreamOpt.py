@@ -12,8 +12,10 @@ import sqlite3 as lite
 class cvStreamOpt():    
 
     def __init__(self):
-
-        self.vStream  = xbmcaddon.Addon('plugin.video.vstream')
+        try:
+            self.vStream  = xbmcaddon.Addon('plugin.video.vstream')
+        except:
+            self.vStream  = None
         self.nomPlugin = 'plugin.video.xAmAx-Mod'
         self.adn = xbmcaddon.Addon(self.nomPlugin)
         self.adresseVstream=str(xbmc.translatePath(self.vStream.getAddonInfo('profile').decode('utf-8')))
