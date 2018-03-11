@@ -638,7 +638,7 @@ class menu():
                         if self.InstallExt("repository.vstream"):
                             if self.InstallExt("plugin.video.vstream"):
                                 ok = dialog.ok("Installation de vStream",
-                                               "vStream et sont dépo ont était installer avec succés!",
+                                               "vStream et sont dépo ont était installer avec succés!\nPour que tout fonctionne bien redémarrer kodi!",
                                                "Vous pourez profiter de mon menu Option de vStream une fois que vStream aura démarrer!")
                                 #executebuiltin("RestartApp") ActivateWindow(10025,plugin://plugin.video.vstream/,return)")
                             else:
