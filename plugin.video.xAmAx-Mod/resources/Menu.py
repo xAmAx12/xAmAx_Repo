@@ -61,9 +61,12 @@ class menu():
                "1 - Mise a jour de la version de xAmAx-Mod":("xAmAx",'MiseAJourxAmAx',False),
                 "2 - Mise à jour Manuelle de l'application":("xAmAx", 'MajAplixAmAx', False),
                 "3 - Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)} #,"test":("xAmAx",'test',True)}
-        self._MenuvStream={"3 - Tri Alphabétique de la liste de Recherche vStream":("vStream","RechercheVstream",False),
+        if cvStreamOpt().RechercheBase():
+            self._MenuvStream={"3 - Tri Alphabétique de la liste de Recherche vStream":("vStream","RechercheVstream",False),
                "2 - Tri Alphabétique des Marques-Pages vStream":("vStream","MPVstream",False),
                "1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
+        else:
+            self._MenuvStream={"1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
         self._MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
                       "Mise A Jour Liste de chaines":("TV","MajTV",True)}
         if Conf:
@@ -174,7 +177,7 @@ class menu():
             if self._vStream != "OK":
                 IdMenu += 1
                 self.addDir(str(IdMenu)+" - "+self._vStream,
-                            '{0}?action=Menu&ElemMenu={1}'.format(self._url, 'InstallvStream'),
+                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, 'InstallvStream', "vStream"),
                             1,
                             self._ArtMenu['info'],
                             self._ArtMenu['fanar'],
@@ -512,6 +515,17 @@ class menu():
             executebuiltin("UpdateLocalAddons")
             executebuiltin("UpdateAddonRepos")
             sleep(1.5)
+            path2 = translatePath('special://userdata/Database/')
+            filenames = next(os.walk(path2))[2]
+            for x in filenames:
+                if "ddons" in x:
+                    tabAddon=db(os.path.join(path2, x)).Select(Table="installed", Colonnes="enabled", Where="addonID='"+NomExt+"'")
+                    if len(tabAddon) == 1:
+                        print '----Addon Activer : '+str(int(tabAddon[0][0]))
+                        db(os.path.join(path2, x)).Update(Where="addonID = '"+NomExt+"'")
+            executebuiltin("UpdateLocalAddons")
+            executebuiltin("UpdateAddonRepos")
+            sleep(1.5)
             return True
         #except:
         #    pass
@@ -585,7 +599,7 @@ class menu():
                             if self.InstallExt("plugin.video.f4mTester"):
                                 ok = dialog.ok("Installation de F4m",
                                                "F4mProxy et F4mTester ont était installer avec succés!",
-                                               "Vous pourez profiter maintenant de mon menu Chaines TV et bouquet!")
+                                               "Vous pourez profiter ensuite de mon menu Chaines TV et bouquet!")
                             else:
                                 ok = dialog.ok("Installation de F4mTester",
                                                "Erreur d'installation de F4mTester!",
@@ -619,7 +633,22 @@ class menu():
                         ok = dialog.ok("Modification vitesse de téléchargement de vStream", Retour)
                         executebuiltin('XBMC.Container.Update')
                         executebuiltin('XBMC.Container.Refresh')
-                    
+                    if params['ElemMenu']=="InstallvStream":
+                        dialog = xbmcgui.Dialog()
+                        if self.InstallExt("repository.vstream"):
+                            if self.InstallExt("plugin.video.vstream"):
+                                ok = dialog.ok("Installation de vStream",
+                                               "vStream et sont dépo ont était installer avec succés!",
+                                               "Vous pourez profiter de mon menu Option de vStream une fois que vStream aura démarrer!")
+                                #executebuiltin("RestartApp") ActivateWindow(10025,plugin://plugin.video.vstream/,return)")
+                            else:
+                                ok = dialog.ok("Installation de vStream",
+                                               "Erreur d'installation de vStream!",
+                                               "Désolé pour ce problème!")
+                        else:
+                            ok = dialog.ok("Installation de vStream",
+                                               "Erreur d'installation de vStream!",
+                                               "Désolé pour ce problème!")
                 if params['Option']=="Kodi": #----------------------------------------------------------------------------------------
                     if params['ElemMenu']=="VisuKodi":
                         self.AfficheMenu(self._MenuKodi)

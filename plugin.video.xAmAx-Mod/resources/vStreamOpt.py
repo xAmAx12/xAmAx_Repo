@@ -29,16 +29,21 @@ class cvStreamOpt():
         self.FinAffich = ""
 
     def TryConnectvStream(self):
-        try:
-            xbmc.log("TryConnectvStream adresse: " + self.adresseVstream)
-            if xbmcvfs.exists(os.path.join(self.adresseVstream,'Vstream2.db')):
-                os.remove(os.path.join(self.adresseVstream,'Vstream2.db'))
-            if xbmcvfs.exists(os.path.join(self.adresseVstream,'vstream.db')):
+        if self.adresseVstream != "":
+            try:
+                xbmc.log("TryConnectvStream adresse: " + self.adresseVstream)
+                if xbmcvfs.exists(os.path.join(self.adresseVstream,'Vstream2.db')):
+                    os.remove(os.path.join(self.adresseVstream,'Vstream2.db'))
                 return "OK"
-        except:
-            return "vStream non installer!"
+            except:
+                pass
+        return "Installer vStream!"
 
-        return "vStream non présent!"
+    def RechercheBase(self):
+        if xbmcvfs.exists(os.path.join(self.adresseVstream,'vstream.db')):
+            return True
+        else:
+            return False
     
     def MiseAJourVstream(self, Tables):
         try:

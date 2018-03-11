@@ -32,6 +32,17 @@ class db():
         except:
             pass
         return ret
+
+    def Update(self, Table="installed", Colonnes="enabled", Valeur="1", Where=""):
+        curs = self.dbx.cursor()
+        #print "-----SELECT "+Colonnes+" FROM "+Table+Where+Order+" ;"
+        curs.execute("UPDATE `"+Table+"` SET `"+Colonnes+"`="+Valeur+" WHERE "+Where+" ;")
+        self.dbx.commit()
+        #print str(ret)
+        try:
+            curs.close()
+        except:
+            pass
         
 
     def Delete(self,Table):
