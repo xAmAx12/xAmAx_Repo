@@ -134,15 +134,15 @@ def autoConfig(msg='', TxtColor='0xFFFFFFFF', Font='font12', BorderWidth=10):
             header = '[COLOR %s]Mode mémoire tampon[/COLOR]' % (COLOR2)
             self.Header4=xbmcgui.ControlLabel(rightside, secondrow+5, (W/2)-(BorderWidth*2), 20, header, font='font13', textColor=TxtColor, alignment=0x00000002)
             self.addControl(self.Header4)
-            msg4 = "[COLOR %s]Ce paramètre permet de choisir quels types de fichiers seront mis en mémoire tampon. La valeur  par défaut et 0, Cela permet de mêtre et mémoire tampon tous les fichiers distants.[/COLOR]" % COLOR2
+            msg4 = "[COLOR %s]Ce paramètre permet de choisir quels types de fichiers seront mis en mémoire tampon. La valeur  par défaut et 0, Cela permet de mettre et mémoire tampon tous les fichiers distants.[/COLOR]" % COLOR2
             self.Support4=xbmcgui.ControlTextBox(rightside+int(BorderWidth*2), secondrow+30+BorderWidth, (W/2)-(BorderWidth*4), 110, font='font12', textColor=TxtColor)
             self.addControl(self.Support4)
             self.Support4.setText(msg4)
             B1 = secondrow+140+BorderWidth; B2 = B1+35; B3 = B2+35; B4 = B3+35;
             self.Button0 = xbmcgui.ControlRadioButton(rightside+(BorderWidth*3)-22, B1, (W/2)-(BorderWidth*4)+20, 30, "0: Mémoriser les fichier d'internet et réseau local", font='font12', focusTexture=radiobgfocus, noFocusTexture=radiobgnofocus, focusOnTexture=radiofocus, noFocusOnTexture=radiofocus, focusOffTexture=radionofocus, noFocusOffTexture=radionofocus)
             self.Button1 = xbmcgui.ControlRadioButton(rightside+(BorderWidth*3)-22, B2, (W/2)-(BorderWidth*4)+20, 30, '1: Mémoriser tous les fichier', font='font12', focusTexture=radiobgfocus, noFocusTexture=radiobgnofocus, focusOnTexture=radiofocus, noFocusOnTexture=radiofocus, focusOffTexture=radionofocus, noFocusOffTexture=radionofocus) 
-            self.Button2 = xbmcgui.ControlRadioButton(rightside+(BorderWidth*3)-22, B3, (W/2)-(BorderWidth*4)+20, 30, "2: Memoriser que les fichiers en streaming", font='font12', focusTexture=radiobgfocus, noFocusTexture=radiobgnofocus, focusOnTexture=radiofocus, noFocusOnTexture=radiofocus, focusOffTexture=radionofocus, noFocusOffTexture=radionofocus) 
-            self.Button3 = xbmcgui.ControlRadioButton(rightside+(BorderWidth*3)-22, B4, (W/2)-(BorderWidth*4)+20, 30, '3: Pas de memoire tampon', font='font12', focusTexture=radiobgfocus, noFocusTexture=radiobgnofocus, focusOnTexture=radiofocus, noFocusOnTexture=radiofocus, focusOffTexture=radionofocus, noFocusOffTexture=radionofocus)
+            self.Button2 = xbmcgui.ControlRadioButton(rightside+(BorderWidth*3)-22, B3, (W/2)-(BorderWidth*4)+20, 30, "2: Mémoriser que les fichiers en streaming", font='font12', focusTexture=radiobgfocus, noFocusTexture=radiobgnofocus, focusOnTexture=radiofocus, noFocusOnTexture=radiofocus, focusOffTexture=radionofocus, noFocusOffTexture=radionofocus) 
+            self.Button3 = xbmcgui.ControlRadioButton(rightside+(BorderWidth*3)-22, B4, (W/2)-(BorderWidth*4)+20, 30, '3: Pas de mémoire tampon', font='font12', focusTexture=radiobgfocus, noFocusTexture=radiobgnofocus, focusOnTexture=radiofocus, noFocusOnTexture=radiofocus, focusOffTexture=radionofocus, noFocusOffTexture=radionofocus)
             self.addControl(self.Button0)
             self.addControl(self.Button1)
             self.addControl(self.Button2)

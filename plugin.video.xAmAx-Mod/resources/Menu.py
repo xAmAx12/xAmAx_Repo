@@ -53,7 +53,7 @@ class menu():
         self._ArtMenu = {'thumb': os.path.join(self.AdressePlugin,'play.png'),
                 'lecture': os.path.join(self.AdressePlugin,'menu.png'),
                 'param': os.path.join(self.AdressePlugin,'param.png'),
-                'fanar': os.path.join(self.AdressePlugin,'fanart.png'),
+                'fanar': os.path.join(self.AdressePlugin,'fanart.jpg'),
                 'info': os.path.join(self.AdressePlugin,'info.png')}
         self._MenuList={"1 - Options de Kodi":("Kodi","VisuKodi",True),
                         "2 - Options de xAmAx-Mod":("xAmAx",'VisuxAmAx',True)}
