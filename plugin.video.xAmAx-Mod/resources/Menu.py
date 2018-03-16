@@ -62,9 +62,10 @@ class menu():
                 "2 - Mise à jour Manuelle de l'application":("xAmAx", 'MajAplixAmAx', False),
                 "3 - Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)} #,"test":("xAmAx",'test',True)}
         if cvStreamOpt().RechercheBase():
-            self._MenuvStream={"3 - Tri Alphabétique de la liste de Recherche vStream":("vStream","RechercheVstream",False),
-               "2 - Tri Alphabétique des Marques-Pages vStream":("vStream","MPVstream",False),
-               "1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
+            self._MenuvStream={"4 - Tri Alphabétique de la liste de Recherche vStream":("vStream","RechercheVstream",False),
+               "3 - Tri Alphabétique des Marques-Pages vStream":("vStream","MPVstream",False),
+               "1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True),
+               "2 - Démarrer vStream":("vStream","DemarVstream",False)}
         else:
             self._MenuvStream={"1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
         self._MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
@@ -73,7 +74,7 @@ class menu():
             self._MenuKodi={"2 - Afficher le Journal d'erreur":("Kodi","AffichLog",False),
                    "4 - Effacer le fichiers temporaires":("Kodi","SupTemp",False),
                    "5 - Effacer les miniatures en mémoire":("Kodi","SupThumb",False),
-                   "1 - Congiguration Connexion Kodi":("Kodi","Config",True),
+                   "1 - Configuration Connexion Kodi":("Kodi","Config",True),
                    "3 - Envoyer le journal d'erreur sur le site slexy.org":("Kodi","EnvoiLog",False)}
         else:
             self._MenuKodi={"1 - Afficher le Journal d'erreur":("Kodi","AffichLog",False),
@@ -490,7 +491,7 @@ class menu():
             print "Erreur mise a jour: "+str(sys.exc_info()[0])
             return "Erreur mise a jour: "+str(sys.exc_info()[0])
 
-    def InstallExt(self,NomExt, DialogOK=False):
+    def InstallExt(self,NomExt, Repo="", DialogOK=False):
         from resources.ziptools import ziptools
         try:
             xbmcvfs.mkdir(self.addon_data_dir)
@@ -522,7 +523,10 @@ class menu():
                     tabAddon=db(os.path.join(path2, x)).Select(Table="installed", Colonnes="enabled", Where="addonID='"+NomExt+"'")
                     if len(tabAddon) == 1:
                         print '----Addon Activer : '+str(int(tabAddon[0][0]))
-                        db(os.path.join(path2, x)).Update(Where="addonID = '"+NomExt+"'")
+                        if Repo!="":
+                            db(os.path.join(path2, x)).Update(Colonnes="enabled`,`origin",Valeur="1,'"+Repo+"'",Where="addonID = '"+NomExt+"'")
+                        else:
+                            db(os.path.join(path2, x)).Update(Where="addonID = '"+NomExt+"'")
             executebuiltin("UpdateLocalAddons")
             executebuiltin("UpdateAddonRepos")
             sleep(1.5)
@@ -638,9 +642,8 @@ class menu():
                         if self.InstallExt("repository.vstream"):
                             if self.InstallExt("plugin.video.vstream"):
                                 ok = dialog.ok("Installation de vStream",
-                                               "vStream et sont dépo ont était installer avec succés!\nPour que tout fonctionne bien redémarrer kodi!",
+                                               "vStream et sont dépo ont était installer avec succés!",
                                                "Vous pourez profiter de mon menu Option de vStream une fois que vStream aura démarrer!")
-                                #executebuiltin("RestartApp") ActivateWindow(10025,plugin://plugin.video.vstream/,return)")
                             else:
                                 ok = dialog.ok("Installation de vStream",
                                                "Erreur d'installation de vStream!",
@@ -649,6 +652,8 @@ class menu():
                             ok = dialog.ok("Installation de vStream",
                                                "Erreur d'installation de vStream!",
                                                "Désolé pour ce problème!")
+                    if params['ElemMenu']=="DemarVstream":
+                        executebuiltin("ActivateWindow(10025,plugin://plugin.video.vstream/,return)") #RestartApp") 
                 if params['Option']=="Kodi": #----------------------------------------------------------------------------------------
                     if params['ElemMenu']=="VisuKodi":
                         self.AfficheMenu(self._MenuKodi)
