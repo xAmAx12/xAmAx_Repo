@@ -25,10 +25,10 @@ try:
     import resources.Config as Conf
 except:
     Conf = None
-#try:
-import resources.KodiMod as Kmod
-#except:
-#    Kmod = None
+try:
+    import resources.KodiMod as Kmod
+except:
+    Kmod = None
 
 class menu():
 
