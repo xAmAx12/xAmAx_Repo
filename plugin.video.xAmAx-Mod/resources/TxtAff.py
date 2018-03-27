@@ -48,6 +48,7 @@ class TxtAffich():
             ' ERROR: ',' [COLOR red]ERREUR[/COLOR]: ').replace(
             ' WARNING: ',' [COLOR gold]AVERTISSEMENT[/COLOR]: ').replace(
             ' NOTICE: ',' [COLOR green]INFO[/COLOR]: ').replace(
+            ' DEBUG: ',' [COLOR orange]DEBUG[/COLOR]: ').replace(
             '- Version ',' [COLOR green]- Version[/COLOR]: ').replace(
             '=======================================================================================',
             '[COLOR green]=======================================================================================[/COLOR]')

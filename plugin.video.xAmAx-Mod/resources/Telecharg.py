@@ -66,7 +66,8 @@ class cDL():
             response.close()
             return FichTelecharg;
         except:
-            err="Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sys.exc_info()[0])
+            sysErr = sys.exc_info()
+            err="Erreur téléchargement Page: "+str(url)+"\n Erreur = "+str(sysErr[0])+"\n"+str(sysErr[1])
             print err
             return err
 

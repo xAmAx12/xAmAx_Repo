@@ -25,91 +25,35 @@ try:
     import resources.Config as Conf
 except:
     Conf = None
+#try:
+import resources.KodiMod as Kmod
+#except:
+#    Kmod = None
 
 class menu():
 
     def __init__(self):
         #Enregistrement des paramètres
-        self.Param = {"Chemin":""}
         self.nomPlugin = 'plugin.video.xAmAx-Mod'
-        self.adn = Addon(self.nomPlugin)
-
-        self.__version__ = self.adn.getAddonInfo('version')
-        self._vStream = cvStreamOpt().TryConnectvStream() # "vStream non installer!" TryConnectvStream()
+        self._IdAdn = sys.argv[0]
 
         # Récupération des info du plugin
-        self._url = sys.argv[0]
-        self.AdressePlugin = self.adn.getAddonInfo('path')
+        self.adn = Addon(self.nomPlugin)
+        self.__version__ = self.adn.getAddonInfo('version')
+        self.AdresseAdn = self.adn.getAddonInfo('path')
         
         self.UrlRepo = "https://raw.githubusercontent.com/xAmAx12/xAmAx_Repo/master/"
-        self.Url_Plugin_Version = self.UrlRepo+"repo/"+self.nomPlugin+"/README.md"
-        self._handle = int(sys.argv[1])
-        self.profile = translatePath(self.adn.getAddonInfo('profile').decode('utf-8'))
+        self.AdresseAdnUtil = translatePath(self.adn.getAddonInfo('profile').decode('utf-8'))
         
-        self.addon_data_dir = os.path.join(translatePath("special://userdata/addon_data" ), self.nomPlugin)
-        self.dbxAmAx = os.path.join(self.addon_data_dir, "xAmAx.db")
+        self.dbxAmAx = os.path.join(self.AdresseAdnUtil, "xAmAx.db")
         self.extpath = os.path.join(translatePath("special://home/addons/"))
 
-        self._ArtMenu = {'thumb': os.path.join(self.AdressePlugin,'play.png'),
-                'lecture': os.path.join(self.AdressePlugin,'menu.png'),
-                'param': os.path.join(self.AdressePlugin,'param.png'),
-                'fanar': os.path.join(self.AdressePlugin,'fanart.jpg'),
-                'info': os.path.join(self.AdressePlugin,'info.png')}
-        self._MenuList={"1 - Options de Kodi":("Kodi","VisuKodi",True),
-                        "2 - Options de xAmAx-Mod":("xAmAx",'VisuxAmAx',True)}
-        self._MenuxAmAx={"Version "+self.__version__:("xAmAx","InfoVersion",False),
-               "1 - Mise a jour de la version de xAmAx-Mod":("xAmAx",'MiseAJourxAmAx',False),
-                "2 - Mise à jour Manuelle de l'application":("xAmAx", 'MajAplixAmAx', False),
-                "3 - Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)} #,"test":("xAmAx",'test',True)}
-        if cvStreamOpt().RechercheBase():
-            self._MenuvStream={"4 - Tri Alphabétique de la liste de Recherche vStream":("vStream","RechercheVstream",False),
-               "3 - Tri Alphabétique des Marques-Pages vStream":("vStream","MPVstream",False),
-               "1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True),
-               "2 - Démarrer vStream":("vStream","DemarVstream",False)}
-        else:
-            self._MenuvStream={"1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True)}
-        self._MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
-                      "Mise A Jour Liste de chaines":("TV","MajTV",True)}
-        if Conf:
-            self._MenuKodi={"2 - Afficher le Journal d'erreur":("Kodi","AffichLog",False),
-                   "4 - Effacer le fichiers temporaires":("Kodi","SupTemp",False),
-                   "5 - Effacer les miniatures en mémoire":("Kodi","SupThumb",False),
-                   "1 - Configuration Connexion Kodi":("Kodi","Config",True),
-                   "3 - Envoyer le journal d'erreur sur le site slexy.org":("Kodi","EnvoiLog",False)}
-        else:
-            self._MenuKodi={"1 - Afficher le Journal d'erreur":("Kodi","AffichLog",False),
-                   "3 - Effacer le fichiers temporaires":("Kodi","SupTemp",False),
-                   "4 - Effacer les miniatures en mémoire":("Kodi","SupThumb",False),
-                   "2 - Envoyer le journal d'erreur sur le site slexy.org":("Kodi","EnvoiLog",False)} #"Changer le Fond d'écran":("Kodi",'ChangeFonDecran',True),"
-        self._MenuPC={"1 - Afficher l'historique":("PC","AffichLog",True),
-             "2 - Réaliser une action":("PC","ActPC",True)}
-        self._MenuActPC={"Changer heure d'arrêt":("PC","ActHArret",True),
-                "Arrêter le pc":("PC","ActArretDirect",True),
-                "Arrêt de l'arrêt automatique":("PC","ActArretAuto",True),
-                "Re-démarrage de l'arrêt automatique":("PC","ActDemarArret",True),
-                "Interrogation Heure d'arrêt":("PC","ActIHArret",True),
-                "Interrogation Heure du pc":("PC","ActHeurePC",True)}
-        self.Maj=[("xAmAxDB",".sql","resources/"),
-                  ("settings",".xml","resources/"),
-                  ("DB",".py","resources/"),
-                  ("vStreamOpt",".py","resources/"),
-                  ("LSPOpt",".py","resources/"),
-                  ("default",".py",""),
-                  ("Telecharg",".py","resources/"),
-                  ("TxtAff",".py","resources/"),
-                  ("ziptools",".py","resources/"),
-                  ("Samba",".py","resources/"),
-                  ("Config",".py","resources/"),
-                  ("Fenetre",".png","resources/skins/DefaultSkin/media/Background/"),
-                  ("button-focus_grey",".png","resources/skins/DefaultSkin/media/Button/"),
-                  ("button-focus_lightxAm",".png","resources/skins/DefaultSkin/media/Button/"),
-                  ("MenuItemFOxAm",".png","resources/skins/DefaultSkin/media/RadioButton/"),
-                  ("MenuItemNF",".png","resources/skins/DefaultSkin/media/RadioButton/"),
-                  ("radiobutton-focus",".png","resources/skins/DefaultSkin/media/RadioButton/"),
-                  ("radiobutton-nofocus",".png","resources/skins/DefaultSkin/media/RadioButton/"),
-                  ("osd_slider_nibNFxAm",".png","resources/skins/DefaultSkin/media/Slider/"),
-                  ("osd_slider_nibxAm",".png","resources/skins/DefaultSkin/media/Slider/"),
-                  ("Menu",".py","resources/")]
+        self._ArtMenu = {'thumb': os.path.join(self.AdresseAdn,'play.png'),
+                'lecture': os.path.join(self.AdresseAdn,'menu.png'),
+                'param': os.path.join(self.AdresseAdn,'param.png'),
+                'fanar': os.path.join(self.AdresseAdn,'fanart.jpg'),
+                'info': os.path.join(self.AdresseAdn,'info.png')}
+
         self.MajPresente=True
 
     def RechercheF4M(self):
@@ -127,8 +71,6 @@ class menu():
             return False
 
     def AfficheMenu(self,Menu="", Icone=False, TriAuto=True):
-        if Menu=="":
-            Menu=self._MenuList
         # creation du menu
         print "Menu"
         IdMenu = 0
@@ -140,105 +82,29 @@ class menu():
                     icone = self._ArtMenu['lecture']
                 else:
                     icone = self._ArtMenu['param']
-                self.addDir(tag,'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, Act, Titre),1,icone,self._ArtMenu['fanar'],is_folder)
+                self.addDir(tag,'{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._IdAdn, Act, Titre),1,icone,self._ArtMenu['fanar'],is_folder)
         else:
             for tag, (Titre, Url, is_folder, icone, Tmage) in Menu.items():
                 if icone != "":
-                    """text = base64.b64decode(str(Titre)).replace('&#8211;','-')
-                    text = text.replace('&ndash;','-')
-                    text = text.replace('&#038;','&')
-                    text = text.replace('&#8217;','\'')
-                    text = text.replace('&#8216;','\'')
-                    text = text.replace('&#8230;','...')
-                    text = text.replace('&quot;','"')
-                    text = text.replace('&#039;','`')
-                    text = text.replace('&amp;','&')
-                    text = text.replace('&ntilde;','ñ')
-                    Titre = text.replace('&rsquo;','\'')"""
                     Titre = cLiveSPOpt().ConvNom(base64.b64decode(str(Titre)))
-                    #print "list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}&Tmage={3}'.format(self._url,Url,"LireVideo2",Tmage)+" Icone= "+base64.b64decode(icone)
+                    #print "list m3u: "+Titre+' {0}?action=Play&Url={1}&ElemMenu={2}&Tmage={3}'.format(self._IdAdn,Url,"LireVideo2",Tmage)+" Icone= "+base64.b64decode(icone)
                     if base64.b64decode(icone)==self._ArtMenu['lecture']:
-                        self.addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(self._url,Url,"LireVideo2"),1,self._ArtMenu['lecture'],self._ArtMenu['fanar'],is_folder)
+                        self.addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=0'.format(self._IdAdn,Url,"LireVideo2"),1,self._ArtMenu['lecture'],self._ArtMenu['fanar'],is_folder)
                     elif base64.b64decode(icone)==self._ArtMenu['info']:
                         URL=base64.b64decode(str(Url))
                         cCommands=[]
-                        cCommands.append(("Lire le Fichier",'XBMC.RunPlugin({0}?action=OuvTxt&Url={1}&ElemMenu={2})'.format(self._url,base64.b64encode(URL[3:]),"LogSamba")))
-                        cCommands.append(("Supprimer le fichier",'XBMC.RunPlugin({0}?action=SupFich&Url={1}&ElemMenu={2})'.format(self._url,base64.b64encode(URL[3:]),"LogSamba")))
+                        cCommands.append(("Lire le Fichier",'XBMC.RunPlugin({0}?action=OuvTxt&Url={1}&ElemMenu={2})'.format(self._IdAdn,base64.b64encode(URL[3:]),"LogSamba")))
+                        cCommands.append(("Supprimer le fichier",'XBMC.RunPlugin({0}?action=SupFich&Url={1}&ElemMenu={2})'.format(self._IdAdn,base64.b64encode(URL[3:]),"LogSamba")))
                         if URL.startswith("LOG"):
-                            self.addDir(Titre,'{0}?action=OuvTxt&Url={1}&ElemMenu={2}'.format(self._url,base64.b64encode(URL[3:]),"LogSamba"),1,self._ArtMenu['lecture'],self._ArtMenu['fanar'],is_folder,contextCommands=cCommands)
+                            self.addDir(Titre,'{0}?action=OuvTxt&Url={1}&ElemMenu={2}'.format(self._IdAdn,base64.b64encode(URL[3:]),"LogSamba"),1,self._ArtMenu['lecture'],self._ArtMenu['fanar'],is_folder,contextCommands=cCommands)
                     else:
                         cCommands=[]
-                        cCommands.append(("Telecharger vidéo",'XBMC.RunPlugin({0}?action=Play&Url={1}&ElemMenu={2}&Adult=1)'.format(self._url,Url,"DL")))
-                        cCommands.append(("Afficher les photos",'XBMC.RunPlugin({0}?action=FichierEnCour&ElemMenu={1}&Adult=1&Icone={2}&timage={3})'.format(self._url,"Photo",base64.b64decode(icone),Tmage)))
-                        self.addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(self._url,Url,"LireVideo2"),1,base64.b64decode(icone),self._ArtMenu['fanar'],is_folder,contextCommands=cCommands)
+                        cCommands.append(("Telecharger vidéo",'XBMC.RunPlugin({0}?action=Play&Url={1}&ElemMenu={2}&Adult=1)'.format(self._IdAdn,Url,"DL")))
+                        cCommands.append(("Afficher les photos",'XBMC.RunPlugin({0}?action=FichierEnCour&ElemMenu={1}&Adult=1&Icone={2}&timage={3})'.format(self._IdAdn,"Photo",base64.b64decode(icone),Tmage)))
+                        self.addDir(Titre,'{0}?action=Play&Url={1}&ElemMenu={2}&Adult=1'.format(self._IdAdn,Url,"LireVideo2"),1,base64.b64decode(icone),self._ArtMenu['fanar'],is_folder,contextCommands=cCommands)
                 else:
-                    self.addDir(base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(self._url,"Adult","TV",Url),1,self._ArtMenu['lecture'],self._ArtMenu['fanar'],True)
-        if Menu==self._MenuList:
-            # Création de chaque élément
-            if self._vStream != "OK":
-                IdMenu += 1
-                self.addDir(str(IdMenu)+" - "+self._vStream,
-                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, 'InstallvStream', "vStream"),
-                            1,
-                            self._ArtMenu['info'],
-                            self._ArtMenu['fanar'],
-                            True)
-            else:
-                IdMenu += 1
-                self.addDir(str(IdMenu)+" - Options de vStream",
-                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "VisuVstream", "vStream"),
-                            1,
-                            self._ArtMenu['param'],
-                            self._ArtMenu['fanar'],
-                            True)
-            if self.RechercheF4M():
-                IdMenu += 1
-                self.addDir(str(IdMenu)+" - "+"Chaines TV et bouquet",
-                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "VisuLiveStream", 'TV'),
-                            1,
-                            self._ArtMenu['lecture'],
-                            self._ArtMenu['fanar'],
-                            True)
-                IdMenu += 1
-                self.addDir(str(IdMenu)+" - "+"Ouvrir fichier m3u avec le lecteur F4m",
-                                '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "LireF4m", 'xAmAx'),
-                                1,
-                                self._ArtMenu['lecture'],
-                                self._ArtMenu['fanar'],
-                                True)
-            else:
-                IdMenu += 1
-                self.addDir(str(IdMenu)+" - "+"Installation de F4mProxy et Tester",
-                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "InstalF4m", 'TV'),
-                            1,
-                            self._ArtMenu['param'],
-                            self._ArtMenu['fanar'],
-                            True)
-            IdMenu += 1
-            self.addDir(str(IdMenu)+" - "+"Ouvrir fichier m3u avec le lecteur de kodi",
-                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "LireUrl", 'xAmAx'),
-                            1,
-                            self._ArtMenu['lecture'],
-                            self._ArtMenu['fanar'],
-                            True)
+                    self.addDir(base64.b64decode(Titre),'{0}?action=Menu&ElemMenu={1}&Option={2}&Url={3}'.format(self._IdAdn,"Adult","TV",Url),1,self._ArtMenu['lecture'],self._ArtMenu['fanar'],True)
 
-            if self.adn.getSetting(id="Adult")=="true":
-                IdMenu += 1
-                self.addDir(str(IdMenu)+" - "+"Plus",
-                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "Adult", 'TV'),
-                            1,
-                            self._ArtMenu['lecture'],
-                            self._ArtMenu['fanar'],
-                            True)
-            if self.adn.getSetting(id="stban")=="true":
-                IdMenu += 1
-                self.addDir(str(IdMenu)+" - "+"PC distant",
-                            '{0}?action=Menu&ElemMenu={1}&Option={2}'.format(self._url, "stBan", 'PC'),
-                            1,
-                            self._ArtMenu['lecture'],
-                            self._ArtMenu['fanar'],
-                            True)
-                
         xbmcplugin.setPluginCategory( handle=int(sys.argv[1]), category="xAmAx" )
         if TriAuto: xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -281,18 +147,20 @@ class menu():
     
     def AffichMenuTv(self,MiseAJourOK=False):
         Retour=""
-        MenuTV = self._MenuTV
+        _MenuTV={"Afficher Les chaines Tv":("TV","AffichTV",True),
+                      "Mise A Jour Liste de chaines":("TV","MajTV",True)}
+        MenuTV = _MenuTV
         if self.adn.getSetting(id="MajtvAuto")=="true":
             print "Recherche mise a jour si première ouverture de la journée"
             DateDerMajTv = str(self.adn.getSetting(id="DateTvListe"))
             print "Dernière Mise a jour: "+DateDerMajTv
             if str(DateDerMajTv)!=strftime("%d-%m-%Y", gmtime()):
-                Retour = cLiveSPOpt().RechercheChaine(self.addon_data_dir)
+                Retour = cLiveSPOpt().RechercheChaine(self.AdresseAdnUtil)
                 if Retour=="OK":
                     self.adn.setSetting(id="DateTvListe", value=strftime("%d-%m-%Y", gmtime())) #%H:%M:%S"
         if self.adn.getSetting(id="CreerBouq")=="true":
             if Retour=="OK" or MiseAJourOK==True:
-                cLiveSPOpt().CreerBouquet(self.addon_data_dir)
+                cLiveSPOpt().CreerBouquet(self.AdresseAdnUtil)
             print "Ouverture Liste Bouquet de: "+self.dbxAmAx
             cBouq = db(self.dbxAmAx).Select(Table="Bouquet", Colonnes="NomBouq", Where="", Order="Ordre ASC")
             for NomBouq in cBouq:
@@ -303,7 +171,7 @@ class menu():
         if len(ListeChaine)>0:
             for Nom, Url, Entete in ListeChaine:
                 self.addDir(Nom,
-                       '{0}?action=Play&Url={1}&ElemMenu={2}&NomLu={3}'.format(self._url, base64.b64encode(urlib.quote_plus(Url+"|"+Entete)), "LireVideo", base64.b64encode(Nom)),
+                       '{0}?action=Play&Url={1}&ElemMenu={2}&NomLu={3}'.format(self._IdAdn, base64.b64encode(urlib.quote_plus(Url+"|"+Entete)), "LireVideo", base64.b64encode(Nom)),
                        1,
                        self._ArtMenu['thumb'],
                        self._ArtMenu['fanar'],
@@ -339,14 +207,14 @@ class menu():
                     i += 1
                     if Url.startswith("plugin://"): 
                         self.addDir(str(i)+"-"+Nom,
-                           '{0}?action=Play&Url={1}&ElemMenu={2}&NomLu={3}'.format(self._url, base64.b64encode(urlib.quote_plus(Url)), "LireVideo",base64.b64encode(Nom)),
+                           '{0}?action=Play&Url={1}&ElemMenu={2}&NomLu={3}'.format(self._IdAdn, base64.b64encode(urlib.quote_plus(Url)), "LireVideo",base64.b64encode(Nom)),
                            1,
                            self._ArtMenu['thumb'],
                            self._ArtMenu['fanar'],
                            True)
                     else:
                         self.addDir(str(i)+"-"+Nom,
-                           '{0}?action=Play&Url={1}&ElemMenu={2}&NomLu={3}'.format(self._url, base64.b64encode(urlib.quote_plus(Url)), "LireVideo",base64.b64encode(Nom)),
+                           '{0}?action=Play&Url={1}&ElemMenu={2}&NomLu={3}'.format(self._IdAdn, base64.b64encode(urlib.quote_plus(Url)), "LireVideo",base64.b64encode(Nom)),
                            1,
                            self._ArtMenu['thumb'],
                            self._ArtMenu['fanar'],
@@ -398,13 +266,14 @@ class menu():
             
     def RechercheMAJ(self):
         from resources.ziptools import ziptools
+        Url_Plugin_Version = self.UrlRepo+"repo/"+self.nomPlugin+"/README.md"
         print 'xAmAx Recherche mise a jour...'
         try:
-            data = cDL().TelechargPage(self.Url_Plugin_Version)
+            data = cDL().TelechargPage(Url_Plugin_Version)
             print 'Lecture de la version du plugin distant: ' + data
         except:
             data = ""
-            print 'Erreur de la lecture de la version du plugin: ' + self.Url_Plugin_Version
+            print 'Erreur de la lecture de la version du plugin: ' + Url_Plugin_Version
             
         version_publique=data
         
@@ -422,9 +291,9 @@ class menu():
                 ((int(numVersionPub[0]) == int(numVersionLoc[0]))and((int(numVersionPub[1]) > int(numVersionLoc[1]))or
                                                                     ((int(numVersionPub[2]) > int(numVersionLoc[2])))))):
                 try:
-                    xbmcvfs.mkdir(self.addon_data_dir)
+                    xbmcvfs.mkdir(self.AdresseAdnUtil)
                 except: pass
-                dest = os.path.join(self.addon_data_dir, 'DerMaj.zip')
+                dest = os.path.join(self.AdresseAdnUtil, 'DerMaj.zip')
                 MAJ_URL = self.UrlRepo+self.nomPlugin+'/'+self.nomPlugin+'-' +str(int(numVersionPub[0]))+"."+str(int(numVersionPub[1]))+"."+str(int(numVersionPub[2])) + '.zip'
                 print 'Démarrage du téléchargement de:' + MAJ_URL
                     
@@ -448,34 +317,65 @@ class menu():
         else:
             return "Pas de mise à jour disponible!"
         
-    def MajAuto(self,ForceMaj=False): #,NomMaj,Ext,resources=""
-        for NomMaj,Ext,resources in self.Maj:
-            if resources=="":
-                AdresseFich = os.path.join(self.AdressePlugin, NomMaj+Ext)
-            else:
-                TabResources = resources.split("/")
-                cheminRes = os.path.join(self.AdressePlugin,TabResources[0])
-                for x in range(1,len(TabResources)-1):
-                    if TabResources[x]!="": cheminRes = os.path.join(cheminRes,TabResources[x])
-                xbmcvfs.mkdirs(cheminRes)
-                AdresseFich = os.path.join(cheminRes, NomMaj+Ext)
-            #try:
-                ret = self.RechMajAuto(NomMaj,resources,ForceMaj)
-                if (not ret.startswith("Erreur") and (ForceMaj or ret != "")):
-                    DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
-                    if not DL.startswith("Erreur"):
-                        fichier = open(AdresseFich, "w")
-                        fichier.write(DL)
-                        fichier.close()
-                        print "Maj= "+NomMaj+" : "+ret 
-                        self.adn.setSetting(id=NomMaj, value=str(int(ret)))
-                        print "Mise a jour de "+NomMaj+" OK"
-            #except:
-            #    print "Erreur mise a jour: "+str(sys.exc_info()[0])
-            #    return "Erreur mise a jour: "+str(sys.exc_info()[0])
-        if not ForceMaj: self.adn.setSetting(id="MajV", value=self.vertionMaj)
-        return "OK"
-    
+    def MajAuto(self,ForceMaj=False,TabMaj=[]): #,NomMaj,Ext,resources=""
+        if len(TabMaj)==0:
+            DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/MajList")
+            if not DL.startswith("Erreur"):
+                Stab=DL.split("\n")
+                if len(Stab)>1:
+                    for Fich in Stab:
+                        if "," in Fich:
+                            TabMaj.append((Fich.split(",")))
+        print "---Taille liste mise à jour:"+str(len(TabMaj))
+        if len(TabMaj)>0:
+            dp = xbmcgui.DialogProgress()
+            dp.create("Recherche de mise à jour automatique:")
+            sleep(0.5)
+            increment = 100/len(TabMaj)
+            total = 0
+            for NomMaj,Ext,resources,Version in TabMaj:
+                print "---Mise à jour de : "+NomMaj+Ext+" Version:"+Version
+                total += increment
+                dp.update(total,"Recherche mise à jour : "+NomMaj)
+                sleep(0.2)
+                try:
+                    VersionAdn = self.adn.getSetting(id=NomMaj)
+                    if VersionAdn=="": VersionAdn = 0
+                        
+                    if ((int(VersionAdn) != int(Version))or(ForceMaj)):
+                        if resources==None:
+                            DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/"+NomMaj+Ext)
+                        else:
+                            DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj+Ext)
+                        if not DL.startswith("Erreur"):
+                            if resources==None:
+                                AdresseFich = os.path.join(self.AdresseAdn, NomMaj+Ext)
+                            elif resources=="":
+                                AdresseFich = os.path.join(self.AdresseAdn, NomMaj+Ext)
+                            else:
+                                TabResources = resources.split("/")
+                                cheminRes = os.path.join(self.AdresseAdn,TabResources[0])
+                                for x in range(1,len(TabResources)-1):
+                                    if TabResources[x]!="": cheminRes = os.path.join(cheminRes,TabResources[x])
+                                xbmcvfs.mkdirs(cheminRes)
+                                AdresseFich = os.path.join(cheminRes, NomMaj+Ext)
+                            fichier = open(AdresseFich, "w")
+                            fichier.write(DL)
+                            fichier.close()
+                            print "Maj= "+NomMaj+" : "+Version
+                            self.adn.setSetting(id=NomMaj, value=str(int(Version)))
+                            print "Mise a jour de "+NomMaj+" OK"
+                except:
+                    print "Erreur mise a jour: "+str(sys.exc_info()[0])
+                    dp.close()
+                    return "Erreur mise a jour: "+str(sys.exc_info()[0])
+            dp.close()
+            if not ForceMaj: self.adn.setSetting(id="MajV", value=self.vertionMaj)
+            return "OK"
+        else:
+            if not ForceMaj: self.adn.setSetting(id="MajV", value=self.vertionMaj)
+            return "OK"
+        
     def RechMajAuto(self,NomMaj,resources="",ForceMaj=False):
         try:
             AdresseVersion = self.UrlRepo+self.nomPlugin+"/"+resources+NomMaj
@@ -494,10 +394,10 @@ class menu():
     def InstallExt(self,NomExt, Repo="", DialogOK=False):
         from resources.ziptools import ziptools
         try:
-            xbmcvfs.mkdir(self.addon_data_dir)
+            xbmcvfs.mkdir(self.AdresseAdnUtil)
         except: pass
         #try:
-        dest = os.path.join(self.addon_data_dir, 'ExtDl.zip')
+        dest = os.path.join(self.AdresseAdnUtil, 'ExtDl.zip')
         MAJ_URL = self.UrlRepo+"repo/"+NomExt+'/'+NomExt+'.zip'
         print 'Démarrage du téléchargement de:' + MAJ_URL
             
@@ -517,16 +417,19 @@ class menu():
             executebuiltin("UpdateAddonRepos")
             sleep(1.5)
             path2 = translatePath('special://userdata/Database/')
-            filenames = next(os.walk(path2))[2]
-            for x in filenames:
-                if "ddons" in x:
-                    tabAddon=db(os.path.join(path2, x)).Select(Table="installed", Colonnes="enabled", Where="addonID='"+NomExt+"'")
-                    if len(tabAddon) == 1:
-                        print '----Addon Activer : '+str(int(tabAddon[0][0]))
-                        if Repo!="":
-                            db(os.path.join(path2, x)).Update(Colonnes="enabled`,`origin",Valeur="1,'"+Repo+"'",Where="addonID = '"+NomExt+"'")
-                        else:
-                            db(os.path.join(path2, x)).Update(Where="addonID = '"+NomExt+"'")
+            try:
+                filenames = next(os.walk(path2))[2]
+                for x in filenames:
+                    if "ddons" in x:
+                        tabAddon=db(os.path.join(path2, x)).Select(Table="installed", Colonnes="enabled", Where="addonID='"+NomExt+"'")
+                        if len(tabAddon) == 1:
+                            print '----Addon Activer : '+str(int(tabAddon[0][0]))
+                            if Repo!="":
+                                db(os.path.join(path2, x)).Update(Colonnes="enabled`,`origin",Valeur="1,'"+Repo+"'",Where="addonID = '"+NomExt+"'")
+                            else:
+                                db(os.path.join(path2, x)).Update(Where="addonID = '"+NomExt+"'")
+            except:
+                pass
             executebuiltin("UpdateLocalAddons")
             executebuiltin("UpdateAddonRepos")
             sleep(1.5)
@@ -573,7 +476,7 @@ class menu():
                                     ANDWHERE = " AND Nom NOT LIKE '%"+Retour[0][0]+"%' "
                             self.AfichListeTS(Where="Nom LIKE '"+NomChaine+"%'"+ANDWHERE)
                     if params['ElemMenu']=='MajTV':
-                        Retour2 = cLiveSPOpt().RechercheChaine(self.addon_data_dir)
+                        Retour2 = cLiveSPOpt().RechercheChaine(self.AdresseAdnUtil)
                         if Retour2=="OK":
                             self.AffichMenuTv(MiseAJourOK=True)
                         else:
@@ -615,7 +518,24 @@ class menu():
 
                 if params['Option']=='vStream':#----------------------------------------------------------------------------------------
                     if params['ElemMenu']=="VisuVstream":
-                        self.AfficheMenu(self._MenuvStream)
+                        if cvStreamOpt().RechercheBase():
+                            MenuvStream={"1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True),
+                                               "2 - Démarrer vStream":("vStream","DemarVstream",False),
+                                               "3 - Tri Alphabétique des Marques-Pages vStream":("vStream","MPVstream",False),
+                                               "4 - Tri Alphabétique de la liste de Recherche vStream":("vStream","RechercheVstream",False)}
+                            IdMenu = 4
+                        else:
+                            MenuvStream={"1 - Modifier la vitesse de téléchargement":("vStream","DownloadVstream",True),
+                                               "2 - Démarrer vStream":("vStream","DemarVstream",False)}
+                            IdMenu = 2
+                        if Kmod != None:
+                            IdMenu += 1
+                            KM = Kmod.KodiMod(Type='video', Nom='vStream', Plugin='plugin.video.vstream', Icon='icon.png')
+                            if KM.LienExist():
+                                MenuvStream.update({str(IdMenu)+" - Suppression du lien vers vStream dans le menu vidéo": ("vStream","SupprimLien",False)})
+                            else:
+                                MenuvStream.update({str(IdMenu)+" - Création du lien vers vStream dans le menu vidéo": ("vStream","CreerLien",False)})
+                        self.AfficheMenu(MenuvStream)
                     if params['ElemMenu']=='MPVstream':
                         Retour = cvStreamOpt().MiseAJourVstream("MarquePage")
                         dialog = xbmcgui.Dialog()
@@ -653,10 +573,40 @@ class menu():
                                                "Erreur d'installation de vStream!",
                                                "Désolé pour ce problème!")
                     if params['ElemMenu']=="DemarVstream":
-                        executebuiltin("ActivateWindow(10025,plugin://plugin.video.vstream/,return)") #RestartApp") 
+                        executebuiltin("ActivateWindow(10025,plugin://plugin.video.vstream/,return)") #RestartApp")
+                    if params['ElemMenu']=="CreerLien":
+                        KM = Kmod.KodiMod(Type='video', Nom="vStream", Plugin='plugin.video.vstream', Icon='icon.png')
+                        Retour = KM.CreerLien()
+                        dialog = xbmcgui.Dialog()
+                        ok = dialog.ok("Création du lien dans le menu video: ", Retour)
+                        executebuiltin('XBMC.Container.Update')
+                        executebuiltin('XBMC.Container.Refresh')
+                    if params['ElemMenu']=="SupprimLien":
+                        KM = Kmod.KodiMod(Type='video', Nom="vStream", Plugin='plugin.video.vstream', Icon='icon.png')
+                        Retour = KM.SupprimLien()
+                        dialog = xbmcgui.Dialog()
+                        ok = dialog.ok("Suppression du lien dans le menu video: ", Retour)
+                        executebuiltin('XBMC.Container.Update')
+                        executebuiltin('XBMC.Container.Refresh')
                 if params['Option']=="Kodi": #----------------------------------------------------------------------------------------
                     if params['ElemMenu']=="VisuKodi":
-                        self.AfficheMenu(self._MenuKodi)
+                        MenuKodi={}
+                        IdMenu = 0
+                        if Conf:
+                            IdMenu = 1
+                            MenuKodi.update({str(IdMenu)+" - Configuration Connexion Kodi":("Kodi","Config",True)})
+                        if Kmod != None:
+                            IdMenu += 1
+                            MenuKodi.update({str(IdMenu)+" - Activer/Désactiver le mode débugage! (plus d'info dans le journal d'erreur)": ("Kodi","Debug",False)})
+                        IdMenu += 1
+                        MenuKodi.update({str(IdMenu)+" - Afficher le Journal d'erreur":("Kodi","AffichLog",False)})
+                        IdMenu += 1
+                        MenuKodi.update({str(IdMenu)+" - Envoyer le journal d'erreur sur le site slexy.org":("Kodi","EnvoiLog",False)})
+                        IdMenu += 1
+                        MenuKodi.update({str(IdMenu)+" - Effacer le fichiers temporaires":("Kodi","SupTemp",False)})
+                        IdMenu += 1
+                        MenuKodi.update({str(IdMenu)+" - Effacer les miniatures en mémoire":("Kodi","SupThumb",False)})
+                        self.AfficheMenu(MenuKodi)
                     if params['ElemMenu']=="AffichLog":
                         print "AffichLog: "
                         Affich=TxtAffich()
@@ -694,21 +644,38 @@ class menu():
 
                     if params['ElemMenu']=="Config":
                         if Conf!= None: Conf.autoConfig()
+
+                    if params['ElemMenu']=="Debug":
+                        Kmod.KodiMod().ModeDebug()
                 
                 if params['Option']=="xAmAx": #----------------------------------------------------------------------------------------
                     if params['ElemMenu']=="VisuxAmAx":
                         print "Afficher menu xAmAx"
-                        MenuxAmAx = self._MenuxAmAx
+                        MenuxAmAx = {"1 - Mise a jour de la version de xAmAx-Mod":("xAmAx",'MiseAJourxAmAx',False),
+                                     "2 - Mise à jour Manuelle de l'application":("xAmAx", 'MajAplixAmAx', False),
+                                     "3 - Paramètres de xAmAx":("xAmAx","ParamxAmAx",False)} #,
+                                     #"4 - test":("xAmAx",'test',True)}
+                        IdMenu = 4
                         if self.adn.getSetting(id="stban")=="true":
+                            IdMenu += 1
                             if self.adn.getSetting(id="p")=="":
-                                MenuxAmAx.update({"PC distant: Ajouter un Mot de passe": ("PC","PssPc",True)})
+                                MenuxAmAx.update({str(IdMenu)+" - PC distant: Ajouter un Mot de passe": ("PC","PssPc",True)})
                             else:
-                                MenuxAmAx.update({"PC distant: Changer le Mot de passe": ("PC","PssPc",True)})
+                                MenuxAmAx.update({str(IdMenu)+" - PC distant: Changer le Mot de passe": ("PC","PssPc",True)})
+                        if Kmod != None:
+                            IdMenu += 1
+                            KM = Kmod.KodiMod(Type='video',Plugin='plugin.video.xAmAx-Mod',Icon='icon.png')
+                            if KM.LienExist():
+                                MenuxAmAx.update({str(IdMenu)+" - Suppression du lien vers xAmAx-Mod dans le menu vidéo": ("xAmAx","SupprimLien",False)})
+                            else:
+                                MenuxAmAx.update({str(IdMenu)+" - Création du lien vers xAmAx-Mod dans le menu vidéo": ("xAmAx","CreerLien",False)})
+                        IdMenu += 1
+                        MenuxAmAx.update({str(IdMenu)+" - Version "+self.__version__:("xAmAx","InfoVersion",False)})
                         self.AfficheMenu(MenuxAmAx)
                     if params['ElemMenu']=="InfoVersion":
                         print "InfoVersion: "
                         Affich=TxtAffich()
-                        Affich.Fenetre(Chemin=os.path.join(self.AdressePlugin,"changelog.txt"),line_number=0)
+                        Affich.Fenetre(Chemin=os.path.join(self.AdresseAdn,"changelog.txt"),line_number=0)
                     if params['ElemMenu']=="MiseAJourxAmAx":
                         Retour = self.RechercheMAJ()
                         if Retour != "OK":
@@ -730,22 +697,16 @@ class menu():
                                 executebuiltin('XBMC.Container.Refresh')
                     if params['ElemMenu']=="test":
                         print "test: "
-                        Retour = cvStreamOpt().LectureDownload()
-                        dialog = xbmcgui.Dialog()
-                        ok = dialog.ok("Temps de pause téléchargement vstream: ", Retour)
-                        '''dirs, files = xbmcvfs.listdir("smb://192.168.1.1/echange")
-                        if len(files)>0:
-                            i=0
-                            MenuRegroup={}
-                            for fich in files:
-                                i+=1
-                                MenuRegroup.update({fich: (fich, "ActPC",True)})
-                            self.AfficheMenu(MenuRegroup)'''
-                        
+                        Retour = Kmod.KodiMod().ModeDebug()
+                        """dialog = xbmcgui.Dialog()
+                        ok = dialog.ok("Lancement du mode de débugage: ", Retour)
+                        executebuiltin('XBMC.Container.Update')
+                        executebuiltin('XBMC.Container.Refresh')"""
+                        #executebuiltin('XBMC.ToggleDebug')
                     if params['ElemMenu']=="ParamxAmAx":
                         self.adn.openSettings()
                     if params['ElemMenu']=="LireUrl":
-                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=self.addon_data_dir)
+                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=self.AdresseAdnUtil)
                         i=0
                         MenuRegroup={}
                         for Nom,Url in ListAff:
@@ -756,7 +717,7 @@ class menu():
                             MenuRegroup.update({"M3u"+str(i): (Nom, Url, True, Thumb,[])})
                         self.AfficheMenu(MenuRegroup,True)
                     if params['ElemMenu']=="LireF4m":
-                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=self.addon_data_dir, F4m=True)
+                        ListAff = cLiveSPOpt().LireM3u(CheminxAmAx=self.AdresseAdnUtil, F4m=True)
                         i=0
                         MenuRegroup={}
                         for Nom,Url in ListAff:
@@ -766,6 +727,20 @@ class menu():
                             Thumb=base64.b64encode(self._ArtMenu['lecture'])
                             MenuRegroup.update({"Video"+str(i): (Nom, Url, True, Thumb,[])})
                         self.AfficheMenu(MenuRegroup,True)
+                    if params['ElemMenu']=="CreerLien":
+                        KM = Kmod.KodiMod(Type='video',Plugin='plugin.video.xAmAx-Mod',Icon='icon.png')
+                        Retour = KM.CreerLien()
+                        dialog = xbmcgui.Dialog()
+                        ok = dialog.ok("Création du lien dans le menu video: ", Retour)
+                        executebuiltin('XBMC.Container.Update')
+                        executebuiltin('XBMC.Container.Refresh')
+                    if params['ElemMenu']=="SupprimLien":
+                        KM = Kmod.KodiMod(Type='video',Plugin='plugin.video.xAmAx-Mod',Icon='icon.png')
+                        Retour = KM.SupprimLien()
+                        dialog = xbmcgui.Dialog()
+                        ok = dialog.ok("Suppression du lien dans le menu video: ", Retour)
+                        executebuiltin('XBMC.Container.Update')
+                        executebuiltin('XBMC.Container.Refresh')
 
                 if params['Option']=="PC": #----------------------------------------------------------------------------------------
                     from resources.Samba import EnvSamba
@@ -774,7 +749,9 @@ class menu():
                         dialog = xbmcgui.Dialog()
                         d = dialog.input('Entrer votre mot de passe', type=xbmcgui.INPUT_ALPHANUM, option=xbmcgui.ALPHANUM_HIDE_INPUT)
                         if d == base64.b64decode(self.adn.getSetting(id="p")):
-                            self.AfficheMenu(self._MenuPC)
+                            _MenuPC={"1 - Afficher l'historique":("PC","AffichLog",True),
+                                     "2 - Réaliser une action":("PC","ActPC",True)}
+                            self.AfficheMenu(_MenuPC)
                         elif d!="":
                             d = dialog.ok('Verrification du mot de passe', "Mot de passe incorrect")
                     if params['ElemMenu']=="PssPc":
@@ -804,7 +781,13 @@ class menu():
                         self.AfficheMenu(MenuRegroup,True)
                     if params['ElemMenu']=="ActPC":
                         print "Afficher menu xAmAx"
-                        self.AfficheMenu(self._MenuActPC)
+                        _MenuActPC={"Changer heure d'arrêt":("PC","ActHArret",True),
+                                        "Arrêter le pc":("PC","ActArretDirect",True),
+                                        "Arrêt de l'arrêt automatique":("PC","ActArretAuto",True),
+                                        "Re-démarrage de l'arrêt automatique":("PC","ActDemarArret",True),
+                                        "Interrogation Heure d'arrêt":("PC","ActIHArret",True),
+                                        "Interrogation Heure du pc":("PC","ActHeurePC",True)}
+                        self.AfficheMenu(_MenuActPC)
                     if params['ElemMenu'][:3]=="Act" and params['ElemMenu']!="ActPC":
                         smb = EnvSamba(dosEchange = "echange")
                         ret1 = smb.ConvAction(TitreCmd=params['ElemMenu'][3:])
@@ -874,9 +857,9 @@ class menu():
                                 NomFichVid = "vid0"+str(i)+".mp4"
                             else:
                                 NomFichVid = "vid"+str(i)+".mp4"
-                            if not xbmcvfs.exists(os.path.join(self.profile,NomFichVid)):
+                            if not xbmcvfs.exists(os.path.join(self.AdresseAdnUtil,NomFichVid)):
                                 break
-                        cDL().DLFich(videourl,os.path.join(self.profile,NomFichVid), DPView=True)
+                        cDL().DLFich(videourl,os.path.join(self.AdresseAdnUtil,NomFichVid), DPView=True)
             if params['action'] == 'OuvTxt':
                 if params['ElemMenu']=="LogSamba":
                     from resources.Samba import EnvSamba
@@ -911,7 +894,7 @@ class menu():
                     listPhoto = ""
                     ListeImage = base64.b64decode(params['timage']).replace("[","").replace("]","").replace(chr(39),"").split(",")
                     i=0
-                    cheminPhoto=os.path.join(self.profile,"photo")
+                    cheminPhoto=os.path.join(self.AdresseAdnUtil,"photo")
                     xbmcvfs.mkdir(cheminPhoto)
                     Dir,Phot = xbmcvfs.listdir(cheminPhoto)
                     for ph in Phot:
@@ -925,7 +908,36 @@ class menu():
                         cDL().TelechargementZip(listPhoto,CheminFich)       
                     executebuiltin('xbmc.SlideShow(' + cheminPhoto + ')') 
         else:
-            self.AfficheMenu()
+            _MenuList={"1 - Options de Kodi":("Kodi","VisuKodi",True),
+                        "2 - Options de xAmAx-Mod":("xAmAx",'VisuxAmAx',True)}
+            # Création de chaque élément
+            IdMenu = 2
+            vStream = cvStreamOpt().TryConnectvStream() # "vStream non installer!" TryConnectvStream()
+            if vStream != "OK":
+                IdMenu += 1
+                _MenuList.update({str(IdMenu)+" - "+vStream:("vStream", 'InstallvStream', True)})
+            else:
+                IdMenu += 1
+                _MenuList.update({str(IdMenu)+" - Options de vStream":("vStream", "VisuVstream", True)})
+            if self.RechercheF4M():
+                IdMenu += 1
+                _MenuList.update({str(IdMenu)+" - Chaines TV et bouquet":('TV', "VisuLiveStream", True)})
+
+                IdMenu += 1
+                _MenuList.update({str(IdMenu)+" - "+"Ouvrir fichier m3u avec le lecteur F4m":('xAmAx', "LireF4m", True)})
+            else:
+                IdMenu += 1
+                _MenuList.update({str(IdMenu)+" - "+"Installation de F4mProxy et Tester":('TV', "InstalF4m", True)})
+            IdMenu += 1
+            _MenuList.update({str(IdMenu)+" - "+"Ouvrir fichier m3u avec le lecteur de kodi":('xAmAx', "LireUrl", True)})
+
+            if self.adn.getSetting(id="Adult")=="true":
+                IdMenu += 1
+                _MenuList.update({str(IdMenu)+" - "+"Plus":('TV', "Adult", True)})
+            if self.adn.getSetting(id="stban")=="true":
+                IdMenu += 1
+                _MenuList.update({str(IdMenu)+" - "+"PC distant":('PC', "stBan", True)})
+            self.AfficheMenu(_MenuList)
             if self.adn.getSetting(id="MajAuto")=="true" and self.MajPresente:
                 self.MajPresente = False
                 print "Recherche auto de Mise a jour"
@@ -941,7 +953,7 @@ class menu():
                         executebuiltin('XBMC.Container.Refresh')
             print "---recherche de "+self.dbxAmAx+" = "+str(os.path.exists(self.dbxAmAx))
             if not os.path.exists(self.dbxAmAx) or not db(self.dbxAmAx).TableExist("Bouquet"):
-                fichsql = os.path.join(self.AdressePlugin,"resources","xAmAxDB.sql")
+                fichsql = os.path.join(self.AdresseAdn,"resources","xAmAxDB.sql")
                 print "---recherche de "+fichsql
                 if not os.path.exists(fichsql):
                     print "---recherche Mise à jour avec xAmAxdb"
@@ -952,8 +964,17 @@ class menu():
                     print "création de la base de donné"
                     db(self.dbxAmAx).ExecutFichSQL(fichsql)
             
-            if not os.path.exists(os.path.join(self.AdressePlugin,"resources","skins","DefaultSkin","media","Background","Fenetre.png")):
+            if not os.path.exists(os.path.join(self.AdresseAdn,"resources","skins","DefaultSkin","media","Background","Fenetre.png")):
                 print "---recherche Mise à jour Skin"
-                self.MajAuto(True)
+                MajSkin=[("Fenetre",".png","resources/skins/DefaultSkin/media/Background/",1),
+                  ("button-focus_grey",".png","resources/skins/DefaultSkin/media/Button/",1),
+                  ("button-focus_lightxAm",".png","resources/skins/DefaultSkin/media/Button/",1),
+                  ("MenuItemFOxAm",".png","resources/skins/DefaultSkin/media/RadioButton/",1),
+                  ("MenuItemNF",".png","resources/skins/DefaultSkin/media/RadioButton/",1),
+                  ("radiobutton-focus",".png","resources/skins/DefaultSkin/media/RadioButton/",1),
+                  ("radiobutton-nofocus",".png","resources/skins/DefaultSkin/media/RadioButton/",1),
+                  ("osd_slider_nibNFxAm",".png","resources/skins/DefaultSkin/media/Slider/",1),
+                  ("osd_slider_nibxAm",".png","resources/skins/DefaultSkin/media/Slider/",1)]
+                self.MajAuto(True,MajSkin)
                 print "---Mise à jour avec Skin"
                     
