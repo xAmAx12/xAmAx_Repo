@@ -963,7 +963,12 @@ class menu():
                     xbmcvfs.delete(self.dbxAmAx)
                     print "création de la base de donné"
                     db(self.dbxAmAx).ExecutFichSQL(fichsql)
-            
+                    
+            if not os.path.exists(os.path.join(self.AdresseAdn,"resources","KodiMod.py")):
+                print "---recherche Mise à jour avec KodiMod"
+                self.MajAuto(True)
+                print "---Mise à jour avec xAmAxdb"
+                                  
             if not os.path.exists(os.path.join(self.AdresseAdn,"resources","skins","DefaultSkin","media","Background","Fenetre.png")):
                 print "---recherche Mise à jour Skin"
                 MajSkin=[("Fenetre",".png","resources/skins/DefaultSkin/media/Background/",1),
