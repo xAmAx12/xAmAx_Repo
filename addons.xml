@@ -2,7 +2,7 @@
 <addons>
     <addon id="plugin.video.xAmAx-Mod"
 		   name="xAmAx-Mod"
-		   version="2.2.0" 
+		   version="2.3.0" 
 		   provider-name="xAmAx">
 	  <requires>
 	  	<import addon="xbmc.python" version="2.14.0"/>
