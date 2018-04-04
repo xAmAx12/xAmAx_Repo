@@ -180,19 +180,19 @@ class cLiveSPOpt():
                                     TabChaines = re.compile(r".+?"+chr(34)+"(.+?)"+chr(34)+".+?<img src='(.+?)'.+? title='(.+?)'").findall(Retour3[i])
                                     print str(len(TabChaines[0]))
                                     if len(TabChaines[0])>2:
-                                        #try:
-                                        NomTV=self.ConvNom(TabChaines[0][2])
-                                        if ".m3u8" in TabChaines[0][0]:
-                                            StreamType = "HLSRETRY"
-                                        else:
-                                            StreamType = "TSDOWNLOADER"
-                                        UrlTV='plugin://plugin.video.f4mTester/?url=%s&streamtype=%s&name=%s'%(urlib.quote_plus(b64decode(urlBase)+str(TabChaines[0][0])),StreamType,NomTV) #.replace(".m3u8",".ts")
-                                        IdLP += 1
-                                        DBxAmAx.Insert(Table="List"+str(NbRecherche),
-                                                       Colonnes="IDLP,Nom,Url",
-                                                       Valeurs=(IdLP,NomTV+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
-                                        #except:
-                                        #    pass
+                                        try:
+                                            NomTV=self.ConvNom(TabChaines[0][2])
+                                            if ".m3u8" in TabChaines[0][0]:
+                                                StreamType = "HLSRETRY"
+                                            else:
+                                                StreamType = "TSDOWNLOADER"
+                                            UrlTV='plugin://plugin.video.f4mTester/?url=%s&streamtype=%s&name=%s'%(urlib.quote_plus(b64decode(urlBase)+str(TabChaines[0][0])),StreamType,NomTV) #.replace(".m3u8",".ts")
+                                            IdLP += 1
+                                            DBxAmAx.Insert(Table="List"+str(NbRecherche),
+                                                           Colonnes="IDLP,Nom,Url",
+                                                           Valeurs=(IdLP,NomTV+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
+                                        except:
+                                            pass
                             else:
                                 executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")
                     self.TotMaj += DivisionRech
