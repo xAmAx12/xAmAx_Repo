@@ -29,6 +29,10 @@ try:
     import resources.KodiMod as Kmod
 except:
     Kmod = None
+try:
+    import resources.TestDebit as Debi
+except:
+    Debi = None
 
 class menu():
 
@@ -595,6 +599,9 @@ class menu():
                         if Conf:
                             IdMenu = 1
                             MenuKodi.update({str(IdMenu)+" - Configuration Connexion Kodi":("Kodi","Config",True)})
+                        if Debi != None:
+                            IdMenu += 1
+                            MenuKodi.update({str(IdMenu)+" - Test de votre connexion internet avec speedtest.net":("Kodi","TestDebit",False)})
                         if Kmod != None:
                             IdMenu += 1
                             MenuKodi.update({str(IdMenu)+" - Activer/Désactiver le mode débugage! (plus d'info dans le journal d'erreur)": ("Kodi","Debug",False)})
@@ -647,6 +654,11 @@ class menu():
 
                     if params['ElemMenu']=="Debug":
                         Kmod.KodiMod().ModeDebug()
+
+                    if params['ElemMenu']=="TestDebit":
+                        Resultat = Debi.TestVitesseDeb().Demare()
+                        dialog = xbmcgui.Dialog()
+                        dialog = dialog.ok("Résultat du test de débit de votre connexion:",Resultat)
                 
                 if params['Option']=="xAmAx": #----------------------------------------------------------------------------------------
                     if params['ElemMenu']=="VisuxAmAx":
@@ -804,9 +816,9 @@ class menu():
                         
             if params['action'] == 'Play':
                 if params['ElemMenu']=="LireVideo":
+                    print "----- xAmAx-Mod ----- lecture de " + params['Url']
                     finalUrl=base64.b64decode(params['Url'])
                     NomVideo=base64.b64decode(params["NomLu"])
-                    print "Lecture de: "+finalUrl
                     if finalUrl.startswith("plugin://"):
                         executebuiltin('XBMC.RunPlugin('+urlib.unquote(finalUrl)+')')
                     else:
