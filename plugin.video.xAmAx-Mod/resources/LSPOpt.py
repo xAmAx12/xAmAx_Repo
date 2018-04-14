@@ -162,7 +162,28 @@ class cLiveSPOpt():
                         elif Erreur2!="OK":
                             executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,"")")
                     else:
-                        #urlBase = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3hBbUF4MTIveEFtQXhfUmVwby9tYXN0ZXIvcGx1Z2luLnZpZGVvLnhBbUF4LU1vZC9yZXNvdXJjZXMvaXB0di9saXN0ZS5tM3U="
+                        urlBase = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3hBbUF4MTIveEFtQXhfUmVwby9tYXN0ZXIvcGx1Z2luLnZpZGVvLnhBbUF4LU1vZC9yZXNvdXJjZXMvaXB0di9saXN0ZS5tM3U="
+                        Url=b64decode(urlBase)
+                        ret = cDL().TelechargPage(url=b64decode(urlBase))
+                        if ret.startswith("Erreur"):
+                            print ret
+                        else:
+                            Retour3 = self.TabM3u(ret, True, True)
+                            print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
+                            if len(Retour3)>0:
+                                try:
+                                    DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                                except:
+                                    pass
+                                DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
+                                for NomTv,UrlTV in Retour3:
+                                    IdLP += 1
+                                    DBxAmAx.Insert(Table="List"+str(NbRecherche),
+                                                   Colonnes="IDLP,Nom,Url",
+                                                   Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
+                            else:
+                                executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")
+                        """#urlBase = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3hBbUF4MTIveEFtQXhfUmVwby9tYXN0ZXIvcGx1Z2luLnZpZGVvLnhBbUF4LU1vZC9yZXNvdXJjZXMvaXB0di9saXN0ZS5tM3U="
                         urlBase = "aHR0cHM6Ly9vcHVzLnJlLw=="
                         ret = cDL().TelechargPage(url=b64decode(urlBase)+'iptv-francais-tv-chaines')
                         if ret.startswith("Erreur"):
@@ -194,7 +215,7 @@ class cLiveSPOpt():
                                         except:
                                             pass
                             else:
-                                executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")
+                                executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")"""
                     self.TotMaj += DivisionRech
                     self.dp.update(self.TotMaj)
                     sleep(0.3)
@@ -214,9 +235,12 @@ class cLiveSPOpt():
         for Par, Nom , Url in TabM3u :
             if cvNom==True:
                 Nom = self.ConvNom(Nom)
-            Url=Url.split("|")[0].replace(".m3u8",".ts").replace("\r", "")
+            Url=Url.split("|")[0].replace("\r", "")
             if F4m==True:
-                Url='plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER'%(urlib.quote_plus(Url))
+                if ".ts" in Url:
+                    Url='plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),Nom)
+                else:
+                    Url='plugin://plugin.video.f4mTester/?url=%s&streamtype=HLSRETRY&name=%s'%(urlib.quote_plus(Url),Nom)
             DicM3u = (Nom,Url)
             ret.append(DicM3u)
         return ret

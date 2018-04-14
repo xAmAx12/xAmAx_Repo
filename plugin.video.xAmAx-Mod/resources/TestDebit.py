@@ -273,7 +273,7 @@ class TestVitesseDeb():
 
     def __init__(self): #, Dialog
         self.dp = DialogProgress()
-        self.dp.create("Test du bébit de votre connexion:")
+        self.dp.create("Test du débit de votre connexion:")
         time.sleep(1)
         #self.dp = Dialog
 
