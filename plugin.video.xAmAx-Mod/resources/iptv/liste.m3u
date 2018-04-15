@@ -1,16 +1,45 @@
 ﻿#EXTM3U
+#EXTINF:-1,(FR) BEINSPORT HD 1
+http://dagitim.mine.nu:8000/live/Spor-proox-HD/J7zAtp5YyG/113.ts
+#EXTINF:-1,(FR) BEINSPORT HD 2
+http://dagitim.mine.nu:8000/live/Spor-proox-HD/J7zAtp5YyG/114.ts
+#EXTINF:-1,(FR) BEINSPORT HD 3
+http://dagitim.mine.nu:8000/live/Spor-proox-HD/J7zAtp5YyG/115.ts
 
-#EXTINF:-1,FR: BEIN SPORTS 1 HD
-http://iptv.satplex.co.uk:1888/live/kelly/kelly/199.ts
-#EXTINF:-1,FR: BEIN SPORTS 2 HD
-http://iptv.satplex.co.uk:1888/live/kelly/kelly/200.ts
-#EXTINF:-1,FR: BEIN SPORTS 3 HD
-http://iptv.satplex.co.uk:1888/live/kelly/kelly/201.ts
-#EXTINF:-1,FR: BEIN SPORTS MAX 4 HD
-http://iptv.satplex.co.uk:1888/live/kelly/kelly/202.ts
-#EXTINF:-1,FR: BEIN SPORTS MAX 5 HD
-http://iptv.satplex.co.uk:1888/live/kelly/kelly/203.ts
-
+#EXTINF:-1,(FR) BEINSPORT HD 1
+http://stars.spdns.org:8080/live/teststar7/star7/4928.ts
+#EXTINF:-1,OCS_CHOC_HD
+http://stars.spdns.org:8080/live/teststar7/star7/5321.ts
+#EXTINF:-1,6TER
+http://stars.spdns.org:8080/live/teststar7/star7/5293.ts
+#EXTINF:-1,NAT_GEO_WILD_HD
+http://stars.spdns.org:8080/live/teststar7/star7/5327.ts
+#EXTINF:-1,RMC DECOUVERTE
+http://stars.spdns.org:8080/live/teststar7/star7/5334.ts
+#EXTINF:-1,USHUAIA
+http://stars.spdns.org:8080/live/teststar7/star7/5333.ts
+#EXTINF:-1,DISCOVERY-SCIENCE HD
+http://stars.spdns.org:8080/live/teststar7/star7/5330.ts
+#EXTINF:-1,NATIONAL_GEOGRAPHIC_ HD
+http://stars.spdns.org:8080/live/teststar7/star7/5328.ts
+#EXTINF:-1,Piwi
+http://stars.spdns.org:8080/live/teststar7/star7/4897.ts
+#EXTINF:-1,NRJ 12
+http://stars.spdns.org:8080/live/teststar7/star7/4898.ts
+#EXTINF:-1,Nickelodeon
+http://stars.spdns.org:8080/live/teststar7/star7/4914.ts
+#EXTINF:-1,tiji
+http://stars.spdns.org:8080/live/teststar7/star7/4913.ts
+#EXTINF:-1,Mangas
+http://stars.spdns.org:8080/live/teststar7/star7/4915.ts
+#EXTINF:-1,Gulli
+http://stars.spdns.org:8080/live/teststar7/star7/4907.ts
+#EXTINF:-1,C8
+http://stars.spdns.org:8080/live/teststar7/star7/4911.ts
+#EXTINF:-1,Boomerang
+http://stars.spdns.org:8080/live/teststar7/star7/4916.ts
+#EXTINF:-1,zouzou
+http://stars.spdns.org:8080/live/teststar7/star7/4893.ts
 #EXTINF:-1,TF1
 http://stars.spdns.org:8080/live/teststar7/star7/1.ts
 #EXTINF:-1,FR2
@@ -25,36 +54,19 @@ http://stars.spdns.org:8080/live/teststar7/star7/5264.ts
 http://stars.spdns.org:8080/live/teststar7/star7/3.ts
 #EXTINF:-1,W9
 http://stars.spdns.org:8080/live/teststar7/star7/35.ts
-#EXTINF:-1,C8
-http://stars.spdns.org:8080/live/teststar7/star7/4911.ts
-#EXTINF:-1,zouzou
-http://stars.spdns.org:8080/live/teststar7/star7/4893.ts
-#EXTINF:-1,tiji
-http://stars.spdns.org:8080/live/teststar7/star7/4913.ts
-#EXTINF:-1,Piwi
-http://stars.spdns.org:8080/live/teststar7/star7/4897.ts
-#EXTINF:-1,NRJ 12
-http://stars.spdns.org:8080/live/teststar7/star7/4898.ts
-#EXTINF:-1,Nickelodeon
-http://stars.spdns.org:8080/live/teststar7/star7/4914.ts
-#EXTINF:-1,Mangas
-http://stars.spdns.org:8080/live/teststar7/star7/4915.ts
-#EXTINF:-1,Gulli
-http://stars.spdns.org:8080/live/teststar7/star7/4907.ts
-#EXTINF:-1,Boomerang
-http://stars.spdns.org:8080/live/teststar7/star7/4916.ts
-#EXTINF:-1,Boing
-http://stars.spdns.org:8080/live/teststar7/star7/4917.ts
 #EXTINF:-1,BFM TV
 http://stars.spdns.org:8080/live/teststar7/star7/46.ts
-#EXTINF:-1,FR: CANAL  CINEMA HD
-http://stars.spdns.org:8080/live/teststar7/star7/5069.ts
-#EXTINF:-1,FR: beiN Sport 3 HD
-http://stars.spdns.org:8080/live/teststar7/star7/5072.ts
-#EXTINF:-1,FR: beiN Sport 2 HD
-http://stars.spdns.org:8080/live/teststar7/star7/5071.ts
-#EXTINF:-1,FR: beiN Sport 1 HD
-http://stars.spdns.org:8080/live/teststar7/star7/5070.ts
+
+#EXTINF:-1,FR: BEIN SPORTS 1 HD
+http://iptv.satplex.co.uk:1888/live/adam/adam/199.ts
+#EXTINF:-1,FR: BEIN SPORTS 2 HD
+http://iptv.satplex.co.uk:1888/live/adam/adam/200.ts
+#EXTINF:-1,FR: BEIN SPORTS 3 HD
+http://iptv.satplex.co.uk:1888/live/adam/adam/201.ts
+#EXTINF:-1,FR: BEIN SPORTS MAX 4 HD
+http://iptv.satplex.co.uk:1888/live/adam/adam/202.ts
+#EXTINF:-1,FR: BEIN SPORTS MAX 5 HD
+http://iptv.satplex.co.uk:1888/live/adam/adam/203.ts
 
 #EXTINF:-1,TF1-HD
 http://5.189.190.163:8000/live/raffaele/raffaele/95.ts
@@ -235,6 +247,25 @@ http://5.189.190.163:8000/live/raffaele/raffaele/56.ts
 #EXTINF:-1,FR : PARIS PREMIERE
 http://5.189.190.163:8000/live/raffaele/raffaele/571.ts
 
+#EXTINF:-1,FR: TF1 
+http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/130.ts
+#EXTINF:-1,FR: France 2 
+http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/141.ts
+#EXTINF:-1,FR: France 3 
+http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/140.ts
+#EXTINF:-1,FR: France 4 
+http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/139.ts
+#EXTINF:-1,FR: M6
+http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/129.ts
+#EXTINF:-1,FR: C8 
+http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/142.ts
+#EXTINF:-1,FR: Bein sport 1 HD 
+http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/122.ts
+#EXTINF:-1,FR: Bein sport 2 HD 
+http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/123.ts
+#EXTINF:-1,FR: Bein sport 3 HD 
+http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/124.ts
+
 #EXTINF:-1,France 4
 http://144.217.253.140/France4/mpegts
 #EXTINF:-1,France 3
@@ -342,92 +373,14 @@ http://185.238.6.20:9981/stream/channelid/1167017584?ticket=E6BFE98D92B0019BEBCB
 http://185.238.6.20:9981/stream/channelid/1396523301?ticket=4783F7BBCF01D76BCDA833CE6882DB71B6335216&profile=pass
 #EXTINF:-1 tvg-id="e53ee0f87bd916956face717f013e57f",France 5
 http://185.238.6.20:9981/stream/channelid/2027962085?ticket=9195160FEB2BD88EEC12934216743EC57E029BFF&profile=pass
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/294.ts
 
-#EXTINF:-1,FR:BEIN SPORT MAX4
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/1023.ts
-
-#EXTINF:-1,FR:BEIN SPORT MAX5
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/1024.ts
-
-#EXTINF:-1,FR:BEIN SPORT MAX6
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/1025.ts
-
-#EXTINF:-1,FR:BEIN SPORT MAX7
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/1026.ts
-
-#EXTINF:-1,FR:BEIN SPORT MAX8
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/1027.ts
-
-#EXTINF:-1,FR:BEIN SPORT MAX9
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/1028.ts
-
-#EXTINF:-1,FR:BEIN SPORT MAX10
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/1029.ts
-
-#EXTINF:-1,FR:ARTE
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/291.ts
-
-#EXTINF:-1,FR:ANIMAUX
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/295.ts
-
-#EXTINF:-1,FR:AB MOTEURS
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/296.ts
-
-#EXTINF:-1,FR:DISCOVERY HD
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/730.ts
-
-#EXTINF:-1,FR:NAT GEO
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/727.ts
-
-#EXTINF:-1,FR:CANAL+ HD
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/723.ts
-
-#EXTINF:-1,FR:CANAL CINEMA HD
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/724.ts
-
-#EXTINF:-1,FR:CANAL DECALE HD
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/725.ts
-
-#EXTINF:-1,FR:CANAL&nbsp; FAMILY
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/726.ts
-
-#EXTINF:-1,FR:CANAL+ SERIES
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/761.ts
-
-#EXTINF:-1,FR:OCS MAX HD
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/766.ts
-
-#EXTINF:-1,FR:DISNEY CINEMA
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/767.ts
-
-#EXTINF:-1,FR:CINE+FRISSON
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/728.ts
-
-#EXTINF:-1,FR:CINE+ PREMIER
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/729.ts
-
-#EXTINF:-1,FR:CINE FAMIZ
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/764.ts
-
-#EXTINF:-1,FR:CINE EMOTION HD
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/765.ts
-
-#EXTINF:-1,FR:CANAL+ SPORT HD
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/760.ts
-
-#EXTINF:-1,FR:CANAL+ DECALE HD
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/762.ts
-
-#EXTINF:-1,FR:GULLI
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/299.ts
-
-#EXTINF:-1,FR:CANAL J
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/300.ts
-
-#EXTINF:-1,FR:DISNEY JUNIOR HD
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/1801.ts
-
-#EXTINF:-1,FR:PIWI+
-http://vizyon.pw:8000/live/yurekli877@gmail.com/8TZY29G4/1968.ts
-&nbsp;
+#EXTINF:-1,FR: BEIN SPORTS 1 HD
+http://iptv.satplex.co.uk:1888/live/kelly/kelly/199.ts
+#EXTINF:-1,FR: BEIN SPORTS 2 HD
+http://iptv.satplex.co.uk:1888/live/kelly/kelly/200.ts
+#EXTINF:-1,FR: BEIN SPORTS 3 HD
+http://iptv.satplex.co.uk:1888/live/kelly/kelly/201.ts
+#EXTINF:-1,FR: BEIN SPORTS MAX 4 HD
+http://iptv.satplex.co.uk:1888/live/kelly/kelly/202.ts
+#EXTINF:-1,FR: BEIN SPORTS MAX 5 HD
+http://iptv.satplex.co.uk:1888/live/kelly/kelly/203.ts
