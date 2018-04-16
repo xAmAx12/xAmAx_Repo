@@ -6,67 +6,40 @@ http://dagitim.mine.nu:8000/live/Spor-proox-HD/J7zAtp5YyG/114.ts
 #EXTINF:-1,(FR) BEINSPORT HD 3
 http://dagitim.mine.nu:8000/live/Spor-proox-HD/J7zAtp5YyG/115.ts
 
-#EXTINF:-1,(FR) BEINSPORT HD 1
-http://stars.spdns.org:8080/live/teststar7/star7/4928.ts
-#EXTINF:-1,OCS_CHOC_HD
-http://stars.spdns.org:8080/live/teststar7/star7/5321.ts
-#EXTINF:-1,6TER
-http://stars.spdns.org:8080/live/teststar7/star7/5293.ts
-#EXTINF:-1,NAT_GEO_WILD_HD
-http://stars.spdns.org:8080/live/teststar7/star7/5327.ts
-#EXTINF:-1,RMC DECOUVERTE
-http://stars.spdns.org:8080/live/teststar7/star7/5334.ts
-#EXTINF:-1,USHUAIA
-http://stars.spdns.org:8080/live/teststar7/star7/5333.ts
-#EXTINF:-1,DISCOVERY-SCIENCE HD
-http://stars.spdns.org:8080/live/teststar7/star7/5330.ts
-#EXTINF:-1,NATIONAL_GEOGRAPHIC_ HD
-http://stars.spdns.org:8080/live/teststar7/star7/5328.ts
 #EXTINF:-1,Piwi
 http://stars.spdns.org:8080/live/teststar7/star7/4897.ts
-#EXTINF:-1,NRJ 12
-http://stars.spdns.org:8080/live/teststar7/star7/4898.ts
 #EXTINF:-1,Nickelodeon
 http://stars.spdns.org:8080/live/teststar7/star7/4914.ts
 #EXTINF:-1,tiji
 http://stars.spdns.org:8080/live/teststar7/star7/4913.ts
 #EXTINF:-1,Mangas
 http://stars.spdns.org:8080/live/teststar7/star7/4915.ts
-#EXTINF:-1,Gulli
-http://stars.spdns.org:8080/live/teststar7/star7/4907.ts
 #EXTINF:-1,C8
 http://stars.spdns.org:8080/live/teststar7/star7/4911.ts
 #EXTINF:-1,Boomerang
 http://stars.spdns.org:8080/live/teststar7/star7/4916.ts
 #EXTINF:-1,zouzou
 http://stars.spdns.org:8080/live/teststar7/star7/4893.ts
-#EXTINF:-1,TF1
-http://stars.spdns.org:8080/live/teststar7/star7/1.ts
-#EXTINF:-1,FR2
-http://stars.spdns.org:8080/live/teststar7/star7/2.ts
-#EXTINF:-1,FR3
-http://stars.spdns.org:8080/live/teststar7/star7/37.ts
-#EXTINF:-1,FR4
-http://stars.spdns.org:8080/live/teststar7/star7/38.ts
-#EXTINF:-1,France5
-http://stars.spdns.org:8080/live/teststar7/star7/5264.ts
 #EXTINF:-1,M6
 http://stars.spdns.org:8080/live/teststar7/star7/3.ts
-#EXTINF:-1,W9
-http://stars.spdns.org:8080/live/teststar7/star7/35.ts
 #EXTINF:-1,BFM TV
 http://stars.spdns.org:8080/live/teststar7/star7/46.ts
-
-#EXTINF:-1,FR: BEIN SPORTS 1 HD
-http://iptv.satplex.co.uk:1888/live/adam/adam/199.ts
-#EXTINF:-1,FR: BEIN SPORTS 2 HD
-http://iptv.satplex.co.uk:1888/live/adam/adam/200.ts
-#EXTINF:-1,FR: BEIN SPORTS 3 HD
-http://iptv.satplex.co.uk:1888/live/adam/adam/201.ts
-#EXTINF:-1,FR: BEIN SPORTS MAX 4 HD
-http://iptv.satplex.co.uk:1888/live/adam/adam/202.ts
-#EXTINF:-1,FR: BEIN SPORTS MAX 5 HD
-http://iptv.satplex.co.uk:1888/live/adam/adam/203.ts
+#EXTINF:-1,TF1 HD
+http://stars.spdns.org:8080/live/teststar7/star7/5395.ts
+#EXTINF:-1,France 2 HD
+http://stars.spdns.org:8080/live/teststar7/star7/5394.ts
+#EXTINF:-1,France 3 HD
+http://stars.spdns.org:8080/live/teststar7/star7/5393.ts
+#EXTINF:-1,France 4 HD
+http://stars.spdns.org:8080/live/teststar7/star7/5392.ts
+#EXTINF:-1,France 5 HD
+http://stars.spdns.org:8080/live/teststar7/star7/5391.ts
+#EXTINF:-1,W9 HD
+http://stars.spdns.org:8080/live/teststar7/star7/5377.ts
+#EXTINF:-1,Gulli HD
+http://stars.spdns.org:8080/live/teststar7/star7/5374.ts
+#EXTINF:-1,NRJ12 HD
+http://stars.spdns.org:8080/live/teststar7/star7/5380.ts
 
 #EXTINF:-1,TF1-HD
 http://5.189.190.163:8000/live/raffaele/raffaele/95.ts
@@ -247,24 +220,109 @@ http://5.189.190.163:8000/live/raffaele/raffaele/56.ts
 #EXTINF:-1,FR : PARIS PREMIERE
 http://5.189.190.163:8000/live/raffaele/raffaele/571.ts
 
-#EXTINF:-1,FR: TF1 
-http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/130.ts
-#EXTINF:-1,FR: France 2 
-http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/141.ts
-#EXTINF:-1,FR: France 3 
-http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/140.ts
-#EXTINF:-1,FR: France 4 
-http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/139.ts
-#EXTINF:-1,FR: M6
-http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/129.ts
-#EXTINF:-1,FR: C8 
-http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/142.ts
-#EXTINF:-1,FR: Bein sport 1 HD 
-http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/122.ts
-#EXTINF:-1,FR: Bein sport 2 HD 
-http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/123.ts
-#EXTINF:-1,FR: Bein sport 3 HD 
-http://62.210.169.114:8080/live/1404-www.ipmagtv.com/cgcvqrKTRd/124.ts
+#EXTINF:-1,FR: BEIN SPORTS 1 HD
+http://178.33.237.97:8080/live/Mohamed/Mohamed/199.ts
+#EXTINF:-1,FR: BEIN SPORTS 2 HD
+http://178.33.237.97:8080/live/Mohamed/Mohamed/200.ts
+#EXTINF:-1,FR: BEIN SPORTS 3 HD
+http://178.33.237.97:8080/live/Mohamed/Mohamed/201.ts
+#EXTINF:-1,FR: BEIN SPORTS MAX 4 HD
+http://178.33.237.97:8080/live/Mohamed/Mohamed/202.ts
+#EXTINF:-1,FR: BEIN SPORTS MAX 5 HD
+http://178.33.237.97:8080/live/Mohamed/Mohamed/203.ts
+
+#EXTINF:-1,FR: BEIN SPORTS FR 1 HD
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/271.ts
+#EXTINF:-1,FR: BEIN SPORTS FR 2 HD
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/270.ts
+#EXTINF:-1,FR: BEIN SPORTS FR 3 HD
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/269.ts
+#EXTINF:-1,FR: SFR SPORT 1 HD
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/488.ts
+#EXTINF:-1,FR: SFR SPORT 2 HD
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/487.ts
+#EXTINF:-1,FR: SFR SPORT 3 HD
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/486.ts
+#EXTINF:-1,France-13emeRue
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/794.ts
+#EXTINF:-1,France-2
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/806.ts
+#EXTINF:-1,France-23-Local
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/779.ts
+#EXTINF:-1,France-3
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/805.ts
+#EXTINF:-1,France-4
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/804.ts
+#EXTINF:-1,France-5
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/803.ts
+#EXTINF:-1,France-AB1
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/795.ts
+#EXTINF:-1,France-Animaux
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/787.ts
+#EXTINF:-1,France-ARTE-local
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/775.ts
+#EXTINF:-1,France-BFM
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/785.ts
+#EXTINF:-1,France-C-news-local
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/810.ts
+#EXTINF:-1,France-C8-Local
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/800.ts
+#EXTINF:-1,France-Canal Cinema
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/783.ts
+#EXTINF:-1,France-Canal Sport
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/814.ts
+#EXTINF:-1,France-Canal-j-HD
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/773.ts
+#EXTINF:-1,France-CANAL-Series
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/784.ts
+#EXTINF:-1,France-Cartoon-Network
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/780.ts
+#EXTINF:-1,France-Cine-FX
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/766.ts
+#EXTINF:-1,France-cine-premier
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/781.ts
+#EXTINF:-1,France-CINEFRISSON
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/782.ts
+#EXTINF:-1,France-Comedie
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/797.ts
+#EXTINF:-1,France-Discovery
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/786.ts
+#EXTINF:-1,France-Discovery-SCIENCE
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/791.ts
+#EXTINF:-1,France-Disney
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/771.ts
+#EXTINF:-1,France-france-24
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/764.ts
+#EXTINF:-1,France-Histoire
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/788.ts
+#EXTINF:-1,France-M6-HD
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/808.ts
+#EXTINF:-1,France-MDL
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/769.ts
+#EXTINF:-1,France-National-Geographic-Wild
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/793.ts
+#EXTINF:-1,France-Nt1
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/802.ts
+#EXTINF:-1,France-o
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/778.ts
+#EXTINF:-1,France-paramount
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/767.ts
+#EXTINF:-1,France-Planete
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/790.ts
+#EXTINF:-1,France-PLANETE-CI-HD
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/792.ts
+#EXTINF:-1,France-RTL9
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/798.ts
+#EXTINF:-1,France-TCM-CINEMA
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/765.ts
+#EXTINF:-1,France-TF1
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/809.ts
+#EXTINF:-1,France-TMC
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/799.ts
+#EXTINF:-1,France-Ushuaia
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/789.ts
+#EXTINF:-1,France-W9
+http://arabapps.live:8000/live/mobachiirrrrrr/a6A4m4svls/801.ts
 
 #EXTINF:-1,France 4
 http://144.217.253.140/France4/mpegts
@@ -373,14 +431,3 @@ http://185.238.6.20:9981/stream/channelid/1167017584?ticket=E6BFE98D92B0019BEBCB
 http://185.238.6.20:9981/stream/channelid/1396523301?ticket=4783F7BBCF01D76BCDA833CE6882DB71B6335216&profile=pass
 #EXTINF:-1 tvg-id="e53ee0f87bd916956face717f013e57f",France 5
 http://185.238.6.20:9981/stream/channelid/2027962085?ticket=9195160FEB2BD88EEC12934216743EC57E029BFF&profile=pass
-
-#EXTINF:-1,FR: BEIN SPORTS 1 HD
-http://iptv.satplex.co.uk:1888/live/kelly/kelly/199.ts
-#EXTINF:-1,FR: BEIN SPORTS 2 HD
-http://iptv.satplex.co.uk:1888/live/kelly/kelly/200.ts
-#EXTINF:-1,FR: BEIN SPORTS 3 HD
-http://iptv.satplex.co.uk:1888/live/kelly/kelly/201.ts
-#EXTINF:-1,FR: BEIN SPORTS MAX 4 HD
-http://iptv.satplex.co.uk:1888/live/kelly/kelly/202.ts
-#EXTINF:-1,FR: BEIN SPORTS MAX 5 HD
-http://iptv.satplex.co.uk:1888/live/kelly/kelly/203.ts
