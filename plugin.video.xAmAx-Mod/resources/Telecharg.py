@@ -58,13 +58,16 @@ class cDL():
                    'Accept-Language': 'en-US,en;q=0.8',
                    'Connection': 'keep-alive'}
 
-    def TelechargPage2(self,url):
-        import requests
-        headers = {}
-        headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
-        link = requests.session().get(url, headers=headers, verify=False).text
-        link = link.encode('utf-8', 'ignore')
-        return link
+    def TelechargPage2(self,url="", Entete=None, Post={}):
+        try:
+            import requests
+            headers = {}
+            headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
+            link = requests.session().get(url, headers=headers, verify=False).text
+            link = link.encode('utf-8', 'ignore')
+            return link
+        except:
+            return self.TelechargPage(url=url, Entete=Entete, Post=Post)
 
     def TelechargPage(self, url="", Entete=None, Post={}):
 
