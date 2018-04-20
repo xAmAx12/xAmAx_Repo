@@ -7,9 +7,36 @@
 import sys,os
 import urllib2 as urllib
 import urllib as urlib
+from urllib import FancyURLopener
 from httplib import HTTPSConnection
 import xbmcgui
 from xbmcaddon import Addon
+import time
+
+class MonTelecharg(FancyURLopener):
+    version = 'xAmAx-Mod'
+
+MonDL = MonTelecharg()
+urlretrieve = MonTelecharg().retrieve
+urlopen = MonTelecharg().open
+
+def _pbhook(numblocks, blocksize, filesize, dp, start_time):
+    try: 
+        percent = min(numblocks * blocksize * 100 / filesize, 100) 
+        currently_downloaded = float(numblocks) * blocksize / (1024 * 1024) 
+        kbps_speed = numblocks * blocksize / (time.time() - start_time) 
+        if kbps_speed > 0: 
+            eta = (filesize - numblocks * blocksize) / kbps_speed 
+        else: 
+            eta = 0 
+        kbps_speed = kbps_speed / 1024 
+        mbps_speed = kbps_speed / 1024 
+        total = float(filesize) / (1024 * 1024) 
+        mbs = '[COLOR white]%.02f MB[/COLOR] sur %.02f MB' % (currently_downloaded, total)
+        e = 'Vitesse: [COLOR lime]%.02f Mb/s ' % mbps_speed  + '[/COLOR]'
+        e += 'ETA: [COLOR yellow]%02d:%02d' % divmod(eta, 60) + '[/COLOR]'
+    except: 
+        percent = 100 
 
 class cDL():
 
@@ -30,6 +57,14 @@ class cDL():
                    'Accept-Encoding': 'none',
                    'Accept-Language': 'en-US,en;q=0.8',
                    'Connection': 'keep-alive'}
+
+    def TelechargPage2(self,url):
+        import requests
+        headers = {}
+        headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
+        link = requests.session().get(url, headers=headers, verify=False).text
+        link = link.encode('utf-8', 'ignore')
+        return link
 
     def TelechargPage(self, url="", Entete=None, Post={}):
 
@@ -76,7 +111,8 @@ class cDL():
             dp = xbmcgui.DialogProgress()
             dp.create("Telechargement "+Nom+":","Fichier en téléchargement",url)
         try:
-            urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
+            Demar=time.time()
+            urlretrieve(url,dest,lambda nb, bs, fs: _pbhook(nb,bs,fs,dp,Demar))
         except:
             print "Téléchargement de: " + url
             print "Téléchargement dans le dossier: " + dest
@@ -91,13 +127,15 @@ class cDL():
             if statinfo.st_size > 0:
                 return True
         return False
+    
 
     def DLFich(self,url,dest, DPView=True):
         if DPView:
             dp = xbmcgui.DialogProgressBG()
             dp.create("Telechargement du fichier...",url)
         try:
-            urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: _pbhook(nb,bs,fs,url,dp))
+            Demar=time.time()
+            urllib.urlretrieve(url,dest,lambda nb, bs, fs: _pbhook(nb,bs,fs,dp,Demar))
         except:
             req = urllib.Request(url)
             req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20100101 Firefox/22.0')

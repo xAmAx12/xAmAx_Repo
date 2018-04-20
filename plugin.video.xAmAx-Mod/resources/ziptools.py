@@ -29,8 +29,9 @@ class ziptools:
                     pass
                 outfilename = os.path.join(dir, name)
                 try:
-                    outfile = open(outfilename, 'wb')
-                    outfile.write(content)
+                    with open(outfilename, 'wb') as outfile:
+                        outfile.write(content)
+                    outfile.close()
                 except:
                     pass
 
