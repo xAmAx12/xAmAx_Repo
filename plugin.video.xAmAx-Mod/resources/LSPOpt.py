@@ -35,6 +35,7 @@ class cLiveSPOpt():
     def ConvNom(self, Nom):
         NomRet=str(Nom) #.decode("latin1").encode("latin1","replace")
         NomRet=NomRet.replace(
+                        b64decode("SXB0djRzYXQuY29t"),"").replace(
                         "L-FR: ","").replace(
                         "FR: ","").replace(
                         "FR : ","").replace(
@@ -50,9 +51,6 @@ class cLiveSPOpt():
                         "FRANCE  ", "FRANCE ").replace(
                         "+", " +").replace(
                         "  +", " +").replace(
-                        "-", " ").replace(
-                        ".", " ").replace(
-                        "_", " ").replace(
                         "FRANCE |", "").replace(
                         "\R", "").replace(
                         "(SERVER 1)","").replace(
@@ -60,6 +58,8 @@ class cLiveSPOpt():
                         "\xc3\x89","E").replace(
                         "\xc3\xa8","e").replace(
                         "\xc3\x94","O").replace(
+                        "¯", "-").replace(
+                        "|", " ").replace(
                         "&amp;","&").replace(
                         b64decode("W0NPTE9SIHJlZF0gTE9HQU4gVFZbL0NPTE9SXQ=="),"")
         
