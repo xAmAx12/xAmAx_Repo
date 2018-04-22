@@ -35,7 +35,6 @@ class cLiveSPOpt():
     def ConvNom(self, Nom):
         NomRet=str(Nom) #.decode("latin1").encode("latin1","replace")
         NomRet=NomRet.replace(
-                        "Iptv4sat.com","").replace(
                         "L-FR: ","").replace(
                         "FR: ","").replace(
                         "FR : ","").replace(
@@ -54,7 +53,6 @@ class cLiveSPOpt():
                         "-", " ").replace(
                         ".", " ").replace(
                         "_", " ").replace(
-                        "|", "").replace(
                         "FRANCE |", "").replace(
                         "\R", "").replace(
                         "(SERVER 1)","").replace(
@@ -138,7 +136,7 @@ class cLiveSPOpt():
                 print "Liste de chaine 1 a afficher: "+str(len(Retour))
                 self.TotMaj = self.MajDiv/25
                 self.dp.update(self.TotMaj)
-                sleep(0.3)
+                sleep(0.5)
                 ListeEffacer = True
                 DivisionRech = ((self.MajDiv-self.TotMaj)/len(Retour))
                 
@@ -146,7 +144,7 @@ class cLiveSPOpt():
                     NbRecherche += 1
                     print "Recherche Liste de chaine "+str(Nom)
                     self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
-                    sleep(0.3)
+                    sleep(0.5)
                     if not "SERVIDOR 1" in Nom:
                         Retour2,Erreur2 = self.ListTv(Url)
                         print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
@@ -164,54 +162,7 @@ class cLiveSPOpt():
                         elif Erreur2!="OK":
                             executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,"")")
                     else:
-                        Page = cDL().TelechargPage2(url=b64decode('aHR0cHM6Ly93d3cuaXB0djRzYXQuY29tL3RlbGVjaGFyZ2VyLWlwdHYtZnJhbmNlLw=='))
-                        try: part = re.search("(?i)" + '<tr class="zip">' + "([\S\s]+?)" + '</td>', Page).group(1)
-                        except: part = ''
-                        try: zip = re.search("(?i)" + 'href="' + "([\S\s]+?)" + '"', part).group(1)
-                        except: zip = ''
-                        try:
-                            udata= os.path.join(CheminxAmAx, "Telecharg")
-                            dest = os.path.join(udata, 'iptv4sat.zip')
-                            if not os.path.exists(udata):
-                                os.makedirs(udata)
-                            cDL().TelechargementZip(zip,dest,DPAff=False,Nom="Téléchargement Liste 1")
-
-                            from resources.ziptools import ziptools
-                            unzipper = ziptools()
-                            unzipper.extract(dest,udata)
-                        
-                            os.remove(dest)
-                            
-                            dir = os.listdir(udata)
-                        
-                            for a in dir:
-                                if a.endswith('.m3u'):
-                                    print "Ouverture de :"+os.path.join(udata, a)
-                                    with open(os.path.join(udata, a),'r') as fm3u:
-                                        ListM3u = fm3u.read()
-                                    Retour3 = self.TabM3u(ListM3u, True, True)
-                                    os.remove(os.path.join(udata, a))
-                                    print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
-                                    if len(Retour3)>0:
-                                        try:
-                                            DBxAmAx.Delete(Table="List"+str(NbRecherche))
-                                        except:
-                                            pass
-                                        DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
-                                        for NomTv,UrlTV in Retour3:
-                                            IdLP += 1
-                                            DBxAmAx.Insert(Table="List"+str(NbRecherche),
-                                                           Colonnes="IDLP,Nom,Url",
-                                                           Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
-                                    else:
-                                        executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")
-                                else:
-                                    os.remove(os.path.join(udata, a))
-                        except:
-                            executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")
-
-                        """urlBase = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3hBbUF4MTIveEFtQXhfUmVwby9tYXN0ZXIvcGx1Z2luLnZpZGVvLnhBbUF4LU1vZC9yZXNvdXJjZXMvaXB0di9saXN0ZS5tM3U="
-
+                        urlBase = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3hBbUF4MTIveEFtQXhfUmVwby9tYXN0ZXIvcGx1Z2luLnZpZGVvLnhBbUF4LU1vZC9yZXNvdXJjZXMvaXB0di9saXN0ZS5tM3U="
                         Url=b64decode(urlBase)
                         ret = cDL().TelechargPage(url=b64decode(urlBase))
                         if ret.startswith("Erreur"):
@@ -230,6 +181,39 @@ class cLiveSPOpt():
                                     DBxAmAx.Insert(Table="List"+str(NbRecherche),
                                                    Colonnes="IDLP,Nom,Url",
                                                    Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
+                            else:
+                                executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")
+                        """#urlBase = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3hBbUF4MTIveEFtQXhfUmVwby9tYXN0ZXIvcGx1Z2luLnZpZGVvLnhBbUF4LU1vZC9yZXNvdXJjZXMvaXB0di9saXN0ZS5tM3U="
+                        urlBase = "aHR0cHM6Ly9vcHVzLnJlLw=="
+                        ret = cDL().TelechargPage(url=b64decode(urlBase)+'iptv-francais-tv-chaines')
+                        if ret.startswith("Erreur"):
+                            print ret
+                        else:
+                            Retour3 = ret.split("<li><a href='javascript:")
+                            print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
+                            if len(Retour3)>0:
+                                try:
+                                    DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                                except:
+                                    pass
+                                DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
+                                for i in range(1,len(Retour3)-1):
+                                    TabChaines = re.compile(r".+?"+chr(34)+"(.+?)"+chr(34)+".+?<img src='(.+?)'.+? title='(.+?)'").findall(Retour3[i])
+                                    print str(len(TabChaines[0]))
+                                    if len(TabChaines[0])>2:
+                                        try:
+                                            NomTV=self.ConvNom(TabChaines[0][2])
+                                            if ".m3u8" in TabChaines[0][0]:
+                                                StreamType = "HLSRETRY"
+                                            else:
+                                                StreamType = "TSDOWNLOADER"
+                                            UrlTV='plugin://plugin.video.f4mTester/?url=%s&streamtype=%s&name=%s'%(urlib.quote_plus(b64decode(urlBase)+str(TabChaines[0][0])),StreamType,NomTV) #.replace(".m3u8",".ts")
+                                            IdLP += 1
+                                            DBxAmAx.Insert(Table="List"+str(NbRecherche),
+                                                           Colonnes="IDLP,Nom,Url",
+                                                           Valeurs=(IdLP,NomTV+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
+                                        except:
+                                            pass
                             else:
                                 executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")"""
                     self.TotMaj += DivisionRech
