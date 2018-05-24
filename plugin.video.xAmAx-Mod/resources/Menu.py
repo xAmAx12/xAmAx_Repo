@@ -832,10 +832,10 @@ class menu():
                         print "--videourl = "+str(videourl[0])
                         html = cDL().TelechargPage('http://www.mrsexe.com/' + videourl[0])
                         #print "--html = "+html
-                        videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
+                        videourls = re.compile(r".src.\"(.+?)\".+?'", re.DOTALL).findall(html)
                         videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
                         print "--videourl.. = "+(str(videourl[0]))
-                        videourl = str(videourls[0][0])
+                        videourl = str(videourls[0])
                     else:
                         videourl = base64.b64decode(params['Url'])
                     print "Adresse video: "+str(videourl)
@@ -854,10 +854,10 @@ class menu():
                             print "--videourl_DL = "+str(videourl[0])
                             html = cDL().TelechargPage('http://www.mrsexe.com/' + videourl[0])
                             #print "--html = "+html
-                            videourls = re.compile(r"'file': \"(.+?)\",.+?'label': '(.+?)'", re.DOTALL).findall(html)
+                            videourls = re.compile(r".src.\"(.+?)\".+?'", re.DOTALL).findall(html)
                             videourls = sorted(videourls, key=lambda tup: tup[1], reverse=True)
                             print "--videourl_DL.. = "+(str(videourl[0]))
-                            videourl = str(videourls[0][0])
+                            videourl = str(videourls[0])
                         else:
                             videourl = base64.b64decode(params['Url'])
                         

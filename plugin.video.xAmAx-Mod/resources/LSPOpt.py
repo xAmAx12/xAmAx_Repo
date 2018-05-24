@@ -116,6 +116,7 @@ class cLiveSPOpt():
         j=0
         ListeEffacer = False
         dbxAmAx = os.path.join(CheminxAmAx, "xAmAx.db")
+        M3uxAmAx = os.path.join(CheminxAmAx, "M3uTV.m3u")
         print "Ouverture de la Base de donnée xAmAx: "+dbxAmAx
         DBxAmAx = db(dbxAmAx)
         IdLP = 0
@@ -168,6 +169,9 @@ class cLiveSPOpt():
                         if ret.startswith("Erreur"):
                             print ret
                         else:
+                            fichier = open(M3uxAmAx, "w")
+                            fichier.write(ret)
+                            fichier.close()
                             Retour3 = self.TabM3u(ret, True, True)
                             print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
                             if len(Retour3)>0:
@@ -237,10 +241,11 @@ class cLiveSPOpt():
                 Nom = self.ConvNom(Nom)
             Url=Url.split("|")[0].replace("\r", "")
             if F4m==True:
-                if ".ts" in Url:
-                    Url='plugin://plugin.video.f4mTester/?url=%s&streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),Nom)
+                if (".ts" in Url):
+                    Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),urlib.quote(Nom)) #&name=%s ,Nom
                 else:
-                    Url='plugin://plugin.video.f4mTester/?url=%s&streamtype=HLSRETRY&name=%s'%(urlib.quote_plus(Url),Nom)
+                    Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=HLSRETRY&name=%s'%(urlib.quote_plus(Url),urlib.quote(Nom)) #&name=%s ,Nom
+                    
             DicM3u = (Nom,Url)
             ret.append(DicM3u)
         return ret
