@@ -69,7 +69,10 @@ class cLiveSPOpt():
                 NomRet = NomRet[1:]
             else:
                 break
-        return NomRet
+        return NomRet.upper()
+
+    def ConvText(self, Text):
+        return Text.replace('\\/','/').replace('&amp;','&').replace('\xc9','E').replace('&#8211;', '-').replace('&#038;', '&').replace('&rsquo;','\'').replace('\r','').replace('\n','').replace('\t','').replace('&#039;',"'").replace('&quot;','"').replace('&gt;','>').replace('&lt;','<').replace('&nbsp;','')
     
     def CreerBouquet(self, CheminxAmAx):
         Bouquet=[]
@@ -120,59 +123,105 @@ class cLiveSPOpt():
         print "Ouverture de la Base de donnée xAmAx: "+dbxAmAx
         DBxAmAx = db(dbxAmAx)
         IdLP = 0
-        NbMaj=1
-        
-        if NbMaj>0:
-            self.MajDiv = 100/NbMaj
-            self.TotMaj = 0
-            self.dp = DialogProgress()
-            sleep(0.5)
-            self.dp.create("Telechargement de la liste de chaine:")
-            sleep(0.5)
-            NbMajEc = 1
 
-            Retour, Erreur = self.MenuTV()
-            NbRecherche = 0
-            if len(Retour)>0 and Erreur == "OK":
-                print "Liste de chaine 1 a afficher: "+str(len(Retour))
-                self.TotMaj = self.MajDiv/25
-                self.dp.update(self.TotMaj)
-                sleep(0.5)
-                ListeEffacer = True
-                DivisionRech = ((self.MajDiv-self.TotMaj)/len(Retour))
+        liste = []
+        liste.append( ['Iptv4Sat',
+                       "aHR0cHM6Ly93d3cuaXB0djRzYXQuY29tL3RlbGVjaGFyZ2VyLWlwdHYtZnJhbmNlLw==",
+                       "",
+                       '',
+                       0,
+                       False])
+        liste.append( ['Iptv Gratuit',
+                       'http://iptvgratuit.com/',
+                       '<header class="entry-header">\s*<h2 class="entry-title">\s*<a href="(.+?)" rel="bookmark">(.+?)</a>',
+                       '<strong>2. Cliquez sur le lien pour télécharger la liste des chaînes .+?</strong></p><h4><a class="more-link" title="(.+?)" href="(.+?)" target="_blank"',
+                       1,
+                       True])
+        liste.append( ['IptvSource',
+                       'https://www.iptvsource.com/',
+                       '<h3 class="entry-title td-module-title"><a href="(.+?)" rel="bookmark" title="(.+?)"',
+                       '<a href="(.+?)">Download as(.+?)</a>',
+                       0,
+                       False])
+        #liste.append( ['Daily Iptv List',
+        #               'https://www.dailyiptvlist.com/',
+        #               '</a><h2 class="post-title"><a href="(.+?)">(.+?)</a></h2><div class="excerpt"><p>.+?</p>',
+        #               '<p></br><br /><strong>2. Click on link to download .+? iptv channels list</strong></p>\s*.+?<a href="(.+?)">Download (.+?)</a>',
+        #               0,
+        #               False])
+        #liste.append( ['IptvSatLink (site utiliser par ultimate iptv)',
+        #               'http://iptvsatlinks.blogspot.fr/search?max-results=40',
+        #               "<h3 class='post-title entry-title' itemprop='name'>\s*<a href='(.+?)'>(.+?)</a>",
+        #               '<br />http([^<]+)/(.+?)<br />',
+        #               0,
+        #               False])
+        
+        
+        NbMaj=len(liste)
+
+        self.MajDiv = 100/NbMaj
+        self.TotMaj = 0
+        self.dp = DialogProgress()
+        sleep(0.5)
+        self.dp.create("Telechargement de la liste de chaine:")
+        sleep(0.5)
+        NbMajEc = 1
+
+        NbRecherche = 0
+        print "Liste de chaine 1 a afficher"
+        ListeEffacer = True
+        DivisionRech = (self.MajDiv-self.TotMaj)
+        
+        for Nom,Url,Re1,Re2,NumM3u,TelLien in liste:
+            NbRecherche += 1
+            print "Recherche Liste de chaine "+str(Nom)
+            self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
+            sleep(0.5)
+            if Nom != "Iptv4Sat":
+                Retour2,Erreur2 = self.ListTv(Url,Re1,Re2,NumM3u,TelLien)
+                print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
+                if len(Retour2)>0 and Erreur2 == "OK":
+                    try:
+                        DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                    except:
+                        pass
+                    DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
+                    for NomTv,UrlTV in Retour2:
+                        IdLP += 1
+                        DBxAmAx.Insert(Table="List"+str(NbRecherche),
+                                       Colonnes="IDLP,Nom,Url",
+                                       Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
+                elif Erreur2!="OK":
+                    executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,'')")
+            else:
+                Page = cDL().TelechargPage2(url=b64decode('aHR0cHM6Ly93d3cuaXB0djRzYXQuY29tL3RlbGVjaGFyZ2VyLWlwdHYtZnJhbmNlLw=='))
+                print Page
+                try: part = re.search("(?i)" + '<li class="zip">' + "([\S\s]+?)" + '</li>', Page).group(1)
+                except: part = ''
+                try: zip = re.search("(?i)" + 'href="' + "([\S\s]+?)" + '"', part).group(1)
+                except: zip = ''
+                try:
+                    udata= os.path.join(CheminxAmAx, "Telecharg")
+                    dest = os.path.join(udata, 'iptv4sat.zip')
+                    if not os.path.exists(udata):
+                        os.makedirs(udata)
+                    cDL().TelechargementZip(zip,dest,DPAff=False,Nom="Téléchargement Liste 1")
+
+                    from resources.ziptools import ziptools
+                    unzipper = ziptools()
+                    unzipper.extract(dest,udata)
                 
-                for Nom,Url in Retour:
-                    NbRecherche += 1
-                    print "Recherche Liste de chaine "+str(Nom)
-                    self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
-                    sleep(0.5)
-                    if not "SERVIDOR 1" in Nom:
-                        Retour2,Erreur2 = self.ListTv(Url)
-                        print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
-                        if len(Retour2)>0 and Erreur2 == "OK":
-                            try:
-                                DBxAmAx.Delete(Table="List"+str(NbRecherche))
-                            except:
-                                pass
-                            DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
-                            for NomTv,UrlTV,IconTV in Retour2:
-                                IdLP += 1
-                                DBxAmAx.Insert(Table="List"+str(NbRecherche),
-                                               Colonnes="IDLP,Nom,Url",
-                                               Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
-                        elif Erreur2!="OK":
-                            executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,"")")
-                    else:
-                        urlBase = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3hBbUF4MTIveEFtQXhfUmVwby9tYXN0ZXIvcGx1Z2luLnZpZGVvLnhBbUF4LU1vZC9yZXNvdXJjZXMvaXB0di9saXN0ZS5tM3U="
-                        Url=b64decode(urlBase)
-                        ret = cDL().TelechargPage(url=b64decode(urlBase))
-                        if ret.startswith("Erreur"):
-                            print ret
-                        else:
-                            fichier = open(M3uxAmAx, "w")
-                            fichier.write(ret)
-                            fichier.close()
-                            Retour3 = self.TabM3u(ret, True, True)
+                    os.remove(dest)
+                    
+                    dir = os.listdir(udata)
+                
+                    for a in dir:
+                        if a.endswith('.m3u'):
+                            print "Ouverture de :"+os.path.join(udata, a)
+                            with open(os.path.join(udata, a),'r') as fm3u:
+                                ListM3u = fm3u.read()
+                            Retour3 = self.TabM3u(ListM3u, True, True)
+                            os.remove(os.path.join(udata, a))
                             print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
                             if len(Retour3)>0:
                                 try:
@@ -186,65 +235,32 @@ class cLiveSPOpt():
                                                    Colonnes="IDLP,Nom,Url",
                                                    Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
                             else:
-                                executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")
-                        """#urlBase = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3hBbUF4MTIveEFtQXhfUmVwby9tYXN0ZXIvcGx1Z2luLnZpZGVvLnhBbUF4LU1vZC9yZXNvdXJjZXMvaXB0di9saXN0ZS5tM3U="
-                        urlBase = "aHR0cHM6Ly9vcHVzLnJlLw=="
-                        ret = cDL().TelechargPage(url=b64decode(urlBase)+'iptv-francais-tv-chaines')
-                        if ret.startswith("Erreur"):
-                            print ret
+                                executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+"Pas fichier dans la liste!"+",5000,'')")
                         else:
-                            Retour3 = ret.split("<li><a href='javascript:")
-                            print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
-                            if len(Retour3)>0:
-                                try:
-                                    DBxAmAx.Delete(Table="List"+str(NbRecherche))
-                                except:
-                                    pass
-                                DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
-                                for i in range(1,len(Retour3)-1):
-                                    TabChaines = re.compile(r".+?"+chr(34)+"(.+?)"+chr(34)+".+?<img src='(.+?)'.+? title='(.+?)'").findall(Retour3[i])
-                                    print str(len(TabChaines[0]))
-                                    if len(TabChaines[0])>2:
-                                        try:
-                                            NomTV=self.ConvNom(TabChaines[0][2])
-                                            if ".m3u8" in TabChaines[0][0]:
-                                                StreamType = "HLSRETRY"
-                                            else:
-                                                StreamType = "TSDOWNLOADER"
-                                            UrlTV='plugin://plugin.video.f4mTester/?url=%s&streamtype=%s&name=%s'%(urlib.quote_plus(b64decode(urlBase)+str(TabChaines[0][0])),StreamType,NomTV) #.replace(".m3u8",".ts")
-                                            IdLP += 1
-                                            DBxAmAx.Insert(Table="List"+str(NbRecherche),
-                                                           Colonnes="IDLP,Nom,Url",
-                                                           Valeurs=(IdLP,NomTV+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
-                                        except:
-                                            pass
-                            else:
-                                executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! "+",5000,"")")"""
-                    self.TotMaj += DivisionRech
-                    self.dp.update(self.TotMaj)
-                    sleep(0.3)
-                DBxAmAx.FinEnregistrement()
-            else:
-                if Erreur!="OK":
-                    executebuiltin("XBMC.Notification(Mise à jour Liste TV Impossible!!! ,"+Erreur+",5000,"")")
-            self.TotMaj = self.MajDiv*NbMajEc
+                            os.remove(os.path.join(udata, a))
+                except:
+                    executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+"Pas fichier dans la liste!"+", ,5000,'')")
+            DBxAmAx.FinEnregistrement()
+
+            self.TotMaj = self.MajDiv*NbRecherche
             print "Telechargement de la liste de chaine:"+str(self.TotMaj)+"%"
+            self.dp.update(self.TotMaj)
             sleep(0.5)
         self.dp.close()
         return "OK"
 
-    def TabM3u(self,FichierTxt, F4m=False, cvNom=True):
+    def TabM3u(self,FichierTxt, F4m=False, cvNom=True,reComp='^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n',AjoutHttp="",AjoutFin=""):
         ret = []
-        TabM3u = re.compile('^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n', re.I+re.M+re.U+re.S).findall(FichierTxt)
+        TabM3u = re.compile(reComp, re.I+re.M+re.U+re.S).findall(FichierTxt)
         for Par, Nom , Url in TabM3u :
             if cvNom==True:
                 Nom = self.ConvNom(Nom)
             Url=Url.split("|")[0].replace("\r", "")
             if F4m==True:
                 if (".ts" in Url):
-                    Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(Url),urlib.quote(Nom)) #&name=%s ,Nom
+                    Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(AjoutHttp+Url+AjoutFin),urlib.quote(Nom)) #&name=%s ,Nom
                 else:
-                    Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=HLSRETRY&name=%s'%(urlib.quote_plus(Url),urlib.quote(Nom)) #&name=%s ,Nom
+                    Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=HLSRETRY&name=%s'%(urlib.quote_plus(AjoutHttp+Url+AjoutFin),urlib.quote(Nom)) #&name=%s ,Nom
                     
             DicM3u = (Nom,Url)
             ret.append(DicM3u)
@@ -264,41 +280,34 @@ class cLiveSPOpt():
                     ret = self.TabM3u(M3u, F4m, cvNom)
         return ret
 
-    def MenuTV(self):
-        urlBase = 'aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2xvZ2FuMTk4My9BRERPTlMtTUVOVVMvbWFzdGVyL0ZSQU5DQSUyME1FTlUueG1s'
-        ListeRet = []
-        try:
-            ret = cDL().TelechargPage(url=b64decode(urlBase))
-            if ret.startswith("Erreur"):
-                print ret
-            else:
-                TabXml = re.compile("<name?[^>]*>(.*?)</name>.*?<externallink?[^>]*>(.*?)</externallink>", re.I+re.M+re.S).findall(ret)
-                for NomLien,ExtUrl in TabXml:
-                    print "   Adresse Ext: "+ExtUrl
-                    FichList = (NomLien,ExtUrl)
-                    ListeRet.append(FichList)
-        except:
-            return ListeRet,"Erreur de Recherche des listes de chaines!"
-                
-        return ListeRet,"OK"
-
-    def ListTv(self,Adress):
+    def ListTv(self,Adress,Re1,Re2,NumM3u,TelLien):
         Cmp=0
         ListeRet = []
         try:
+            #print Adress
             ret2 = cDL().TelechargPage(url=Adress)
-            TabLien = re.compile("<title?[^>]*>(.*?)</title>.*?<link?[^>]*>(.*?)</link>", re.I+re.M+re.S).findall(ret2)
-            for Nom,Url in TabLien:
-                Icon = ""
-                if "tvg-name=" in Nom:
-                    ConvTitre = Nom.split(chr(34))
-                    if len(ConvTitre) > 5:
-                        Nom = ConvTitre[3]
-                        Icon = ConvTitre[5]
-                NomAff=self.ConvNom(Nom)
-                if Url!="http://Ignoreme":
-                    FichList = (NomAff,Url,Icon)
-                    ListeRet.append(FichList)
+            TabLien = re.compile(Re1, re.I+re.M+re.S).findall(self.ConvText(ret2))
+            #print TabLien
+            TabLien2 = []
+            for Url, Nom in TabLien:
+                if (("France" in Nom) or ("French" in Nom)):
+                    ret2 = cDL().TelechargPage(url=Url)
+                    TabLien2 = re.compile(Re2, re.I+re.M+re.S).findall(self.ConvText(ret2))
+                    break
+            if len(TabLien2)>0:
+                #print str(TabLien2)
+                if TelLien:
+                    ret2 = cDL().TelechargPage(url=TabLien2[0][NumM3u])
+                    ListeRet = self.TabM3u(ret2, F4m=True, cvNom=True)
+                else:
+                    ret2 = TabLien2[0][NumM3u]
+                    ListeRet = self.TabM3u(ret2,
+                                           F4m=True,
+                                           cvNom=True,
+                                           reComp='EXTINF.+?:-?[0-9]*(.*?),(.*?)http:(.*?).ts',
+                                           AjoutHttp="http:",
+                                           AjoutFin=".ts")
+            #print str(TabLien2[0][1])
         except:
             return ListeRet,"Erreur de Recherche des chaines de la liste!"
         return ListeRet,"OK"

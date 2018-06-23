@@ -63,7 +63,7 @@ class cDL():
             import requests
             headers = {}
             headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
-            link = requests.session().get(url, headers=headers, verify=False).text
+            link = requests.session().get(url, headers=headers, verify=True).text
             link = link.encode('utf-8', 'ignore')
             return link
         except:
