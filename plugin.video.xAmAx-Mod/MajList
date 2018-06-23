@@ -3,8 +3,8 @@ xAmAxDB,.sql,resources/,1
 settings,.xml,resources/,9
 DB,.py,resources/,6
 vStreamOpt,.py,resources/,7
-LSPOpt,.py,resources/,15
-Telecharg,.py,resources/,4
+LSPOpt,.py,resources/,16
+Telecharg,.py,resources/,5
 TxtAff,.py,resources/,2
 ziptools,.py,resources/,2
 Samba,.py,resources/,3
