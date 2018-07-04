@@ -72,7 +72,21 @@ class cLiveSPOpt():
         return NomRet.upper()
 
     def ConvText(self, Text):
-        return Text.replace('\\/','/').replace('&amp;','&').replace('\xc9','E').replace('&#8211;', '-').replace('&#038;', '&').replace('&rsquo;','\'').replace('\r','').replace('\n','').replace('\t','').replace('&#039;',"'").replace('&quot;','"').replace('&gt;','>').replace('&lt;','<').replace('&nbsp;','')
+        return Text.replace(
+                        '\\/','/').replace(
+                        '&amp;','&').replace(
+                        '\xc9','E').replace(
+                        '&#8211;', '-').replace(
+                        '&#038;', '&').replace(
+                        '&rsquo;','\'').replace(
+                        '\r','').replace(
+                        '\n','').replace(
+                        '\t','').replace(
+                        '&#039;',"'").replace(
+                        '&quot;','"').replace(
+                        '&gt;','>').replace(
+                        '&lt;','<').replace(
+                        '&nbsp;','')
     
     def CreerBouquet(self, CheminxAmAx):
         Bouquet=[]
@@ -137,22 +151,22 @@ class cLiveSPOpt():
                        '<strong>2. Cliquez sur le lien pour télécharger la liste des chaînes .+?</strong></p><h4><a class="more-link" title="(.+?)" href="(.+?)" target="_blank"',
                        1,
                        True])
-        liste.append( ['IptvSource',
-                       'https://www.iptvsource.com/',
-                       '<h3 class="entry-title td-module-title"><a href="(.+?)" rel="bookmark" title="(.+?)"',
-                       '<a href="(.+?)">Download as(.+?)</a>',
-                       0,
-                       False])
+        #liste.append( ['IptvSource',
+        #               'https://www.iptvsource.com/',
+        #               '<h3 class="entry-title td-module-title"><a href="(.+?)" rel="bookmark" title="(.+?)"',
+        #               '<a href="(.+?)">Download as(.+?)</a>',
+        #               0,
+        #               False])
         #liste.append( ['Daily Iptv List',
         #               'https://www.dailyiptvlist.com/',
         #               '</a><h2 class="post-title"><a href="(.+?)">(.+?)</a></h2><div class="excerpt"><p>.+?</p>',
         #               '<p></br><br /><strong>2. Click on link to download .+? iptv channels list</strong></p>\s*.+?<a href="(.+?)">Download (.+?)</a>',
         #               0,
-        #               False])
+        #               True])
         #liste.append( ['IptvSatLink (site utiliser par ultimate iptv)',
         #               'http://iptvsatlinks.blogspot.fr/search?max-results=40',
         #               "<h3 class='post-title entry-title' itemprop='name'>\s*<a href='(.+?)'>(.+?)</a>",
-        #               '<br />http([^<]+)/(.+?)<br />',
+        #               '<div class="code">(.+?)</div>',
         #               0,
         #               False])
         
@@ -195,7 +209,7 @@ class cLiveSPOpt():
                     executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,'')")
             else:
                 Page = cDL().TelechargPage2(url=b64decode('aHR0cHM6Ly93d3cuaXB0djRzYXQuY29tL3RlbGVjaGFyZ2VyLWlwdHYtZnJhbmNlLw=='))
-                print Page
+                #print Page
                 try: part = re.search("(?i)" + '<li class="zip">' + "([\S\s]+?)" + '</li>', Page).group(1)
                 except: part = ''
                 try: zip = re.search("(?i)" + 'href="' + "([\S\s]+?)" + '"', part).group(1)
@@ -241,11 +255,10 @@ class cLiveSPOpt():
                 except:
                     executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+"Pas fichier dans la liste!"+", ,5000,'')")
             DBxAmAx.FinEnregistrement()
-
             self.TotMaj = self.MajDiv*NbRecherche
             print "Telechargement de la liste de chaine:"+str(self.TotMaj)+"%"
-            self.dp.update(self.TotMaj)
-            sleep(0.5)
+        self.dp.update(100)
+        sleep(0.5)
         self.dp.close()
         return "OK"
 
@@ -290,21 +303,24 @@ class cLiveSPOpt():
             #print TabLien
             TabLien2 = []
             for Url, Nom in TabLien:
-                if (("France" in Nom) or ("French" in Nom)):
+                if (("France" in Nom)): # or ("French" in Nom)):
                     ret2 = cDL().TelechargPage(url=Url)
+                    #print ret2
                     TabLien2 = re.compile(Re2, re.I+re.M+re.S).findall(self.ConvText(ret2))
                     break
             if len(TabLien2)>0:
                 #print str(TabLien2)
                 if TelLien:
                     ret2 = cDL().TelechargPage(url=TabLien2[0][NumM3u])
+                    #print ret2
                     ListeRet = self.TabM3u(ret2, F4m=True, cvNom=True)
                 else:
-                    ret2 = TabLien2[0][NumM3u]
+                    #print TabLien2[0]
+                    ret2 = TabLien2[0].replace('<br />','')
                     ListeRet = self.TabM3u(ret2,
                                            F4m=True,
                                            cvNom=True,
-                                           reComp='EXTINF.+?:-?[0-9]*(.*?),(.*?)http:(.*?).ts',
+                                           reComp='EXTINF.+?:-?[0-9]*(.*?),FR(.*?)http:(.*?).ts',
                                            AjoutHttp="http:",
                                            AjoutFin=".ts")
             #print str(TabLien2[0][1])
