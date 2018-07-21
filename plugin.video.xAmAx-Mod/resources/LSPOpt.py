@@ -7,7 +7,7 @@ import os, re, sys
 from xbmcvfs import exists,File
 from xbmcaddon import Addon
 from xbmcgui import DialogProgress,Dialog
-from xbmc import executebuiltin
+from xbmc import executebuiltin,log,LOGNOTICE
 import urllib as urlib
 from base64 import b64decode
 from resources.DB import db
@@ -146,7 +146,7 @@ class cLiveSPOpt():
                        0,
                        False])
         liste.append( ['Iptv Gratuit',
-                       'http://iptvgratuit.com/',
+                       'http://iptvgratuit.com/tag/france-iptv/',
                        '<header class="entry-header">\s*<h2 class="entry-title">\s*<a href="(.+?)" rel="bookmark">(.+?)</a>',
                        '<strong>2. Cliquez sur le lien pour télécharger la liste des chaînes .+?</strong></p><h4><a class="more-link" title="(.+?)" href="(.+?)" target="_blank"',
                        1,
@@ -188,12 +188,14 @@ class cLiveSPOpt():
         
         for Nom,Url,Re1,Re2,NumM3u,TelLien in liste:
             NbRecherche += 1
-            print "Recherche Liste de chaine "+str(Nom)
+            log('\t[PLUGIN] xAmAx-Mod: Recherche Liste de chaine '+str(Nom), LOGNOTICE)
+            #print "Recherche Liste de chaine "+str(Nom)
             self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
             sleep(0.5)
             if Nom != "Iptv4Sat":
                 Retour2,Erreur2 = self.ListTv(Url,Re1,Re2,NumM3u,TelLien)
-                print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
+                log('\t[PLUGIN] xAmAx-Mod: Nombre de résultat de la Liste de chaine '+str(len(Retour2)), LOGNOTICE)
+                #print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
                 if len(Retour2)>0 and Erreur2 == "OK":
                     try:
                         DBxAmAx.Delete(Table="List"+str(NbRecherche))
@@ -208,7 +210,7 @@ class cLiveSPOpt():
                 elif Erreur2!="OK":
                     executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,'')")
             else:
-                Page = cDL().TelechargPage2(url=b64decode('aHR0cHM6Ly93d3cuaXB0djRzYXQuY29tL3RlbGVjaGFyZ2VyLWlwdHYtZnJhbmNlLw=='))
+                Page = cDL().TelechargPage2(url=b64decode(Url))
                 #print Page
                 try: part = re.search("(?i)" + '<li class="zip">' + "([\S\s]+?)" + '</li>', Page).group(1)
                 except: part = ''
@@ -236,7 +238,8 @@ class cLiveSPOpt():
                                 ListM3u = fm3u.read()
                             Retour3 = self.TabM3u(ListM3u, True, True)
                             os.remove(os.path.join(udata, a))
-                            print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
+                            log('\t[PLUGIN] xAmAx-Mod: Nombre de résultat de la Liste de chaine '+str(len(Retour3)), LOGNOTICE)
+                            #print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
                             if len(Retour3)>0:
                                 try:
                                     DBxAmAx.Delete(Table="List"+str(NbRecherche))
@@ -299,6 +302,7 @@ class cLiveSPOpt():
         try:
             #print Adress
             ret2 = cDL().TelechargPage(url=Adress)
+            #print ret2
             TabLien = re.compile(Re1, re.I+re.M+re.S).findall(self.ConvText(ret2))
             #print TabLien
             TabLien2 = []
