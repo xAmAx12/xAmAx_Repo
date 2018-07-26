@@ -59,7 +59,11 @@ class cLiveSPOpt():
                         "\xc3\xa8","e").replace(
                         "\xc3\x94","O").replace(
                         "¯", "-").replace(
+                        ".", " ").replace(
+                        "_", " ").replace(
                         "|", " ").replace(
+                        "ALACART", "A LA CARTE").replace(
+                        "ALACARTE", "A LA CARTE").replace(
                         "&amp;","&").replace(
                         b64decode("W0NPTE9SIHJlZF0gTE9HQU4gVFZbL0NPTE9SXQ=="),"")
         
@@ -151,25 +155,6 @@ class cLiveSPOpt():
                        '<strong>2. Cliquez sur le lien pour télécharger la liste des chaînes .+?</strong></p><h4><a class="more-link" title="(.+?)" href="(.+?)" target="_blank"',
                        1,
                        True])
-        #liste.append( ['IptvSource',
-        #               'https://www.iptvsource.com/',
-        #               '<h3 class="entry-title td-module-title"><a href="(.+?)" rel="bookmark" title="(.+?)"',
-        #               '<a href="(.+?)">Download as(.+?)</a>',
-        #               0,
-        #               False])
-        #liste.append( ['Daily Iptv List',
-        #               'https://www.dailyiptvlist.com/',
-        #               '</a><h2 class="post-title"><a href="(.+?)">(.+?)</a></h2><div class="excerpt"><p>.+?</p>',
-        #               '<p></br><br /><strong>2. Click on link to download .+? iptv channels list</strong></p>\s*.+?<a href="(.+?)">Download (.+?)</a>',
-        #               0,
-        #               True])
-        #liste.append( ['IptvSatLink (site utiliser par ultimate iptv)',
-        #               'http://iptvsatlinks.blogspot.fr/search?max-results=40',
-        #               "<h3 class='post-title entry-title' itemprop='name'>\s*<a href='(.+?)'>(.+?)</a>",
-        #               '<div class="code">(.+?)</div>',
-        #               0,
-        #               False])
-        
         
         NbMaj=len(liste)
 
@@ -185,6 +170,7 @@ class cLiveSPOpt():
         print "Liste de chaine 1 a afficher"
         ListeEffacer = True
         DivisionRech = (self.MajDiv-self.TotMaj)
+        TxtFinal = ""
         
         for Nom,Url,Re1,Re2,NumM3u,TelLien in liste:
             NbRecherche += 1
@@ -255,14 +241,16 @@ class cLiveSPOpt():
                                 executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+"Pas fichier dans la liste!"+",5000,'')")
                         else:
                             os.remove(os.path.join(udata, a))
+                    
                 except:
                     executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+"Pas fichier dans la liste!"+", ,5000,'')")
             DBxAmAx.FinEnregistrement()
             self.TotMaj = self.MajDiv*NbRecherche
             print "Telechargement de la liste de chaine:"+str(self.TotMaj)+"%"
-        self.dp.update(100)
-        sleep(0.5)
+        self.dp.update(100, "Nombre de résultat sur les "+str(NbRecherche)+" listes de chaines: "+str(IdLP))
+        sleep(1)
         self.dp.close()
+        executebuiltin("XBMC.Notification("+str(IdLP)+" Chaînes à jour,,,5000,'')")
         return "OK"
 
     def TabM3u(self,FichierTxt, F4m=False, cvNom=True,reComp='^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n',AjoutHttp="",AjoutFin=""):
