@@ -6,99 +6,99 @@ CREATE TABLE "ChaineBouquet" (
 	`PasDansChaine`	TEXT,
 	`Ordre`	INTEGER
 );
-INSERT INTO `ChaineBouquet` VALUES (1,1,'tf1','serie',1);
-INSERT INTO `ChaineBouquet` VALUES (2,1,'france 2','24',2);
-INSERT INTO `ChaineBouquet` VALUES (3,1,'france 3',NULL,3);
-INSERT INTO `ChaineBouquet` VALUES (4,1,'france 4',NULL,14);
-INSERT INTO `ChaineBouquet` VALUES (5,1,'france 5',NULL,5);
-INSERT INTO `ChaineBouquet` VALUES (6,1,'france O',NULL,19);
-INSERT INTO `ChaineBouquet` VALUES (7,1,'m6','MUSIC%'' AND Nom NOT LIKE ''%BOUTIQUE',6);
-INSERT INTO `ChaineBouquet` VALUES (8,1,'tmc',NULL,10);
-INSERT INTO `ChaineBouquet` VALUES (9,1,'6ter',NULL,22);
-INSERT INTO `ChaineBouquet` VALUES (10,1,'cherie 25',NULL,25);
-INSERT INTO `ChaineBouquet` VALUES (11,1,'tfx',NULL,11);
-INSERT INTO `ChaineBouquet` VALUES (12,1,'c8',NULL,8);
-INSERT INTO `ChaineBouquet` VALUES (13,1,'cstar',NULL,17);
-INSERT INTO `ChaineBouquet` VALUES (14,1,'arte','carte',7);
-INSERT INTO `ChaineBouquet` VALUES (15,1,'bfm','Business',15);
-INSERT INTO `ChaineBouquet` VALUES (16,1,'cnews',NULL,16);
-INSERT INTO `ChaineBouquet` VALUES (17,1,'tf1 serie',NULL,20);
-INSERT INTO `ChaineBouquet` VALUES (18,1,'rmc',NULL,24);
-INSERT INTO `ChaineBouquet` VALUES (19,2,'sport',NULL,1);
-INSERT INTO `ChaineBouquet` VALUES (20,2,'foot',NULL,2);
-INSERT INTO `ChaineBouquet` VALUES (25,2,'ab moteur',NULL,4);
-INSERT INTO `ChaineBouquet` VALUES (26,2,'equidia',NULL,5);
-INSERT INTO `ChaineBouquet` VALUES (27,3,'bfm',NULL,4);
-INSERT INTO `ChaineBouquet` VALUES (28,3,'itele',NULL,3);
-INSERT INTO `ChaineBouquet` VALUES (29,3,'France 24',NULL,1);
-INSERT INTO `ChaineBouquet` VALUES (30,3,'EURONEWS',NULL,5);
-INSERT INTO `ChaineBouquet` VALUES (31,3,'FRANCE INFO',NULL,2);
-INSERT INTO `ChaineBouquet` VALUES (32,3,'lci',NULL,6);
-INSERT INTO `ChaineBouquet` VALUES (33,3,'cnn',NULL,7);
-INSERT INTO `ChaineBouquet` VALUES (34,3,'bbc',NULL,8);
-INSERT INTO `ChaineBouquet` VALUES (35,3,'cnbc',NULL,9);
-INSERT INTO `ChaineBouquet` VALUES (36,3,'i24',NULL,10);
-INSERT INTO `ChaineBouquet` VALUES (37,2,'OM TV',NULL,5);
-INSERT INTO `ChaineBouquet` VALUES (38,2,'OL TV',NULL,6);
-INSERT INTO `ChaineBouquet` VALUES (39,2,'ONZEO',NULL,7);
-INSERT INTO `ChaineBouquet` VALUES (40,2,'GIRONDINS',NULL,8);
-INSERT INTO `ChaineBouquet` VALUES (41,2,'GOLF',NULL,9);
-INSERT INTO `ChaineBouquet` VALUES (42,2,'MOTORs',NULL,10);
-INSERT INTO `ChaineBouquet` VALUES (43,2,'equipe',NULL,11);
-INSERT INTO `ChaineBouquet` VALUES (44,3,'tv5',NULL,11);
-INSERT INTO `ChaineBouquet` VALUES (45,3,'ptc',NULL,12);
-INSERT INTO `ChaineBouquet` VALUES (46,3,'rtc',NULL,13);
-INSERT INTO `ChaineBouquet` VALUES (47,3,'MONACO INFOS',NULL,14);
-INSERT INTO `ChaineBouquet` VALUES (48,3,'Assemblee Nationale',NULL,15);
-INSERT INTO `ChaineBouquet` VALUES (49,4,'Paramount',NULL,1);
-INSERT INTO `ChaineBouquet` VALUES (50,4,'canal','sport%'' AND Nom NOT LIKE ''%j%'' AND Nom NOT LIKE ''%kid',2);
-INSERT INTO `ChaineBouquet` VALUES (51,4,'cine',NULL,3);
-INSERT INTO `ChaineBouquet` VALUES (52,4,'ocs',NULL,4);
-INSERT INTO `ChaineBouquet` VALUES (53,4,'syfy',NULL,5);
-INSERT INTO `ChaineBouquet` VALUES (54,4,'serie',NULL,6);
-INSERT INTO `ChaineBouquet` VALUES (55,4,'premiere',NULL,7);
-INSERT INTO `ChaineBouquet` VALUES (56,4,'carte',NULL,8);
-INSERT INTO `ChaineBouquet` VALUES (57,4,'13 eme',NULL,9);
-INSERT INTO `ChaineBouquet` VALUES (58,4,'action',NULL,10);
-INSERT INTO `ChaineBouquet` VALUES (59,5,'tiji',NULL,1);
-INSERT INTO `ChaineBouquet` VALUES (60,5,'teletoon',NULL,2);
-INSERT INTO `ChaineBouquet` VALUES (61,5,'disney',NULL,3);
-INSERT INTO `ChaineBouquet` VALUES (62,5,'Gulli',NULL,4);
-INSERT INTO `ChaineBouquet` VALUES (63,5,'canal j',NULL,5);
-INSERT INTO `ChaineBouquet` VALUES (64,5,'game',NULL,6);
-INSERT INTO `ChaineBouquet` VALUES (65,5,'piwi',NULL,7);
-INSERT INTO `ChaineBouquet` VALUES (66,5,'kid',NULL,8);
-INSERT INTO `ChaineBouquet` VALUES (67,5,'manga',NULL,9);
-INSERT INTO `ChaineBouquet` VALUES (68,5,'junior',NULL,10);
-INSERT INTO `ChaineBouquet` VALUES (69,5,'zouzou',NULL,11);
-INSERT INTO `ChaineBouquet` VALUES (70,6,'ushuaia',NULL,1);
-INSERT INTO `ChaineBouquet` VALUES (71,6,'discover',NULL,2);
-INSERT INTO `ChaineBouquet` VALUES (72,6,'planete',NULL,3);
-INSERT INTO `ChaineBouquet` VALUES (73,6,'geo',NULL,4);
-INSERT INTO `ChaineBouquet` VALUES (74,6,'animaux',NULL,5);
-INSERT INTO `ChaineBouquet` VALUES (75,6,'museum',NULL,6);
-INSERT INTO `ChaineBouquet` VALUES (76,6,'voyage',NULL,7);
-INSERT INTO `ChaineBouquet` VALUES (77,6,'chasse',NULL,8);
-INSERT INTO `ChaineBouquet` VALUES (79,6,'trek',NULL,9);
-INSERT INTO `ChaineBouquet` VALUES (80,6,'decouverte',NULL,10);
-INSERT INTO `ChaineBouquet` VALUES (81,6,'science',NULL,11);
-INSERT INTO `ChaineBouquet` VALUES (82,6,'histoire',NULL,12);
-INSERT INTO `ChaineBouquet` VALUES (83,6,'tv5',NULL,13);
-INSERT INTO `ChaineBouquet` VALUES (85,7,'Music',NULL,1);
-INSERT INTO `ChaineBouquet` VALUES (86,4,'comedi',NULL,11);
-INSERT INTO `ChaineBouquet` VALUES (87,5,'Boomrang',NULL,12);
-INSERT INTO `ChaineBouquet` VALUES (88,7,'Trance',NULL,2);
-INSERT INTO `ChaineBouquet` VALUES (89,7,'hits','',3);
-INSERT INTO `ChaineBouquet` VALUES (90,7,'SUNDANCE',NULL,4);
-INSERT INTO `ChaineBouquet` VALUES (91,8,'BE','BEI%'' AND Nom NOT LIKE ''%BET',1);
-INSERT INTO `ChaineBouquet` VALUES (92,1,'canal +','sport',4);
-INSERT INTO `ChaineBouquet` VALUES (93,1,'w9',NULL,9);
-INSERT INTO `ChaineBouquet` VALUES (94,1,'nrj 12',NULL,12);
-INSERT INTO `ChaineBouquet` VALUES (95,1,'lcp',NULL,13);
-INSERT INTO `ChaineBouquet` VALUES (96,1,'gulli',NULL,18);
-INSERT INTO `ChaineBouquet` VALUES (97,1,'l%quipe',NULL,21);
-INSERT INTO `ChaineBouquet` VALUES (98,1,'num%23',NULL,23);
-INSERT INTO `ChaineBouquet` VALUES (99,1,'lci',NULL,26);
-INSERT INTO `ChaineBouquet` VALUES (100,1,'france info',NULL,27);
-INSERT INTO `ChaineBouquet` VALUES (101,4,'tf%serie',NULL,12);
+INSERT INTO `ChaineBouquet` VALUES (1,1,'tf1','serie',1),
+ (2,1,'france 2','24',2),
+ (3,1,'france 3',NULL,3),
+ (4,1,'france 4',NULL,14),
+ (5,1,'france 5',NULL,5),
+ (6,1,'france O',NULL,19),
+ (7,1,'m6','MUSIC%'' AND Nom NOT LIKE ''%BOUTIQUE',6),
+ (8,1,'tmc',NULL,10),
+ (9,1,'6ter',NULL,22),
+ (10,1,'cherie 25',NULL,25),
+ (11,1,'tfx',NULL,11),
+ (12,1,'c8',NULL,8),
+ (13,1,'cstar',NULL,17),
+ (14,1,'arte','carte',7),
+ (15,1,'bfm','Business',15),
+ (16,1,'cnews',NULL,16),
+ (17,1,'tf1 serie',NULL,20),
+ (18,1,'rmc',NULL,24),
+ (19,2,'sport',NULL,1),
+ (20,2,'foot',NULL,2),
+ (25,2,'ab moteur',NULL,4),
+ (26,2,'equidia',NULL,5),
+ (27,3,'bfm',NULL,4),
+ (28,3,'itele',NULL,3),
+ (29,3,'France 24',NULL,1),
+ (30,3,'EURONEWS',NULL,5),
+ (31,3,'FRANCE INFO',NULL,2),
+ (32,3,'lci',NULL,6),
+ (33,3,'cnn',NULL,7),
+ (34,3,'bbc',NULL,8),
+ (35,3,'cnbc',NULL,9),
+ (36,3,'i24',NULL,10),
+ (37,2,'OM TV',NULL,5),
+ (38,2,'OL TV',NULL,6),
+ (39,2,'ONZEO',NULL,7),
+ (40,2,'GIRONDINS',NULL,8),
+ (41,2,'GOLF',NULL,9),
+ (42,2,'MOTORs',NULL,10),
+ (43,2,'equipe',NULL,11),
+ (44,3,'tv5',NULL,11),
+ (45,3,'ptc',NULL,12),
+ (46,3,'rtc',NULL,13),
+ (47,3,'MONACO INFOS',NULL,14),
+ (48,3,'Assemblee Nationale',NULL,15),
+ (49,4,'Paramount',NULL,1),
+ (50,4,'canal','sport%'' AND Nom NOT LIKE ''%j%'' AND Nom NOT LIKE ''%kid',2),
+ (51,4,'cine',NULL,3),
+ (52,4,'ocs',NULL,4),
+ (53,4,'syfy',NULL,5),
+ (54,4,'serie',NULL,6),
+ (55,4,'premiere',NULL,7),
+ (56,4,'carte',NULL,8),
+ (57,4,'13 eme',NULL,9),
+ (58,4,'action',NULL,10),
+ (59,5,'tiji',NULL,1),
+ (60,5,'teletoon',NULL,2),
+ (61,5,'disney',NULL,3),
+ (62,5,'Gulli',NULL,4),
+ (63,5,'canal j',NULL,5),
+ (64,5,'game',NULL,6),
+ (65,5,'piwi',NULL,7),
+ (66,5,'kid',NULL,8),
+ (67,5,'manga',NULL,9),
+ (68,5,'junior',NULL,10),
+ (69,5,'zouzou',NULL,11),
+ (70,6,'ushuaia',NULL,1),
+ (71,6,'discover',NULL,2),
+ (72,6,'planete',NULL,3),
+ (73,6,'geo',NULL,4),
+ (74,6,'animaux',NULL,5),
+ (75,6,'museum',NULL,6),
+ (76,6,'voyage',NULL,7),
+ (77,6,'chasse',NULL,8),
+ (79,6,'trek',NULL,9),
+ (80,6,'decouverte',NULL,10),
+ (81,6,'science',NULL,11),
+ (82,6,'histoire',NULL,12),
+ (83,6,'tv5',NULL,13),
+ (85,7,'Music',NULL,1),
+ (86,4,'comedi',NULL,11),
+ (87,5,'Boomrang',NULL,12),
+ (88,7,'Trance',NULL,2),
+ (89,7,'hits','',3),
+ (90,7,'SUNDANCE',NULL,4),
+ (91,8,'BE','BEI%'' AND Nom NOT LIKE ''%BET',1),
+ (92,1,'canal +','sport',4),
+ (93,1,'w9',NULL,9),
+ (94,1,'nrj 12',NULL,12),
+ (95,1,'lcp',NULL,13),
+ (96,1,'gulli',NULL,18),
+ (97,1,'l%quipe',NULL,21),
+ (98,1,'num%23',NULL,23),
+ (99,1,'lci',NULL,26),
+ (100,1,'france info',NULL,27),
+ (101,4,'tf%serie',NULL,12);
 COMMIT;
