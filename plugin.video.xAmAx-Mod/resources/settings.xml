@@ -15,6 +15,8 @@
         <setting id="ziptools" type="number" label="Gestion zip Version" default="0" />
         <setting id="Config" type="number" label="Gestion Config Avancée" default="0" />
         <setting id="TestDebit" type="number" label="Test Débit internet" default="0" />
+        <setting id="ChaineBouquet" type="number" label="Liste de bouquet" default="0" />
+        <setting id="RegroupChaine" type="number" label="Regroupement de chaines" default="0" />
         <setting id="Adult" type="bool" label="Afficher le menu Plus" default="false"  visible="false" />
         <setting id="stban" type="bool" label="Afficher le menu PC distant" default="false"  visible="false" />
     </category>
@@ -25,5 +27,10 @@
     <category label="Option chaine TV">
         <setting id="MajtvAuto" type="bool" label="Mise à jour auto de la liste de TV" default="true"/>
         <setting id="CreerBouq" type="bool" label="Création d'une liste de bouquet TV" default="true"/>
+        <setting id="MajList1" type="bool" label="Mise à jour de la liste 1" default="true" />
+        <setting id="MajList2" type="bool" label="Mise à jour de la liste 2" default="true" />
+        <setting id="MajList3" type="bool" label="Mise à jour de la liste 3" default="true" />
+        <setting id="MajList4" type="bool" label="Mise à jour de la liste 4" default="true" />
+        <setting id="DateTvListe" type="text" label="Date de la dernière mise à jour" default=""/>
     </category>
 </settings>

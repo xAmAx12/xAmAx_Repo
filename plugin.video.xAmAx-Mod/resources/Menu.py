@@ -4,6 +4,8 @@
 # Created on: 23.07.2017
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
 
+#CreerBouquet
+
 import os
 import re
 import sys
@@ -163,7 +165,9 @@ class menu():
                 if Retour=="OK":
                     self.adn.setSetting(id="DateTvListe", value=strftime("%d-%m-%Y", gmtime())) #%H:%M:%S"
         if self.adn.getSetting(id="CreerBouq")=="true":
-            if Retour=="OK" or MiseAJourOK==True:
+            DBxAmAx = db(self.dbxAmAx)
+            if Retour=="OK" or MiseAJourOK==True or not DBxAmAx.TableExist("UrlBouquet"):
+                print "Création de bouquet"
                 cLiveSPOpt().CreerBouquet(self.AdresseAdnUtil)
             print "Ouverture Liste Bouquet de: "+self.dbxAmAx
             cBouq = db(self.dbxAmAx).Select(Table="Bouquet", Colonnes="NomBouq", Where="", Order="Ordre ASC")
@@ -324,6 +328,7 @@ class menu():
     def MajAuto(self,ForceMaj=False,TabMaj=[]): #,NomMaj,Ext,resources=""
         if len(TabMaj)==0:
             DL = cDL().TelechargPage(url=self.UrlRepo+self.nomPlugin+"/MajList")
+            #DL = "RegroupChaine,.sql,resources/,1\nChaineBouquet,.sql,resources/,1"
             if not DL.startswith("Erreur"):
                 Stab=DL.split("\n")
                 if len(Stab)>1:
@@ -366,6 +371,18 @@ class menu():
                             fichier = open(AdresseFich, "w")
                             fichier.write(DL)
                             fichier.close()
+                            if Ext==".sql":
+                                print "---recherche de "+self.dbxAmAx+" = "+str(os.path.exists(self.dbxAmAx))
+                                print "---recherche de la table " + NomMaj+" = "+str(db(self.dbxAmAx).TableExist(NomMaj))
+                                if NomMaj=="xAmAxDB":
+                                    print "---recherche de "+self.dbxAmAx
+                                    if os.path.exists(self.dbxAmAx):
+                                        xbmcvfs.delete(self.dbxAmAx)
+                                elif db(self.dbxAmAx).TableExist(NomMaj):
+                                    print "---delete table "+NomMaj
+                                    db(self.dbxAmAx).Delete(NomMaj)
+                                print "création de la table "+NomMaj
+                                db(self.dbxAmAx).ExecutFichSQL(AdresseFich)
                             print "Maj= "+NomMaj+" : "+Version
                             self.adn.setSetting(id=NomMaj, value=str(int(Version)))
                             print "Mise a jour de "+NomMaj+" OK"
@@ -963,18 +980,6 @@ class menu():
                     else:
                         executebuiltin('XBMC.Container.Update')
                         executebuiltin('XBMC.Container.Refresh')
-            print "---recherche de "+self.dbxAmAx+" = "+str(os.path.exists(self.dbxAmAx))
-            if not os.path.exists(self.dbxAmAx) or not db(self.dbxAmAx).TableExist("Bouquet"):
-                fichsql = os.path.join(self.AdresseAdn,"resources","xAmAxDB.sql")
-                print "---recherche de "+fichsql
-                if not os.path.exists(fichsql):
-                    print "---recherche Mise à jour avec xAmAxdb"
-                    self.MajAuto(True)
-                    print "---Mise à jour avec xAmAxdb"
-                if os.path.exists(fichsql):
-                    xbmcvfs.delete(self.dbxAmAx)
-                    print "création de la base de donné"
-                    db(self.dbxAmAx).ExecutFichSQL(fichsql)
                     
             if not os.path.exists(os.path.join(self.AdresseAdn,"resources","KodiMod.py")):
                 print "---recherche Mise à jour avec KodiMod"

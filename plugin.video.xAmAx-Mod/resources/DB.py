@@ -8,6 +8,7 @@ import sqlite3 as lite
 class db():
 
     def __init__(self,Chemin):
+        print "connexion a "+Chemin
         self.dbx = lite.connect(Chemin)
         self.dbx.text_factory = str
 
@@ -46,10 +47,10 @@ class db():
         
 
     def Delete(self,Table):
-        curs = self.dbx.cursor()
-        curs.execute("DELETE FROM "+Table+" ;")
-        self.dbx.commit()
         try:
+            curs = self.dbx.cursor()
+            curs.execute("DROP TABLE "+Table+" ;")
+            self.dbx.commit()
             curs.close()
         except:
             pass
@@ -84,14 +85,17 @@ class db():
                 return False
         except:
             return False
-        
+         
     def ExecutFichSQL(self,dirSQL):
+        #print "sql execution de "+dirSQL
         curs = self.dbx.cursor()
         f = open(dirSQL, "r")
         sql = f.read()
         f.close()
+        #print sql
         curs.executescript(sql)
-        self.dbx.commit()
+        print "script sql executer"
+        #self.dbx.commit()
 
     def text_factory(self,Type):
         self.dbx.text_factory = Type

@@ -54,9 +54,12 @@ class cLiveSPOpt():
                         "FRANCE |", "").replace(
                         "\R", "").replace(
                         "(SERVER 1)","").replace(
+                        "\xe2\x80\x99","").replace(
+                        "\xc2\xa0"," ").replace(
                         "\xc3\xa9","e").replace(
                         "\xc3\x89","E").replace(
                         "\xc3\xa8","e").replace(
+                        "\xc3\xa7","c").replace(
                         "\xc3\x94","O").replace(
                         "¯", "-").replace(
                         ".", " ").replace(
@@ -64,6 +67,7 @@ class cLiveSPOpt():
                         "|", " ").replace(
                         "ALACART", "A LA CARTE").replace(
                         "ALACARTE", "A LA CARTE").replace(
+                        "A-LA-CARTE", "A LA CARTE").replace(
                         "&amp;","&").replace(
                         b64decode("W0NPTE9SIHJlZF0gTE9HQU4gVFZbL0NPTE9SXQ=="),"")
         
@@ -99,6 +103,7 @@ class cLiveSPOpt():
         try:
             DBxAmAx = db(dbxAmAx)
             DBxAmAx.Delete("UrlBouquet")
+            DBxAmAx.CreerTable(Table="UrlBouquet", colonnes="`IDUrlB` INTEGER PRIMARY KEY AUTOINCREMENT,`IdBouquet` INTEGER,`IDChaine` INTEGER,`Url` TEXT,`NomAffichChaine` TEXT")
         
             IdUrlChaine = 0
             for numTab in range(1,5):
@@ -149,6 +154,7 @@ class cLiveSPOpt():
                        '',
                        0,
                        False])
+        
         liste.append( ['Iptv Gratuit',
                        'http://iptvgratuit.com/tag/france-iptv/',
                        '<header class="entry-header">\s*<h2 class="entry-title">\s*<a href="(.+?)" rel="bookmark">(.+?)</a>',
@@ -174,79 +180,88 @@ class cLiveSPOpt():
         
         for Nom,Url,Re1,Re2,NumM3u,TelLien in liste:
             NbRecherche += 1
-            log('\t[PLUGIN] xAmAx-Mod: Recherche Liste de chaine '+str(Nom), LOGNOTICE)
-            #print "Recherche Liste de chaine "+str(Nom)
-            self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
-            sleep(0.5)
-            if Nom != "Iptv4Sat":
-                Retour2,Erreur2 = self.ListTv(Url,Re1,Re2,NumM3u,TelLien)
-                log('\t[PLUGIN] xAmAx-Mod: Nombre de résultat de la Liste de chaine '+str(len(Retour2)), LOGNOTICE)
-                #print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
-                if len(Retour2)>0 and Erreur2 == "OK":
+            if self.adn.getSetting(id="MajList"+str(NbRecherche))=="true":
+                log('\t[PLUGIN] xAmAx-Mod: Recherche Liste de chaine '+str(Nom), LOGNOTICE)
+                #print "Recherche Liste de chaine "+str(Nom)
+                self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
+                sleep(0.5)
+                if Nom != "Iptv4Sat":
+                    Retour2,Erreur2 = self.ListTv(Url,Re1,Re2,NumM3u,TelLien)
+                    log('\t[PLUGIN] xAmAx-Mod: Nombre de résultat de la Liste de chaine '+str(len(Retour2)), LOGNOTICE)
+                    #print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
+                    if len(Retour2)>0 and Erreur2 == "OK":
+                        try:
+                            DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                        except:
+                            pass
+                        DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
+                        for NomTv,UrlTV in Retour2:
+                            IdLP += 1
+                            DBxAmAx.Insert(Table="List"+str(NbRecherche),
+                                           Colonnes="IDLP,Nom,Url",
+                                           Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
+                    elif Erreur2!="OK":
+                        executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,'')")
+                else:
+                    Page = cDL().TelechargPage2(url=b64decode(Url))
+                    #print Page
+                    try: part = re.search("(?i)" + '<li class="zip">' + "([\S\s]+?)" + '</li>', Page).group(1)
+                    except: part = ''
+                    try: zip = re.search("(?i)" + 'href="' + "([\S\s]+?)" + '"', part).group(1)
+                    except: zip = ''
                     try:
-                        DBxAmAx.Delete(Table="List"+str(NbRecherche))
-                    except:
-                        pass
-                    DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
-                    for NomTv,UrlTV in Retour2:
-                        IdLP += 1
-                        DBxAmAx.Insert(Table="List"+str(NbRecherche),
-                                       Colonnes="IDLP,Nom,Url",
-                                       Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
-                elif Erreur2!="OK":
-                    executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,'')")
-            else:
-                Page = cDL().TelechargPage2(url=b64decode(Url))
-                #print Page
-                try: part = re.search("(?i)" + '<li class="zip">' + "([\S\s]+?)" + '</li>', Page).group(1)
-                except: part = ''
-                try: zip = re.search("(?i)" + 'href="' + "([\S\s]+?)" + '"', part).group(1)
-                except: zip = ''
-                try:
-                    udata= os.path.join(CheminxAmAx, "Telecharg")
-                    dest = os.path.join(udata, 'iptv4sat.zip')
-                    if not os.path.exists(udata):
-                        os.makedirs(udata)
-                    cDL().TelechargementZip(zip,dest,DPAff=False,Nom="Téléchargement Liste 1")
+                        udata= os.path.join(CheminxAmAx, "Telecharg")
+                        dest = os.path.join(udata, 'iptv4sat.zip')
+                        if not os.path.exists(udata):
+                            os.makedirs(udata)
+                        cDL().TelechargementZip(zip,dest,DPAff=False,Nom="Téléchargement Liste 1")
 
-                    from resources.ziptools import ziptools
-                    unzipper = ziptools()
-                    unzipper.extract(dest,udata)
-                
-                    os.remove(dest)
+                        from resources.ziptools import ziptools
+                        unzipper = ziptools()
+                        unzipper.extract(dest,udata)
                     
-                    dir = os.listdir(udata)
-                
-                    for a in dir:
-                        if a.endswith('.m3u'):
-                            print "Ouverture de :"+os.path.join(udata, a)
-                            with open(os.path.join(udata, a),'r') as fm3u:
-                                ListM3u = fm3u.read()
-                            Retour3 = self.TabM3u(ListM3u, True, True)
-                            os.remove(os.path.join(udata, a))
-                            log('\t[PLUGIN] xAmAx-Mod: Nombre de résultat de la Liste de chaine '+str(len(Retour3)), LOGNOTICE)
-                            #print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
-                            if len(Retour3)>0:
-                                try:
-                                    DBxAmAx.Delete(Table="List"+str(NbRecherche))
-                                except:
-                                    pass
-                                DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
-                                for NomTv,UrlTV in Retour3:
-                                    IdLP += 1
-                                    DBxAmAx.Insert(Table="List"+str(NbRecherche),
-                                                   Colonnes="IDLP,Nom,Url",
-                                                   Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
+                        os.remove(dest)
+                        
+                        dir = os.listdir(udata)
+                    
+                        for a in dir:
+                            if a.endswith('.m3u'):
+                                print "Ouverture de :"+os.path.join(udata, a)
+                                with open(os.path.join(udata, a),'r') as fm3u:
+                                    ListM3u = fm3u.read()
+                                Retour3 = self.TabM3u(ListM3u, True, True)
+                                os.remove(os.path.join(udata, a))
+                                log('\t[PLUGIN] xAmAx-Mod: Nombre de résultat de la Liste de chaine '+str(len(Retour3)), LOGNOTICE)
+                                #print "Nombre de résultat de la Liste de chaine "+str(len(Retour3))
+                                if len(Retour3)>0:
+                                    try:
+                                        DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                                    except:
+                                        pass
+                                    DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
+                                    for NomTv,UrlTV in Retour3:
+                                        IdLP += 1
+                                        DBxAmAx.Insert(Table="List"+str(NbRecherche),
+                                                       Colonnes="IDLP,Nom,Url",
+                                                       Valeurs=(IdLP,NomTv+" [COLOR gold]("+str(NbRecherche)+")[/COLOR]",UrlTV)) #+"&name="+NomTv))
+                                else:
+                                    executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+"Pas fichier dans la liste!"+",5000,'')")
                             else:
-                                executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+"Pas fichier dans la liste!"+",5000,'')")
-                        else:
-                            os.remove(os.path.join(udata, a))
-                    
-                except:
-                    executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+"Pas fichier dans la liste!"+", ,5000,'')")
+                                os.remove(os.path.join(udata, a))
+                        
+                    except:
+                        executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+"Pas fichier dans la liste!"+", ,5000,'')")
+            else:
+                DBxAmAx.Delete(Table="List"+str(NbRecherche))
+                DBxAmAx.CreerTable(Table="List"+str(NbRecherche), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
             DBxAmAx.FinEnregistrement()
             self.TotMaj = self.MajDiv*NbRecherche
             print "Telechargement de la liste de chaine:"+str(self.TotMaj)+"%"
+        if NbRecherche<4:
+            for i in range(NbRecherche+1,5):
+                DBxAmAx.Delete(Table="List"+str(i))
+                DBxAmAx.CreerTable(Table="List"+str(i), colonnes="`IDLP` INTEGER PRIMARY KEY AUTOINCREMENT, `Nom` TEXT, `Url` TEXT, `Entete` TEXT")
+            DBxAmAx.FinEnregistrement()
         self.dp.update(100, "Nombre de résultat sur les "+str(NbRecherche)+" listes de chaines: "+str(IdLP))
         sleep(1)
         self.dp.close()
