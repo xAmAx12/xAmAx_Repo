@@ -404,7 +404,8 @@ class menu():
             if not VRech.startswith("Erreur"):
                 VLspopt = self.adn.getSetting(id=NomMaj)
                 print "Version "+NomMaj+": "+VLspopt+" Version sur internet: "+VRech
-                if VLspopt!=str(VRech) or ForceMaj:
+                if ((int(VLspopt)!=int(VRech)) or (ForceMaj)):
+                    print "ForceMaj: "+str(ForceMaj)
                     return str(VRech)
                 else:
                     return ""
@@ -715,6 +716,7 @@ class menu():
                         print "Recherche auto de Mise a jour"
                         ret = self.RechMajAuto("MajV")
                         if not ret.startswith("Erreur"):
+                            print "Maj: "+ret
                             self.vertionMaj = ret
                             Retour = self.MajAuto(True)
                             dialog = xbmcgui.Dialog()
