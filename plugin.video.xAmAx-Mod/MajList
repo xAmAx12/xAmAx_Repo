@@ -3,7 +3,7 @@ xAmAxDB,.sql,resources/,1
 ChaineBouquet,.sql,resources/,1
 RegroupChaine,.sql,resources/,1
 settings,.xml,resources/,10
-DB,.py,resources/,7
+DB,.py,resources/,8
 vStreamOpt,.py,resources/,7
 LSPOpt,.py,resources/,20
 Telecharg,.py,resources/,5
@@ -13,4 +13,4 @@ Samba,.py,resources/,3
 Config,.py,resources/,2
 TestDebit,.py,resources/,2
 KodiMod,.py,resources/,2
-Menu,.py,resources/,15
+Menu,.py,resources/,16
