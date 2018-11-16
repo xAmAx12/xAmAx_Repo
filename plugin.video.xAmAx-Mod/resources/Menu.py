@@ -35,6 +35,7 @@ try:
     import resources.TestDebit as Debi
 except:
     Debi = None
+from datetime import datetime
 
 class menu():
 
@@ -447,9 +448,15 @@ class menu():
                         if len(tabAddon) == 1:
                             print '----Addon Activer : '+str(int(tabAddon[0][0]))
                             if Repo!="":
-                                db(os.path.join(path2, x)).Update(Colonnes="enabled`,`origin",Valeur="1,'"+Repo+"'",Where="addonID = '"+NomExt+"'")
+                                print "---repo: " + Repo
+                                db(os.path.join(path2, x)).Update(Colonnes="enabled = ?, origin = ?",Valeur=("1",Repo),Where="addonID = '"+NomExt+"'")
                             else:
                                 db(os.path.join(path2, x)).Update(Where="addonID = '"+NomExt+"'")
+                        else:
+                            db(os.path.join(path2, x)).Insert(Table="installed",
+                                                              Colonnes="addonID,enable,installDate,lastUpdated,lastUsed,origin",
+                                                              Valeurs=(NomExt,"1",datetime.now(),datetime.now(),datetime.now(),Repo))
+                            print '----Creation Addon Activer : '+NomExt
             except:
                 pass
             executebuiltin("UpdateLocalAddons")
@@ -582,7 +589,7 @@ class menu():
                     if params['ElemMenu']=="InstallvStream":
                         dialog = xbmcgui.Dialog()
                         if self.InstallExt("repository.vstream"):
-                            if self.InstallExt("plugin.video.vstream"):
+                            if self.InstallExt("plugin.video.vstream","repository.vstream"):
                                 ok = dialog.ok("Installation de vStream",
                                                "vStream et sont dépo ont était installer avec succés!",
                                                "Vous pourez profiter de mon menu Option de vStream une fois que vStream aura démarrer!")
