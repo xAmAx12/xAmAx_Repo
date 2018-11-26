@@ -2,7 +2,7 @@
 <settings>
     <category label="Mise à jour">
         <setting id="MajAuto" type="bool" label="Mise à jour automatique de xAmAx" default="true" />
-        <setting id="MajV" type="number" label="Mise A Jour auto version" default="0" />
+        <setting id="MajV" type="number" label="Mise A Jour auto version" default="22" />
         <setting id="default" type="number" label="Démarrage Version" default="0" />
         <setting id="Menu" type="number" label="Menu" default="0" />
         <setting id="DB" type="number" label="Base de donnée Version" default="0" />
@@ -20,7 +20,7 @@
         <setting id="KodiMod" type="number" label="Aide aux modifications de Kodi" default="0" />
         <setting id="xAmAxDB" type="number" label="Base de donnée" default="0" />
         <setting id="Adult" type="bool" label="Afficher le menu Plus" default="false"  visible="false" />
-        <setting id="stban" type="bool" label="Afficher le menu PC distant" default="false" visible="false" />
+        <setting id="stban" type="bool" label="Afficher le menu PC distant" default="false"  visible="false" />
     </category>
     <category label="Option de vStream">
         <setting id="AjoutNomSite" type="bool" label="Ajouter le nom du site dans le trie des Marques pages" default="false" />
