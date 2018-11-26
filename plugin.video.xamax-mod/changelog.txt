@@ -1,0 +1,30 @@
+=======================================================================================
+- Version 2.4.22 - 20.04.2018
+=======================================================================================
+   - Ajout du test de débit de votre connexion internet avec speedtest.net
+   - Amélioration de la recherche de chaînes TV
+
+=======================================================================================
+- Version 2.3.0 - 30.03.2018
+=======================================================================================
+   - Correction de l'installation automatique de F4m et de vStream
+   - Ajout du lancement du mode Débugage pour avoir plus d'information dans le journal
+   - Ajout de la création de liens dans le menu vidéo pour vStream et xAmAx-Mod
+   - Ajout du lancement de vStream dans le menu Options de vStream
+
+=======================================================================================
+- Version 2.2.0 - 11.03.2018
+=======================================================================================
+   - Ajout de l'installation automatique de F4m et de vStream
+   - Ajout d'une aide à la configuration des paramètres de connexion de kodi
+
+=======================================================================================
+- Version 2.1.0 - 14.01.2018
+=======================================================================================
+   - Ajout de recherche de chaînes tv si F4m est intaller dans kodi
+
+=======================================================================================
+- Version 1.1.0 - 16.12.2017
+=======================================================================================
+   - Mise en ligne de la première version
+

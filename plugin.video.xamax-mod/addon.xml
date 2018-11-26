@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.xamax-mod"
+       name="xAmAx-Mod"
+       version="2.4.31" 
+       provider-name="xAmAx">
+  <requires>
+  	<import addon="xbmc.python" version="2.14.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+  	<provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="fr">xAmAx-Mod</summary>
+    <description lang="fr">xAmAx-Mod est un module de modification ou de visualisation de plusieurs éléments de Kodi et de ces extensions!</description>
+    <summary lang="en">xAmAx-Mod</summary>
+    <description lang="en">xAmAx-Mod is a modification module and viewing multiple elements of Kodi and these extensions</description>
+    <platform>all</platform>
+  </extension>
+</addon>
