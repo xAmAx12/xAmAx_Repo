@@ -392,10 +392,10 @@ class menu():
                     dp.close()
                     return "Erreur mise a jour: "+str(sys.exc_info()[0])
             dp.close()
-            if not ForceMaj: self.adn.setSetting(id="MajV", value=self.vertionMaj)
+            if not ForceMaj: self.adn.setSetting(id="MajV", value=str(int(self.vertionMaj)))
             return "OK"
         else:
-            if not ForceMaj: self.adn.setSetting(id="MajV", value=self.vertionMaj)
+            if not ForceMaj: self.adn.setSetting(id="MajV", value=str(int(self.vertionMaj)))
             return "OK"
         
     def RechMajAuto(self,NomMaj,resources="",ForceMaj=False):
