@@ -276,7 +276,7 @@ class cLiveSPOpt():
                 Nom = self.ConvNom(Nom)
             Url=Url.split("|")[0].replace("\r", "")
             if F4m==True:
-                if (".ts" in Url):
+                if (not ".m3u8" in Url):
                     Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(AjoutHttp+Url+AjoutFin),urlib.quote(Nom)) #&name=%s ,Nom
                 else:
                     Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=HLSRETRY&name=%s'%(urlib.quote_plus(AjoutHttp+Url+AjoutFin),urlib.quote(Nom)) #&name=%s ,Nom
