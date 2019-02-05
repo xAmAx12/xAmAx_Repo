@@ -148,18 +148,18 @@ class cLiveSPOpt():
         IdLP = 0
 
         liste = []
-        liste.append( ['Iptv4Sat',
+        """liste.append( ['Iptv4Sat',
                        "aHR0cHM6Ly93d3cuaXB0djRzYXQuY29tL3RlbGVjaGFyZ2VyLWlwdHYtZnJhbmNlLw==",
                        "",
                        '',
                        0,
-                       False])
+                       False])"""
         
         liste.append( ['Iptv Gratuit',
                        'http://iptvgratuit.com/tag/france-iptv/',
                        '<header class="entry-header">\s*<h2 class="entry-title">\s*<a href="(.+?)" rel="bookmark">(.+?)</a>',
-                       '<strong>2. Cliquez sur le lien pour télécharger la liste des chaînes .+?</strong></p><h4><a class="more-link" title="(.+?)" href="(.+?)" target="_blank"',
-                       1,
+                       '<h4><a class="more-link" title="(.+?)" href="(.+?)" target="_blank"',
+                       0,
                        True])
         
         NbMaj=len(liste)
@@ -186,7 +186,7 @@ class cLiveSPOpt():
                 self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
                 sleep(0.5)
                 if Nom != "Iptv4Sat":
-                    Retour2,Erreur2 = self.ListTv(Url,Re1,Re2,NumM3u,TelLien)
+                    Retour2,Erreur2 = self.ListTv(Url,Re1,Re2,NumM3u,TelLien,CheminxAmAx)
                     log('\t[PLUGIN] xAmAx-Mod: Nombre de résultat de la Liste de chaine '+str(len(Retour2)), LOGNOTICE)
                     #print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
                     if len(Retour2)>0 and Erreur2 == "OK":
@@ -299,7 +299,7 @@ class cLiveSPOpt():
                     ret = self.TabM3u(M3u, F4m, cvNom)
         return ret
 
-    def ListTv(self,Adress,Re1,Re2,NumM3u,TelLien):
+    def ListTv(self,Adress,Re1,Re2,NumM3u,TelLien,CheminxAmAx=""):
         Cmp=0
         ListeRet = []
         try:
@@ -318,9 +318,32 @@ class cLiveSPOpt():
             if len(TabLien2)>0:
                 #print str(TabLien2)
                 if TelLien:
-                    ret2 = cDL().TelechargPage(url=TabLien2[0][NumM3u])
-                    #print ret2
-                    ListeRet = self.TabM3u(ret2, F4m=True, cvNom=True)
+                    if TabLien2[0][1][-4:]==".zip":
+                        udata= os.path.join(CheminxAmAx, "Telecharg")
+                        dest = os.path.join(udata, 'm3u.zip')
+                        if not os.path.exists(udata):
+                            os.makedirs(udata)
+                        cDL().TelechargementZip(TabLien2[0][1],dest,DPAff=False,Nom="Téléchargement Liste")
+
+                        from resources.ziptools import ziptools
+                        unzipper = ziptools()
+                        unzipper.extract(dest,udata)
+                    
+                        os.remove(dest)
+                        
+                        dir = os.listdir(udata)
+                    
+                        for a in dir:
+                            if a.endswith('.m3u'):
+                                print "Ouverture de :"+os.path.join(udata, a)
+                                with open(os.path.join(udata, a),'r') as fm3u:
+                                    ListM3u = fm3u.read()
+                                ListeRet = self.TabM3u(ListM3u, True, True)
+                                os.remove(os.path.join(udata, a))
+                    else:
+                        ret2 = cDL().TelechargPage(url=TabLien2[0][NumM3u])
+                        print ret2
+                        ListeRet = self.TabM3u(ret2, F4m=True, cvNom=True)
                 else:
                     #print TabLien2[0]
                     ret2 = TabLien2[0].replace('<br />','')
