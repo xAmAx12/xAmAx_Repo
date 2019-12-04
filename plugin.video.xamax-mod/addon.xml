@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.xamax-mod"
+<addon id="plugin.video.xAmAx-Mod"
        name="xAmAx-Mod"
        version="2.4.31" 
        provider-name="xAmAx">
@@ -16,4 +16,5 @@
     <description lang="en">xAmAx-Mod is a modification module and viewing multiple elements of Kodi and these extensions</description>
     <platform>all</platform>
   </extension>
+  <extension point="xbmc.service" library="resources/demarrage.py" />
 </addon>
