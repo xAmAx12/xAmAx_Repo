@@ -148,19 +148,19 @@ class cLiveSPOpt():
         IdLP = 0
 
         liste = []
-        """liste.append( ['Iptv4Sat',
-                       "aHR0cHM6Ly93d3cuaXB0djRzYXQuY29tL3RlbGVjaGFyZ2VyLWlwdHYtZnJhbmNlLw==",
-                       "",
+        liste.append( ['Iptv4Sat',
+                       "https://www.iptv4sat.com/dl-iptv-french/",
+                       '"https://www.iptv4sat.com/download-attachment/([^"]+)".+?class="attachment-caption">([^<]+)<',
                        '',
                        0,
-                       False])"""
+                       False])
         
-        liste.append( ['Iptv Gratuit',
-                       'http://iptvgratuit.com/tag/france-iptv/',
-                       '<header class="entry-header">\s*<h2 class="entry-title">\s*<a href="(.+?)" rel="bookmark">(.+?)</a>',
-                       '<h4><a class="more-link" title="(.+?)" href="(.+?)" target="_blank"',
+        """liste.append( ['Iptv Gratuit',
+                       'https://iptvgratuit.com/iptv-france/',
+                       '<h2 class="entry-title"><a href="(.+?)" rel="bookmark">(.+?)</a>',
+                       '<a class="more-link" title="(.+?)".+?href="(.+?)"',
                        0,
-                       True])
+                       False])"""
         
         NbMaj=len(liste)
 
@@ -203,19 +203,23 @@ class cLiveSPOpt():
                     elif Erreur2!="OK":
                         executebuiltin("XBMC.Notification(Mise à jour Liste TV "+str(NbRecherche)+" Impossible!!! ,"+Erreur2+",5000,'')")
                 else:
-                    Page = cDL().TelechargPage2(url=b64decode(Url))
+                    Page = cDL().TelechargPage2(url=Url)
                     #print Page
-                    try: part = re.search("(?i)" + '<li class="zip">' + "([\S\s]+?)" + '</li>', Page).group(1)
+                    try: part = re.compile(Re1, re.I+re.M+re.S).findall(self.ConvText(Page))
                     except: part = ''
-                    try: zip = re.search("(?i)" + 'href="' + "([\S\s]+?)" + '"', part).group(1)
+                    log('\t[PLUGIN] xAmAx-Mod: part = '+str(part), LOGNOTICE)
+                    try: zip = 'https://www.iptv4sat.com/download-attachment/' + str(part[0][0][:-1]) #).group(1)
                     except: zip = ''
+                    #Page = cDL().TelechargPage2(url=Url)
+                    #log('\t[PLUGIN] xAmAx-Mod: page = '+self.ConvText(Page), LOGNOTICE)
                     try:
                         udata= os.path.join(CheminxAmAx, "Telecharg")
                         dest = os.path.join(udata, 'iptv4sat.zip')
                         if not os.path.exists(udata):
                             os.makedirs(udata)
                         cDL().TelechargementZip(zip,dest,DPAff=False,Nom="Téléchargement Liste 1")
-
+                        #Page = cDL().TelechargPage2(url=Url)
+                        #log('\t[PLUGIN] xAmAx-Mod: page = '+self.ConvText(Page), LOGNOTICE)
                         from resources.ziptools import ziptools
                         unzipper = ziptools()
                         unzipper.extract(dest,udata)
@@ -307,7 +311,7 @@ class cLiveSPOpt():
             ret2 = cDL().TelechargPage(url=Adress)
             #print ret2
             TabLien = re.compile(Re1, re.I+re.M+re.S).findall(self.ConvText(ret2))
-            #print TabLien
+            print TabLien
             TabLien2 = []
             for Url, Nom in TabLien:
                 if (("France" in Nom)): # or ("French" in Nom)):
@@ -316,7 +320,7 @@ class cLiveSPOpt():
                     TabLien2 = re.compile(Re2, re.I+re.M+re.S).findall(self.ConvText(ret2))
                     break
             if len(TabLien2)>0:
-                #print str(TabLien2)
+                print str(TabLien2)
                 if TelLien:
                     if TabLien2[0][1][-4:]==".zip":
                         udata= os.path.join(CheminxAmAx, "Telecharg")
