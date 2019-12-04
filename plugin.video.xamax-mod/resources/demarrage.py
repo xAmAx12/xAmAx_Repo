@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-import xbmc,xbmcgui
+import xbmc,xbmcgui,xbmcvfs
 import subprocess,os
 from time import sleep
 
@@ -79,7 +79,28 @@ MemoInfo = None
 MemoTitle = None
 MemoOriginTitle = None
 
-while(1):
+cached_Cache = "special://home/userdata/addon_data/plugin.video.vstream/video_cache.db"
+#self.ClearDir2(cached_Cache, True)
+try:
+    xbmcvfs.delete(cached_Cache)
+except:
+    xbmc.log("\t[PLUGIN] xAmAx-Mod: Erreur de nettoyage de la cache de vstream", xbmc.LOGNOTICE)
+
+path = "special://temp/archive_cache/"
+try:
+    xbmcvfs.rmdir(path, True)
+except:
+    pass
+
+"""path = "special://temp/"
+try:
+    xbmcvfs.rmdir(path, True)
+except:
+    pass"""
+
+xbmc.log("\t[PLUGIN] xAmAx-Mod: Démarrer", xbmc.LOGNOTICE)
+
+"""while(1):
     if xbmc.Player().isPlaying():
         if xbmc.Player().isPlayingVideo():
             VIDEO = 1
@@ -105,5 +126,5 @@ while(1):
     else:
         VIDEO = 0
     xbmc.sleep(3000)
-
+"""
 
