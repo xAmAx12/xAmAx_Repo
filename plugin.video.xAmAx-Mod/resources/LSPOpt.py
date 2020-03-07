@@ -69,7 +69,8 @@ class cLiveSPOpt():
                         "ALACARTE", "A LA CARTE").replace(
                         "A-LA-CARTE", "A LA CARTE").replace(
                         "&amp;","&").replace(
-                        b64decode("W0NPTE9SIHJlZF0gTE9HQU4gVFZbL0NPTE9SXQ=="),"")
+                        b64decode("W0NPTE9SIHJlZF0gTE9HQU4gVFZbL0NPTE9SXQ=="),"").replace(
+                        "\r","")
         
         if NomRet.startswith("FR "): NomRet = NomRet[3:]
         while 1:
@@ -148,19 +149,19 @@ class cLiveSPOpt():
         IdLP = 0
 
         liste = []
-        liste.append( ['Iptv4Sat',
-                       "https://www.iptv4sat.com/dl-iptv-french/",
+        """liste.append( ['Iptv4Sat',
+                       "https://www.iptv4sat.com/category/france-m3u-iptv/",
                        '"https://www.iptv4sat.com/download-attachment/([^"]+)".+?class="attachment-caption">([^<]+)<',
                        '',
                        0,
-                       False])
+                       False])"""
         
-        """liste.append( ['Iptv Gratuit',
-                       'https://iptvgratuit.com/iptv-france/',
+        liste.append( ['Iptv Gratuit',
+                       'https://iptvgratuit.com/france/',
                        '<h2 class="entry-title"><a href="(.+?)" rel="bookmark">(.+?)</a>',
                        '<a class="more-link" title="(.+?)".+?href="(.+?)"',
-                       0,
-                       False])"""
+                       1,
+                       True])
         
         NbMaj=len(liste)
 
@@ -186,10 +187,12 @@ class cLiveSPOpt():
                 self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
                 sleep(0.5)
                 if Nom != "Iptv4Sat":
+                    
                     Retour2,Erreur2 = self.ListTv(Url,Re1,Re2,NumM3u,TelLien,CheminxAmAx)
                     log('\t[PLUGIN] xAmAx-Mod: Nombre de résultat de la Liste de chaine '+str(len(Retour2)), LOGNOTICE)
                     #print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
                     if len(Retour2)>0 and Erreur2 == "OK":
+                        log('\t[PLUGIN] xAmAx-Mod: Liste de chaine '+str(Retour2), LOGNOTICE)
                         try:
                             DBxAmAx.Delete(Table="List"+str(NbRecherche))
                         except:
@@ -278,15 +281,16 @@ class cLiveSPOpt():
         for Par, Nom , Url in TabM3u :
             if cvNom==True:
                 Nom = self.ConvNom(Nom)
-            Url=Url.split("|")[0].replace("\r", "")
-            if F4m==True:
-                if (not ".m3u8" in Url):
-                    Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(AjoutHttp+Url+AjoutFin),urlib.quote(Nom)) #&name=%s ,Nom
-                else:
-                    Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=HLSRETRY&name=%s'%(urlib.quote_plus(AjoutHttp+Url+AjoutFin),urlib.quote(Nom)) #&name=%s ,Nom
-                    
-            DicM3u = (Nom,Url)
-            ret.append(DicM3u)
+            if Url != "":
+                Url=Url.split("|")[0].replace("\r", "")
+                if F4m==True:
+                    if (not ".m3u8" in Url):
+                        Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=TSDOWNLOADER&name=%s'%(urlib.quote_plus(AjoutHttp+Url+AjoutFin),urlib.quote(Nom)) #&name=%s ,Nom
+                    else:
+                        Url='plugin://plugin.video.f4mTester/?url=%s&amp;streamtype=HLSRETRY&name=%s'%(urlib.quote_plus(AjoutHttp+Url+AjoutFin),urlib.quote(Nom)) #&name=%s ,Nom
+                        
+                DicM3u = (Nom,Url)
+                ret.append(DicM3u)
         return ret
 
     def LireM3u(self, CheminxAmAx, F4m=False, cvNom=True):
@@ -311,43 +315,48 @@ class cLiveSPOpt():
             ret2 = cDL().TelechargPage(url=Adress)
             #print ret2
             TabLien = re.compile(Re1, re.I+re.M+re.S).findall(self.ConvText(ret2))
+            log('\t[PLUGIN] xAmAx-Mod: TabLien '+str(len(TabLien)), LOGNOTICE)
             print TabLien
             TabLien2 = []
             for Url, Nom in TabLien:
                 if (("France" in Nom)): # or ("French" in Nom)):
                     ret2 = cDL().TelechargPage(url=Url)
+                    log('\t[PLUGIN] xAmAx-Mod: ok ', LOGNOTICE)
                     #print ret2
                     TabLien2 = re.compile(Re2, re.I+re.M+re.S).findall(self.ConvText(ret2))
                     break
+            log('\t[PLUGIN] xAmAx-Mod: TabLien2 '+str(TabLien2), LOGNOTICE)
             if len(TabLien2)>0:
                 print str(TabLien2)
                 if TelLien:
-                    if TabLien2[0][1][-4:]==".zip":
-                        udata= os.path.join(CheminxAmAx, "Telecharg")
-                        dest = os.path.join(udata, 'm3u.zip')
-                        if not os.path.exists(udata):
-                            os.makedirs(udata)
-                        cDL().TelechargementZip(TabLien2[0][1],dest,DPAff=False,Nom="Téléchargement Liste")
+                    udata= os.path.join(CheminxAmAx, "Telecharg")
+                    dest = os.path.join(udata, 'm3u.zip')
+                    if not os.path.exists(udata):
+                        os.makedirs(udata)
+                    cDL().TelechargementZip(TabLien2[0][1],dest,DPAff=False,Nom="Téléchargement Liste")
 
-                        from resources.ziptools import ziptools
-                        unzipper = ziptools()
-                        unzipper.extract(dest,udata)
+                    from resources.ziptools import ziptools
+                    unzipper = ziptools()
+                    unzipper.extract(dest,udata)
+                
+                    os.remove(dest)
                     
-                        os.remove(dest)
-                        
-                        dir = os.listdir(udata)
-                    
-                        for a in dir:
-                            if a.endswith('.m3u'):
-                                print "Ouverture de :"+os.path.join(udata, a)
-                                with open(os.path.join(udata, a),'r') as fm3u:
-                                    ListM3u = fm3u.read()
-                                ListeRet = self.TabM3u(ListM3u, True, True)
-                                os.remove(os.path.join(udata, a))
-                    else:
+                    dir = os.listdir(udata)
+                
+                    for a in dir:
+                        if a.endswith('.m3u'):
+                            log('\t[PLUGIN] xAmAx-Mod: Ouverture de :'+os.path.join(udata, a), LOGNOTICE)
+                            print "Ouverture de :"+os.path.join(udata, a)
+                            with open(os.path.join(udata, a),'r') as fm3u:
+                                ListM3u = fm3u.read()
+                            ListeRet = ListeRet + self.TabM3u(ListM3u, True, True)
+                            #log('\t[PLUGIN] xAmAx-Mod: liste M3U '+str(ListeRet), LOGNOTICE)
+                            os.remove(os.path.join(udata, a))
+                    """else:
                         ret2 = cDL().TelechargPage(url=TabLien2[0][NumM3u])
                         print ret2
-                        ListeRet = self.TabM3u(ret2, F4m=True, cvNom=True)
+                        log('\t[PLUGIN] xAmAx-Mod: liste '+str(ret2), LOGNOTICE)
+                        ListeRet = self.TabM3u(ret2, F4m=True, cvNom=True)"""
                 else:
                     #print TabLien2[0]
                     ret2 = TabLien2[0].replace('<br />','')
