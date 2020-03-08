@@ -182,15 +182,15 @@ class cLiveSPOpt():
         for Nom,Url,Re1,Re2,NumM3u,TelLien in liste:
             NbRecherche += 1
             if self.adn.getSetting(id="MajList"+str(NbRecherche))=="true":
-                log('\t[PLUGIN] xAmAx-Mod: Recherche Liste de chaine '+str(Nom), LOGNOTICE)
-                #print "Recherche Liste de chaine "+str(Nom)
+                #log('\t[PLUGIN] xAmAx-Mod: Recherche Liste de chaine '+str(Nom), LOGNOTICE)
+                print "Recherche Liste de chaine "+str(Nom)
                 self.dp.update(self.TotMaj,"Recherche Liste de chaine "+str(NbRecherche))
                 sleep(0.5)
                 if Nom != "Iptv4Sat":
                     
                     Retour2,Erreur2 = self.ListTv(Url,Re1,Re2,NumM3u,TelLien,CheminxAmAx)
-                    log('\t[PLUGIN] xAmAx-Mod: Nombre de résultat de la Liste de chaine '+str(len(Retour2)), LOGNOTICE)
-                    #print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
+                    #log('\t[PLUGIN] xAmAx-Mod: Nombre de résultat de la Liste de chaine '+str(len(Retour2)), LOGNOTICE)
+                    print "Nombre de résultat de la Liste de chaine "+str(len(Retour2))
                     if len(Retour2)>0 and Erreur2 == "OK":
                         log('\t[PLUGIN] xAmAx-Mod: Liste de chaine '+str(Retour2), LOGNOTICE)
                         try:
@@ -210,7 +210,7 @@ class cLiveSPOpt():
                     #print Page
                     try: part = re.compile(Re1, re.I+re.M+re.S).findall(self.ConvText(Page))
                     except: part = ''
-                    log('\t[PLUGIN] xAmAx-Mod: part = '+str(part), LOGNOTICE)
+                    #log('\t[PLUGIN] xAmAx-Mod: part = '+str(part), LOGNOTICE)
                     try: zip = 'https://www.iptv4sat.com/download-attachment/' + str(part[0][0][:-1]) #).group(1)
                     except: zip = ''
                     #Page = cDL().TelechargPage2(url=Url)
@@ -277,6 +277,8 @@ class cLiveSPOpt():
 
     def TabM3u(self,FichierTxt, F4m=False, cvNom=True,reComp='^#.+?:-?[0-9]*(.*?),(.*?)\n(.*?)\n',AjoutHttp="",AjoutFin=""):
         ret = []
+        FichierTxt = FichierTxt.replace("\r","").replace("\t","").replace("\n\n\n\n","\n").replace("\n\n\n","\n").replace("\n\n","\n")
+        #log('\t[PLUGIN] xAmAx-Mod: FichierTxt: '+FichierTxt, LOGNOTICE)
         TabM3u = re.compile(reComp, re.I+re.M+re.U+re.S).findall(FichierTxt)
         for Par, Nom , Url in TabM3u :
             if cvNom==True:
@@ -315,17 +317,16 @@ class cLiveSPOpt():
             ret2 = cDL().TelechargPage(url=Adress)
             #print ret2
             TabLien = re.compile(Re1, re.I+re.M+re.S).findall(self.ConvText(ret2))
-            log('\t[PLUGIN] xAmAx-Mod: TabLien '+str(len(TabLien)), LOGNOTICE)
+            #log('\t[PLUGIN] xAmAx-Mod: TabLien '+str(len(TabLien)), LOGNOTICE)
             print TabLien
             TabLien2 = []
             for Url, Nom in TabLien:
                 if (("France" in Nom)): # or ("French" in Nom)):
                     ret2 = cDL().TelechargPage(url=Url)
-                    log('\t[PLUGIN] xAmAx-Mod: ok ', LOGNOTICE)
                     #print ret2
                     TabLien2 = re.compile(Re2, re.I+re.M+re.S).findall(self.ConvText(ret2))
                     break
-            log('\t[PLUGIN] xAmAx-Mod: TabLien2 '+str(TabLien2), LOGNOTICE)
+            #log('\t[PLUGIN] xAmAx-Mod: TabLien2 '+str(TabLien2), LOGNOTICE)
             if len(TabLien2)>0:
                 print str(TabLien2)
                 if TelLien:
